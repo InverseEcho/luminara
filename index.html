@@ -8724,6 +8724,33 @@
         teal: { main: "#14b8a6", hover: "#0d9488" }
       };
 
+      function updateFavicon() {
+        var root = document.documentElement;
+        var primary500 = getComputedStyle(root).getPropertyValue('--primary-500').trim() || '#3396ff';
+        var primary600 = getComputedStyle(root).getPropertyValue('--primary-600').trim() || '#2978cc';
+        
+        // Circular gradient + sparkle symbol matching Luminara AI motif
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">' +
+                  '  <defs>' +
+                  '    <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
+                  '      <stop offset="0%" stop-color="' + primary500 + '"/>' +
+                  '      <stop offset="100%" stop-color="' + primary600 + '"/>' +
+                  '    </linearGradient>' +
+                  '  </defs>' +
+                  '  <circle cx="16" cy="16" r="16" fill="url(#favGrad)"/>' +
+                  '  <path d="M16 6 Q16 16 6 16 Q16 16 16 26 Q16 16 26 16 Q16 16 16 6 Z" fill="#ffffff"/>' +
+                  '</svg>';
+                  
+        var link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          document.getElementsByTagName('head')[0].appendChild(link);
+        }
+        link.setAttribute('href', 'data:image/svg+xml;utf8,' + encodeURIComponent(svg));
+      }
+      window.updateFavicon = updateFavicon;
+
       function applyAccentColor(colorName, skipSave) {
         if (colorName === 'custom') {
           applyAccentColorCustom(customAccentColor, skipSave);
@@ -8763,6 +8790,7 @@
         var overlay = document.getElementById("custom-accent-overlay");
         if (overlay) overlay.style.display = 'block';
         if (!skipSave) saveState();
+        updateFavicon();
       }
 
       window.applyAccentColorCustom = function(color, skipSave) {
@@ -8791,6 +8819,7 @@
         if (overlay) overlay.style.display = 'none';
 
         if (!skipSave) saveState();
+        updateFavicon();
       };
       window.applyAccentColor = applyAccentColor;
 
