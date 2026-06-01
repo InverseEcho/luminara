@@ -1,7 +1,8 @@
+<!doctype html> <!-- I'm just going to keep this here from now on -->
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Luminara — AI Roleplay</title>
 
     <style>
@@ -375,7 +376,7 @@
       textarea,
       select {
         font-family: inherit;
-        font-size: inherit;
+        font-size: 16px;
         color: inherit;
         border: none;
         outline: none;
@@ -5951,8 +5952,9 @@
       }
 
       .bulk-action-btn {
-        min-width: 88px;
-        padding: 10px 14px;
+        min-width: unset;
+        padding: 7px 12px;
+        font-size: 13px;
         border-radius: 999px;
         border: 1px solid var(--background-300);
         background: var(--background-200);
@@ -5998,8 +6000,13 @@
       .bulk-btns {
         display: flex;
         align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .bulk-btns::-webkit-scrollbar {
+        display: none;
       }
 
       .bulk-btns button:disabled {
