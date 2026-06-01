@@ -1,4 +1,4 @@
-<!doctype html> <!-- I'm just going to keep this here from now on -->
+<!doctype html> 
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,88 @@
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
       @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css"); /* bootstrap icon*/
+
+      .lorebook-entry {
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        padding: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transition: border-color var(--trans-hover), box-shadow var(--trans-hover);
+      }
+      .lorebook-entry:hover {
+        border-color: color-mix(in srgb, var(--primary) 50%, var(--border));
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      }
+      .lorebook-entry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+      }
+      .lorebook-entry-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--t1);
+        letter-spacing: 0.5px;
+      }
+      .lorebook-entry-title i {
+        color: var(--primary);
+        font-size: 16px;
+      }
+      .lorebook-delete-btn {
+        background: rgba(255, 77, 77, 0.08);
+        color: #ff4d4d;
+        border: 1px solid rgba(255, 77, 77, 0.15);
+        border-radius: var(--r-sm);
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all var(--trans-hover);
+      }
+      .lorebook-delete-btn:hover {
+        background: #ff4d4d;
+        color: #fff;
+      }
+      .lorebook-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        text-align: center;
+        border: 2px dashed var(--border);
+        border-radius: var(--r-lg);
+        color: var(--t3);
+        gap: 12px;
+        background: var(--bg-2);
+      }
+      .lorebook-empty i {
+        font-size: 32px;
+        opacity: 0.7;
+      }
+      .lorebook-empty-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--t2);
+      }
+      .lorebook-empty-desc {
+        font-size: 13px;
+        max-width: 260px;
+        line-height: 1.5;
+        color: var(--t3);
+      }
 
       /* ═══════════════════════════════
          THEME TOKENS
@@ -2968,15 +3050,27 @@
       .modal-tabs::-webkit-scrollbar {
         display: none;
       }
+      .modal-tabs::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: var(--active-left, 0px);
+        width: var(--active-width, 0px);
+        height: 2px;
+        background: var(--primary);
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        border-radius: 2px 2px 0 0;
+      }
       .modal-tab {
         padding: 11px 15px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
         color: var(--t3);
         cursor: pointer;
         white-space: nowrap;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 5px;
         position: relative;
         letter-spacing: 0.3px;
@@ -2986,33 +3080,11 @@
         color: var(--t1);
       }
       .modal-tab.active {
-        color: var(--secondary);
-      }
-      .modal-tab.active::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--secondary);
-        border-radius: 2px 2px 0 0;
-        box-shadow: 0 0 8px var(--secondary-glow);
+        color: var(--primary);
       }
       .modal-tab:active {
-        transform: scale(0.94);
+        transform: scale(0.96);
         transition-duration: var(--dur-micro);
-      }
-      .tab-dot {
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: var(--secondary);
-        opacity: 0;
-        transition: opacity var(--trans-hover);
-      }
-      .tab-dot.on {
-        opacity: 1;
       }
       .modal-body {
         flex: 1;
@@ -6663,10 +6735,10 @@
             class="modal-tab active"
             onclick="switchCharTab('char-tab-general')"
           >
-            General<span class="tab-dot" id="tab-dot-general"></span>
+            General
           </div>
           <div class="modal-tab" onclick="switchCharTab('char-tab-ai')">
-            AI Persona<span class="tab-dot" id="tab-dot-ai"></span>
+            AI Persona
           </div>
           <div class="modal-tab" onclick="switchCharTab('char-tab-lore')">
             Lorebook
@@ -8884,6 +8956,24 @@
         });
         document.querySelectorAll('.sb-tabs').forEach(function (seg) {
           var active = seg.querySelector('.sb-tab.active');
+          if (active) {
+            var left = active.offsetLeft;
+            var width = active.offsetWidth;
+            var cacheKey = left + '-' + width;
+            if (lastActiveLeftMap.get(seg) !== cacheKey) {
+              lastActiveLeftMap.set(seg, cacheKey);
+              seg.style.setProperty('--active-left', left + 'px');
+              seg.style.setProperty('--active-width', width + 'px');
+            }
+          } else {
+            if (lastActiveLeftMap.get(seg) !== 'none') {
+              lastActiveLeftMap.set(seg, 'none');
+              seg.style.setProperty('--active-width', '0px');
+            }
+          }
+        });
+        document.querySelectorAll('.modal-tabs').forEach(function (seg) {
+          var active = seg.querySelector('.modal-tab.active');
           if (active) {
             var left = active.offsetLeft;
             var width = active.offsetWidth;
@@ -12200,14 +12290,7 @@
         });
         var pane = document.getElementById(tabId);
         if (pane) pane.classList.add("active");
-        var nv = $id("char-name") ? $id("char-name").value.trim() : "";
-        var sv = $id("char-system-prompt")
-          ? $id("char-system-prompt").value.trim()
-          : "";
-        var tdg = $id("tab-dot-general"),
-          tda = $id("tab-dot-ai");
-        if (tdg) tdg.classList.toggle("on", !!nv);
-        if (tda) tda.classList.toggle("on", !!sv);
+        setTimeout(syncAllSegIndicators, 10);
       }
 
       function deleteChar(id) {
@@ -18356,10 +18439,10 @@
 
         if (tempLorebook.length === 0) {
           container.innerHTML =
-            '<div style="display:flex;flex-direction:column;align-items:center;padding:35px 15px;text-align:center;border:1.5px dashed var(--border);border-radius:var(--r-md);color:var(--t3);gap:10px;">' +
-            '<i class="bi bi-journal-text" style="font-size:24px;color:var(--t3)"></i>' +
-            '<div style="font-size:13.5px;font-weight:600;color:var(--t2);">No Lorebook Entries</div>' +
-            '<div style="font-size:11.5px;max-width:240px;line-height:1.4;">Add key terms description that will prompt the AI memory when mentioned in discussion.</div>' +
+            '<div class="lorebook-empty">' +
+            '<i class="bi bi-journal-text"></i>' +
+            '<div class="lorebook-empty-title">No Lorebook Entries</div>' +
+            '<div class="lorebook-empty-desc">Add key terms description that will prompt the AI memory when mentioned in discussion.</div>' +
             "</div>";
           return;
         }
@@ -18367,43 +18450,30 @@
         container.innerHTML = "";
         tempLorebook.forEach(function (entry, idx) {
           var item = document.createElement("div");
-          item.className = "settings-group";
-          item.style.padding = "14px";
-          item.style.display = "flex";
-          item.style.flexDirection = "column";
-          item.style.gap = "10px";
-          item.style.background = "var(--bg-raised)";
-          item.style.border = "1px solid var(--border)";
-          item.style.borderRadius = "var(--r-md)";
-          item.style.margin = "0 0 4px 0";
-          item.style.boxShadow = "var(--shadow-sm)";
+          item.className = "lorebook-entry";
 
           item.innerHTML =
-            '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:2px;">' +
-            '<div style="display:flex;align-items:center;gap:6px">' +
-            '<i class="bi bi-journal-bookmark-fill" style="color:var(--primary);font-size:12px;"></i>' +
-            '<span style="font-size:11.5px;font-weight:700;text-transform:uppercase;color:var(--t2);letter-spacing:0.5px;">Entry #' +
-            (idx + 1) +
-            "</span>" +
+            '<div class="lorebook-entry-header">' +
+            '<div class="lorebook-entry-title">' +
+            '<i class="bi bi-journal-bookmark-fill"></i>' +
+            '<span>Entry #' + (idx + 1) + "</span>" +
             "</div>" +
-            '<button type="button" class="btn btn-danger" onclick="deleteLorebookEntryUI(' +
-            idx +
-            ')" style="padding:4px 8px;min-height:24px;font-size:11px;gap:4px;border-radius:var(--r-sm);width:auto;font-weight:600;display:inline-flex;align-items:center;">' +
-            '<i class="bi bi-trash-fill" style="font-size:11px;"></i>Delete</button>' +
+            '<button type="button" class="lorebook-delete-btn" onclick="deleteLorebookEntryUI(' + idx + ')">' +
+            '<i class="bi bi-trash-fill"></i>Delete</button>' +
             "</div>" +
-            '<div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;gap:5px;">' +
-            '<label class="form-label" style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:0;">Trigger Keywords <span style="text-transform:none;color:var(--t3);font-weight:400;font-size:10px;">(comma-separated)</span></label>' +
+            '<div class="form-group" style="margin-bottom:0;">' +
+            '<label class="form-label" style="font-size:12px;font-weight:600;color:var(--t1);display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px;">Trigger Keywords <span style="text-transform:none;color:var(--t3);font-weight:400;font-size:11px;">(comma-separated)</span></label>' +
             '<input type="text" class="form-input lore-keys-input" value="' +
             escHtml(entry.keys || "") +
-            '" placeholder="e.g. excalibur, sword, holy weapon" oninput="updateLorebookEntryKeys(' +
+            '" placeholder="e.g. magic, sword, location" oninput="updateLorebookEntryKeys(' +
             idx +
-            ', this.value)" style="padding:8px 12px;font-size:13px;border-radius:var(--r-sm);background:var(--bg-app);border:1.5px solid var(--border);width:100%;box-sizing:border-box;"/>' +
+            ', this.value)" style="padding:10px 12px;font-size:13px;border-radius:var(--r-sm);width:100%;box-sizing:border-box;background:var(--bg-app);"/>' +
             "</div>" +
-            '<div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;gap:5px;">' +
-            '<label class="form-label" style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:0;">Memory Content <span style="text-transform:none;color:var(--t3);font-weight:400;font-size:10px;">(injected if trigger matches)</span></label>' +
+            '<div class="form-group" style="margin-bottom:0;">' +
+            '<label class="form-label" style="font-size:12px;font-weight:600;color:var(--t1);display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px;">Memory Content <span style="text-transform:none;color:var(--t3);font-weight:400;font-size:11px;">(injected if trigger matches)</span></label>' +
             '<textarea class="form-textarea lore-content-input" placeholder="Explain what the AI should remember about this topic..." oninput="updateLorebookEntryContent(' +
             idx +
-            ', this.value)" style="min-height:75px;font-size:13px;padding:8px 12px;line-height:1.5;border-radius:var(--r-sm);background:var(--bg-app);border:1.5px solid var(--border);resize:vertical;width:100%;box-sizing:border-box;">' +
+            ', this.value)" style="min-height:90px;font-size:13px;padding:10px 12px;line-height:1.5;border-radius:var(--r-sm);width:100%;box-sizing:border-box;resize:vertical;background:var(--bg-app);">' +
             escHtml(entry.content || "") +
             "</textarea>" +
             "</div>";
