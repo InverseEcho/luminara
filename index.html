@@ -9595,14 +9595,15 @@
             (online ? '<div class="online-ring"></div>' : "") +
             '</div></div><div class="contact-meta"><div class="contact-row1"><span class="contact-name">' +
             c.name +
-            (isPinned ? ' <i class="bi bi-pin-angle-fill" style="font-size: 11px; color: var(--primary);"></i>' : "") +
             '</span><span class="contact-time"' +
             (ep ? ' data-epoch="' + ep + '"' : "") +
             ">" +
             time +
-            '</span></div><div class="contact-row2"><span class="contact-preview">' +
+            '</span></div><div class="contact-row2"><span class="contact-preview" style="flex: 1; min-width: 0;">' +
             last +
-            "</span></div></div>";
+            '</span>' +
+            (isPinned ? ' <i class="bi bi-pin-angle-fill" style="font-size: 11px; color: var(--t1); flex-shrink: 0; margin-left: 6px;" title="Pinned Chat"></i>' : "") +
+            "</div></div>";
           frag.appendChild(d);
         });
         el.innerHTML = "";
@@ -11124,8 +11125,9 @@
         
         showQuickDialog({
           title: "Edit Message",
+          maxWidth: "min(95vw, 680px)",
           content:
-            '<textarea id="edit-msg-val" class="qdialog-input" style="min-height:100px;font-family:var(--font-sans);font-size:14px;">' +
+            '<textarea id="edit-msg-val" class="qdialog-input" style="min-height:140px;font-family:var(--font-sans);font-size:14px;resize:vertical;width:100%;box-sizing:border-box;">' +
             escHtml(m.text || "") +
             "</textarea>",
           actions: [
@@ -12849,6 +12851,10 @@
           bodyEl = $id("qdialog-body"),
           footerEl = $id("qdialog-footer");
         if (!modal) return;
+        var innerModal = modal.querySelector(".modal");
+        if (innerModal) {
+          innerModal.style.maxWidth = opts.maxWidth || "400px";
+        }
         titleEl.textContent = opts.title || "Action";
         bodyEl.innerHTML = opts.content || "";
         if (opts.actions && opts.actions.length) {
