@@ -12786,9 +12786,7 @@
           title: "Edit Avatar",
           content:
             '<div style="display:flex;flex-direction:column;gap:12px">' +
-            '<div class="qdialog-input-group"><label>Image URL</label><input type="text" id="avatar-url-input" class="qdialog-input" placeholder="https://example.com/photo.jpg" value="' +
-            (isImgUrl(curAv) ? curAv : "") +
-            '"/></div>' +
+            '<div class="qdialog-input-group"><label>Image URL</label><input type="text" id="avatar-url-input" class="qdialog-input" placeholder="https://example.com/photo.jpg"/></div>' +
             '<div style="display:flex;align-items:center;gap:9px;color:var(--t3);font-size:11px"><div style="flex:1;height:1px;background:var(--border)"></div><span>OR</span><div style="flex:1;height:1px;background:var(--border)"></div></div>' +
             '<div style="display:flex;flex-direction:column;gap:8px">' +
             '<button class="ai-gen-btn" id="profile-ai-gen-btn" style="width:100%;justify-content:center"><i class="bi bi-stars"></i>AI Generate Avatar</button>' +
@@ -12820,13 +12818,21 @@
                 } else if (urlVal.trim()) {
                   openAvatarCropper(urlVal.trim(), "user-profile");
                   return true;
+                } else {
+                  userProfile.av = "";
+                  refreshUserAvatar();
+                  saveState();
+                  return true;
                 }
-                return true;
               },
             },
           ],
         });
         setTimeout(function () {
+          var avInput = document.getElementById("avatar-url-input");
+          if (avInput) {
+            avInput.value = isImgUrl(curAv) ? curAv : "";
+          }
           var aiBtn = document.getElementById("profile-ai-gen-btn");
           if (aiBtn)
             aiBtn.onclick = function () {
