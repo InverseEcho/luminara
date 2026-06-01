@@ -984,10 +984,27 @@
 
       /* ── Tabs ── */
       .sb-tabs {
+        position: relative;
         display: flex;
         padding: 0 14px;
         border-bottom: 1px solid var(--border);
         flex-shrink: 0;
+      }
+      .sb-tabs::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: var(--active-left, 14px);
+        width: var(--active-width, 0px);
+        height: 2px;
+        background: var(--primary);
+        border-radius: 2px 2px 0 0;
+        box-shadow: 0 0 8px var(--primary-glow);
+        transition:
+          left 0.24s cubic-bezier(0.2, 0.8, 0.2, 1.1),
+          width 0.24s cubic-bezier(0.2, 0.8, 0.2, 1.1);
+        z-index: 1;
+        pointer-events: none;
       }
       .sb-tab {
         flex: 1;
@@ -1004,17 +1021,6 @@
       }
       .sb-tab.active {
         color: var(--primary);
-      }
-      .sb-tab.active::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 16px;
-        right: 16px;
-        height: 2px;
-        background: var(--primary);
-        border-radius: 2px 2px 0 0;
-        box-shadow: 0 0 8px var(--primary-glow);
       }
       .sb-tab:active {
         transform: scale(0.94);
@@ -6615,7 +6621,7 @@
       </div>
       <div class="ctx-item danger" id="ctx-delete-char">
         <i class="bi bi-trash"></i>
-        Delete Character
+        Delete Chat
       </div>
     </div>
 
@@ -8841,11 +8847,29 @@
             }
           }
         });
+        document.querySelectorAll('.sb-tabs').forEach(function (seg) {
+          var active = seg.querySelector('.sb-tab.active');
+          if (active) {
+            var left = active.offsetLeft;
+            var width = active.offsetWidth;
+            var cacheKey = left + '-' + width;
+            if (lastActiveLeftMap.get(seg) !== cacheKey) {
+              lastActiveLeftMap.set(seg, cacheKey);
+              seg.style.setProperty('--active-left', left + 'px');
+              seg.style.setProperty('--active-width', width + 'px');
+            }
+          } else {
+            if (lastActiveLeftMap.get(seg) !== 'none') {
+              lastActiveLeftMap.set(seg, 'none');
+              seg.style.setProperty('--active-width', '0px');
+            }
+          }
+        });
       }
       window.syncAllSegIndicators = syncAllSegIndicators;
       window.addEventListener("resize", syncAllSegIndicators);
       document.addEventListener("click", function(e) {
-        if (e.target && e.target.closest && (e.target.closest('.gender-opt') || e.target.closest('.modal-tab') || e.target.closest('.overlay') || e.target.closest('[onclick]'))) {
+        if (e.target && e.target.closest && (e.target.closest('.gender-opt') || e.target.closest('.sb-tab') || e.target.closest('.modal-tab') || e.target.closest('.overlay') || e.target.closest('[onclick]'))) {
           setTimeout(syncAllSegIndicators, 0);
           setTimeout(syncAllSegIndicators, 120);
         }
@@ -12153,7 +12177,7 @@
 
       function deleteChar(id) {
         showQuickDialog({
-          title: "Delete Character",
+          title: "Delete Chat",
           content: "Are you sure? All chat history will be lost.",
           actions: [
             {
@@ -18297,10 +18321,10 @@
 
         if (tempLorebook.length === 0) {
           container.innerHTML =
-            '<div style="display:flex;flex-direction:column;align-items:center;padding:30px 10px;text-align:center;border:1.5px dashed var(--border);border-radius:var(--r-sm);color:var(--t3);gap:8px;">' +
-            '<i class="bi bi-journal-text"></i>' +
-            '<div style="font-size:13px;font-weight:600;color:var(--t2);">No Lorebook Entries</div>' +
-            '<div style="font-size:11px;max-width:220px;">Add keywords that will prompt the AI memory when mentioned.</div>' +
+            '<div style="display:flex;flex-direction:column;align-items:center;padding:35px 15px;text-align:center;border:1.5px dashed var(--border);border-radius:var(--r-md);color:var(--t3);gap:10px;">' +
+            '<i class="bi bi-journal-text" style="font-size:24px;color:var(--t3)"></i>' +
+            '<div style="font-size:13.5px;font-weight:600;color:var(--t2);">No Lorebook Entries</div>' +
+            '<div style="font-size:11.5px;max-width:240px;line-height:1.4;">Add key terms description that will prompt the AI memory when mentioned in discussion.</div>' +
             "</div>";
           return;
         }
@@ -18309,38 +18333,42 @@
         tempLorebook.forEach(function (entry, idx) {
           var item = document.createElement("div");
           item.className = "settings-group";
-          item.style.padding = "12px";
+          item.style.padding = "14px";
           item.style.display = "flex";
           item.style.flexDirection = "column";
-          item.style.gap = "8px";
-          item.style.background = "var(--bg-overlay)";
+          item.style.gap = "10px";
+          item.style.background = "var(--bg-raised)";
           item.style.border = "1px solid var(--border)";
-          item.style.borderRadius = "var(--r-sm)";
-          item.style.margin = "0";
+          item.style.borderRadius = "var(--r-md)";
+          item.style.margin = "0 0 4px 0";
+          item.style.boxShadow = "var(--shadow-sm)";
 
           item.innerHTML =
-            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-            '<span style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);letter-spacing:0.5px;">Entry #' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:2px;">' +
+            '<div style="display:flex;align-items:center;gap:6px">' +
+            '<i class="bi bi-journal-bookmark-fill" style="color:var(--primary);font-size:12px;"></i>' +
+            '<span style="font-size:11.5px;font-weight:700;text-transform:uppercase;color:var(--t2);letter-spacing:0.5px;">Entry #' +
             (idx + 1) +
             "</span>" +
+            "</div>" +
             '<button type="button" class="btn btn-danger" onclick="deleteLorebookEntryUI(' +
             idx +
-            ')" style="padding:4px 8px;min-height:26px;font-size:11px;gap:3px;border-radius:4px;width:auto;">' +
-            '<i class="bi bi-trash"></i>Delete</button>' +
+            ')" style="padding:4px 8px;min-height:24px;font-size:11px;gap:4px;border-radius:var(--r-sm);width:auto;font-weight:600;display:inline-flex;align-items:center;">' +
+            '<i class="bi bi-trash-fill" style="font-size:11px;"></i>Delete</button>' +
             "</div>" +
-            '<div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;gap:4px;">' +
-            '<label class="form-label" style="font-size:10.5px;margin-bottom:0;">Trigger Keywords <span style="text-transform:none;color:var(--t3);">(comma-separated)</span></label>' +
+            '<div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;gap:5px;">' +
+            '<label class="form-label" style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:0;">Trigger Keywords <span style="text-transform:none;color:var(--t3);font-weight:400;font-size:10px;">(comma-separated)</span></label>' +
             '<input type="text" class="form-input lore-keys-input" value="' +
             escHtml(entry.keys || "") +
             '" placeholder="e.g. excalibur, sword, holy weapon" oninput="updateLorebookEntryKeys(' +
             idx +
-            ', this.value)" style="padding:6px 10px;font-size:12.5px;"/>' +
+            ', this.value)" style="padding:8px 12px;font-size:13px;border-radius:var(--r-sm);background:var(--bg-app);border:1.5px solid var(--border);width:100%;box-sizing:border-box;"/>' +
             "</div>" +
-            '<div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;gap:4px;">' +
-            '<label class="form-label" style="font-size:10.5px;margin-bottom:0;">Memory Content <span style="text-transform:none;color:var(--t3);">(injected if trigger matches)</span></label>' +
+            '<div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;gap:5px;">' +
+            '<label class="form-label" style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:0;">Memory Content <span style="text-transform:none;color:var(--t3);font-weight:400;font-size:10px;">(injected if trigger matches)</span></label>' +
             '<textarea class="form-textarea lore-content-input" placeholder="Explain what the AI should remember about this topic..." oninput="updateLorebookEntryContent(' +
             idx +
-            ', this.value)" style="min-height:60px;font-size:12.5px;padding:6px 10px;line-height:1.45;">' +
+            ', this.value)" style="min-height:75px;font-size:13px;padding:8px 12px;line-height:1.5;border-radius:var(--r-sm);background:var(--bg-app);border:1.5px solid var(--border);resize:vertical;width:100%;box-sizing:border-box;">' +
             escHtml(entry.content || "") +
             "</textarea>" +
             "</div>";
