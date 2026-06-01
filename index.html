@@ -1,4 +1,3 @@
-<!doctype html>
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
@@ -4823,8 +4822,9 @@
       .splash-logo svg {
         width: 40px;
         height: 40px;
-        fill: white;
-        stroke: none;
+        fill: none;
+        stroke: white;
+        stroke-width: 2;
       }
 
       .skeleton {
@@ -6120,7 +6120,7 @@
       </div>
       <div id="splash-screen">
         <div class="splash-logo">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
           </svg>
         </div>
@@ -8729,16 +8729,15 @@
         var primary500 = getComputedStyle(root).getPropertyValue('--primary-500').trim() || '#3396ff';
         var primary600 = getComputedStyle(root).getPropertyValue('--primary-600').trim() || '#2978cc';
         
-        // Circular gradient + sparkle symbol matching Luminara AI motif
-        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">' +
+        // Hollow star matching the Luminara AI motif
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">' +
                   '  <defs>' +
                   '    <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
                   '      <stop offset="0%" stop-color="' + primary500 + '"/>' +
                   '      <stop offset="100%" stop-color="' + primary600 + '"/>' +
                   '    </linearGradient>' +
                   '  </defs>' +
-                  '  <circle cx="16" cy="16" r="16" fill="url(#favGrad)"/>' +
-                  '  <path d="M16 6 Q16 16 6 16 Q16 16 16 26 Q16 16 26 16 Q16 16 16 6 Z" fill="#ffffff"/>' +
+                  '  <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" fill="none" stroke="url(#favGrad)" stroke-width="2"/>' +
                   '</svg>';
                   
         var link = document.querySelector("link[rel~='icon']");
@@ -9981,7 +9980,7 @@
         if (!el) return;
         if (!c || !c.msgs.length) {
           el.innerHTML =
-            '<div class="welcome-screen"><div class="welcome-icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/></svg></div><h2>Start the Story</h2><p>Type a message or use /char to have the character speak first.</p><div class="welcome-badge"><i class="bi bi-shield-lock"></i>End-to-end encrypted</div></div>';
+            '<div class="welcome-screen"><div class="welcome-icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" xmlns="http://www.w3.org/2000/svg"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/></svg></div><h2>Start the Story</h2><p>Type a message or use /char to have the character speak first.</p><div class="welcome-badge"><i class="bi bi-shield-lock"></i>End-to-end encrypted</div></div>';
           refreshSidebar();
           return;
         }
@@ -18299,7 +18298,7 @@
         showQuickDialog({
           title: "Generating AI Summary",
           content:
-            "<div style='display:flex;flex-direction:column;align-items:center;padding:20px;gap:12px;'><div class='loading-spinner' style='width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;'></div><span style='font-size:13.5px;color:var(--t2);'>Luminara is reading your selected messages...</span></div><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>",
+            "<div style='display:flex;flex-direction:column;align-items:center;padding:20px;gap:12px;'><div style='width:32px;height:32px;animation:spin 2s linear infinite;'><svg viewBox='0 0 24 24' width='32' height='32' fill='none' stroke='var(--primary)' stroke-width='2' xmlns='http://www.w3.org/2000/svg'><path d='M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z'/></svg></div><span style='font-size:13.5px;color:var(--t2);'>Luminara is reading your selected messages...</span></div><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>",
           actions: [],
         });
 
