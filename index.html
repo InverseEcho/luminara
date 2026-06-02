@@ -1,3 +1,4 @@
+<!doctype html>
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
@@ -1272,6 +1273,7 @@
         box-shadow: none !important;
         color: var(--primary) !important;
         border: none !important;
+        animation: brand-breathe 3.5s infinite alternate ease-in-out;
       }
       #new-chat-btn:hover {
         transform: scale(1.15) !important;
@@ -3601,6 +3603,11 @@
       /* ═══════════════════════════════
    CHARACTER GRID
 ═══════════════════════════════ */
+      @media (min-width: 768px) {
+        #modal-char-list .modal {
+          max-width: 680px;
+        }
+      }
       .char-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
