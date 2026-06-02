@@ -1,4 +1,3 @@
-<!doctype html> 
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
@@ -3604,7 +3603,7 @@
 ═══════════════════════════════ */
       .char-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 10px;
         padding: 2px 0;
       }
@@ -6027,6 +6026,7 @@
         min-width: unset;
         padding: 7px 12px;
         font-size: 13px;
+        white-space: nowrap;
         border-radius: 999px;
         border: 1px solid var(--background-300);
         background: var(--background-200);
@@ -6179,6 +6179,11 @@
 
       .msg-row.bulk-mode .bulk-select-label {
         flex-shrink: 0;
+      }
+      @media (max-width: 768px) {
+        input, textarea, select, .form-input, .form-textarea, #chat-input, .qdialog-input {
+          font-size: 16px !important;
+        }
       }
     </style>
   </head>
@@ -14414,7 +14419,7 @@
         showQuickDialog({
           title: "Create Character",
           content:
-            '<div class="qdialog-list"><div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openNewChar()"><i class="bi bi-person" style="font-size:20px;color:var(--primary)"></i><div><div class="qdialog-item-title">General Create</div><div class="qdialog-item-sub">Fill in the character form manually</div></div></div><div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openAdvWizard()"><i class="bi bi-stars" style="font-size:20px;color:var(--primary)"></i><div><div class="qdialog-item-title">Advanced Create</div><div class="qdialog-item-sub">AI-guided wizard \u2014 tone, story &amp; auto-fill</div></div></div></div>',
+            '<div class="qdialog-list"><div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openNewChar()"><i class="bi bi-person" style="font-size:20px;color:var(--primary)"></i><div><div class="qdialog-item-title">General Create</div><div class="qdialog-item-sub">Fill in the character form manually</div></div></div><div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openAdvWizard()"><i class="bi bi-stars" style="font-size:20px;color:var(--primary)"></i><div><div class="qdialog-item-title">Advanced Create</div><div class="qdialog-item-sub">Generate character details with AI prompts</div></div></div></div>',
         });
       }
 
