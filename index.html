@@ -222,6 +222,7 @@
       }
 
       :root[data-theme="dark"] {
+        --italic-color: #a1a1aa;
         --text-50: #0f0f10;
         --text-100: #18181b;
         --text-200: #27272a;
@@ -290,6 +291,7 @@
         /* Typography */
         --font: "Plus Jakarta Sans", sans-serif;
         --mono: "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas, monospace;
+        --italic-color: #52525d;
 
         /* Semantic color roles */
         --bg-app: var(--background-50);
@@ -2200,23 +2202,23 @@
         transform: scale(0.85);
         transition-duration: var(--dur-micro);
       }
-      .bact.pinned {
-        color: var(--secondary-400);
-        opacity: 1;
+      .bact.pinned, .msg-bubble.user .bact.pinned {
+        color: var(--secondary-400) !important;
+        opacity: 1 !important;
       }
-      .bact.pinned:hover {
-        color: var(--secondary-300);
+      .bact.pinned:hover, .msg-bubble.user .bact.pinned:hover {
+        color: var(--secondary-300) !important;
       }
       .bact svg {
         width: 11px;
         height: 11px;
       }
       .msg-bubble.user .bact {
-        color: rgba(255, 255, 255, 0.45);
+        color: var(--t3);
       }
       .msg-bubble.user .bact:hover {
-        background: rgba(0, 0, 0, 0.2);
-        color: #fff;
+        background: rgba(128, 128, 128, 0.15);
+        color: var(--t0);
       }
 
       .choice-btn {
@@ -2523,7 +2525,7 @@
           transform var(--trans-spring);
       }
       .attach-btn:hover {
-        color: var(--secondary);
+        color: var(--t0);
         transform: rotate(-15deg) scale(1.15);
       }
       .attach-btn:active {
@@ -6863,6 +6865,18 @@
               </div>
             </div>
             <div class="form-group">
+              <label class="form-label">Message Text Color <span style="font-size:11px;font-weight:normal;color:var(--t3)">(Optional)</span></label>
+              <div style="display:flex;align-items:center;gap:16px">
+                <div id="char-color-default-btn" class="hover:scale-105 active:scale-95 transition-all duration-200" style="width:38px; height:38px; border-radius:50%; border:2.5px solid var(--border2); cursor:pointer; background: var(--t0); box-shadow: var(--shadow-sm); flex-shrink:0;" title="Default Color: White in Dark Mode, Black in Light Mode" onclick="clearCharTextColor()"></div>
+                <div id="char-color-palette-btn" class="hover:scale-105 active:scale-95 transition-all duration-200" style="position:relative; width:38px; height:38px; border-radius:50%; border:2.5px solid var(--border2); overflow:hidden; cursor:pointer; background: var(--bg-raised); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); flex-shrink:0;" title="Choose Custom Text Color">
+                  <div id="char-color-overlay" style="position:absolute; inset:0; z-index:1; cursor:pointer;" onclick="if(!customCharTextColor) { selectCharTextColor(document.getElementById('char-text-color').value); this.style.display='none'; }"></div>
+                  <input type="color" id="char-text-color" style="opacity:0; position:absolute; width:100%; height:100%; cursor:pointer;" value="#3396ff" />
+                  <i class="bi bi-palette" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; pointer-events:none; font-size: 16px; color: var(--t1);"></i>
+                </div>
+                <span id="char-color-status" style="font-size:12px;color:var(--t3);user-select:none">Default (None)</span>
+              </div>
+            </div>
+            <div class="form-group">
               <div
                 style="
                   display: flex;
@@ -8532,7 +8546,77 @@
         var lm = c.msgs[c.msgs.length - 1];
         return !lm.epoch || Date.now() - lm.epoch < 3600000;
       }
+      function hexToHsl(hex) {
+        var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+          return r + r + g + g + b + b;
+        });
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (!result) return { h: 0, s: 0, l: 0 };
+        var r = parseInt(result[1], 16) / 255;
+        var g = parseInt(result[2], 16) / 255;
+        var b = parseInt(result[3], 16) / 255;
+        var max = Math.max(r, g, b), min = Math.min(r, g, b);
+        var h, s, l = (max + min) / 2;
+        if (max === min) {
+          h = s = 0;
+        } else {
+          var d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+          }
+          h /= 6;
+        }
+        return {
+          h: Math.round(h * 360),
+          s: Math.round(s * 100),
+          l: Math.round(l * 100)
+        };
+      }
+
+      function hslToHex(h, s, l) {
+        l /= 100;
+        var a = s * Math.min(l, 1 - l) / 100;
+        var f = function(n) {
+          var k = (n + h / 30) % 12;
+          var color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+          var hexVal = Math.round(255 * color).toString(16);
+          return hexVal.length < 2 ? "0" + hexVal : hexVal;
+        };
+        return "#" + f(0) + f(8) + f(4);
+      }
+
+      function getDerivedAccent(textColorHex, isDarkTheme) {
+        if (!textColorHex) return "var(--primary-500)";
+        var hsl = hexToHsl(textColorHex);
+        var diff = isDarkTheme ? -15 : 15;
+        var newL = Math.max(10, Math.min(90, hsl.l + diff));
+        return hslToHex(hsl.h, hsl.s, newL);
+      }
+
+      function getItalicColor(colorHex, isDarkTheme) {
+        var resolvedColor = colorHex || (isDarkTheme ? "#fafafa" : "#0a0e19");
+        var hsl = hexToHsl(resolvedColor);
+        var newL;
+        if (isDarkTheme) {
+          newL = Math.max(10, hsl.l - 20);
+        } else {
+          newL = Math.min(90, hsl.l + 20);
+        }
+        return hslToHex(hsl.h, hsl.s, newL);
+      }
+
       function getColors(c) {
+        if (c.customTextColor) {
+          var primaryAccent = getDerivedAccent(c.customTextColor, isDark);
+          var hsl = hexToHsl(primaryAccent);
+          var h2 = (hsl.h + 20) % 360;
+          var secondaryAccent = hslToHex(h2, hsl.s, hsl.l);
+          return { c1: primaryAccent, c2: secondaryAccent };
+        }
         if (c.color && c.color !== "var(--primary-500)")
           return { c1: c.color, c2: c.color2 || c.color };
         var h = 0;
@@ -10151,7 +10235,7 @@
       }
 
       // ── FORMAT TEXT ──
-      function formatText(t) {
+      function formatText(t, customTextColor) {
         if (!t) return "";
         var h = escHtml(String(t));
         h = h.replace(/```([\s\S]*?)```/g, function (_, code) {
@@ -10167,12 +10251,15 @@
         );
         h = h.replace(
           /"([^"]+)"/g,
-          '<span style="color:var(--t0);font-weight:500">"$1"</span>',
+          customTextColor
+            ? '<span style="color:inherit;font-weight:500">"$1"</span>'
+            : '<span style="color:var(--t0);font-weight:500">"$1"</span>',
         );
         h = h.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        var resolvedItalicColor = getItalicColor(customTextColor, isDark);
         h = h.replace(
           /\*(.*?)\*/g,
-          '<em style="color:var(--t1);font-style:italic">$1</em>',
+          '<em style="color:' + resolvedItalicColor + ';font-style:italic">$1</em>',
         );
         h = h.replace(/\n/g, "<br>");
         return h;
@@ -10518,9 +10605,11 @@
                 return '<img src="' + url + '" style="max-width:240px;max-height:180px;border-radius:var(--r-sm);border:1px solid var(--border);object-fit:cover;cursor:pointer;" />';
               }).join("") + '</div>';
           }
+          var customColor = (c && c.customTextColor && !isUser && !isNarrator) ? c.customTextColor : "";
+          var txtStyle = customColor ? ' style="color:' + customColor + '"' : '';
           var txt =
-            '<p style="margin:0;white-space:pre-wrap">' +
-            formatText(displayedText) +
+            '<p style="margin:0;white-space:pre-wrap"' + txtStyle + '>' +
+            formatText(displayedText, customColor) +
             "</p>";
           if (isNarrator)
             content =
@@ -10911,7 +11000,13 @@
                   var bubble = indicator.querySelector(".typing-bubble");
                   if (bubble) {
                     bubble.classList.add("streaming");
-                    var formatted = formatText(accText.trim());
+                    var customColor = (c && c.customTextColor && !isNar) ? c.customTextColor : "";
+                    if (customColor) {
+                      bubble.style.color = customColor;
+                    } else {
+                      bubble.style.color = "";
+                    }
+                    var formatted = formatText(accText.trim(), customColor);
                     if (isNar) {
                       bubble.innerHTML = '<div class="nar-label"><i class="bi bi-journal-text"></i>Narrator</div><p style="margin:0;white-space:pre-wrap">' + formatted + '</p>';
                     } else {
@@ -12456,6 +12551,79 @@
         }
       };
 
+      var customCharTextColor = null;
+
+      function selectCharTextColor(color) {
+        customCharTextColor = color;
+        var cp = $id("char-text-color");
+        if (cp) {
+          cp.value = color;
+        }
+        var status = $id("char-color-status");
+        if (status) {
+          status.textContent = "Active: " + color;
+        }
+        var btn = $id("char-color-palette-btn");
+        if (btn) {
+          btn.style.borderColor = color;
+          btn.style.backgroundColor = color;
+          btn.style.boxShadow = "0 0 8px " + color + "40";
+          btn.style.outline = "2.5px solid var(--secondary)";
+          btn.style.outlineOffset = "2px";
+          var icon = btn.querySelector("i");
+          if (icon) icon.style.color = "#ffffff";
+        }
+        var dbtn = $id("char-color-default-btn");
+        if (dbtn) {
+          dbtn.style.outline = "none";
+          dbtn.style.outlineOffset = "0px";
+        }
+        var overlay = $id("char-color-overlay");
+        if (overlay) {
+          overlay.style.display = "none";
+        }
+      }
+      window.selectCharTextColor = selectCharTextColor;
+
+      function clearCharTextColor() {
+        customCharTextColor = null;
+        var cp = $id("char-text-color");
+        var lastColor = cp ? cp.value : "#3396ff";
+        var status = $id("char-color-status");
+        if (status) {
+          status.textContent = "Default (None)";
+        }
+        var btn = $id("char-color-palette-btn");
+        if (btn) {
+          btn.style.borderColor = lastColor;
+          btn.style.backgroundColor = lastColor;
+          btn.style.boxShadow = "";
+          btn.style.outline = "none";
+          btn.style.outlineOffset = "0px";
+          var icon = btn.querySelector("i");
+          if (icon) icon.style.color = "#ffffff";
+        }
+        var dbtn = $id("char-color-default-btn");
+        if (dbtn) {
+          dbtn.style.outline = "2.5px solid var(--secondary)";
+          dbtn.style.outlineOffset = "2px";
+        }
+        var overlay = $id("char-color-overlay");
+        if (overlay) {
+          overlay.style.display = "block";
+        }
+      }
+      window.clearCharTextColor = clearCharTextColor;
+
+      setTimeout(function () {
+        var cp = $id("char-text-color");
+        if (cp) {
+          cp.oninput = function () {
+            selectCharTextColor(this.value);
+          };
+        }
+      }, 500);
+
       // ── CHAR MODAL ──
       // FIX: openNewChar always resets selectedGender to "Female" and syncs the row
       function openNewChar() {
@@ -12463,6 +12631,7 @@
         selectedGender = "Female"; // always default Female
         pendingAvatar = "";
         selectedBasicGenres = []; // Reset selected basic genres
+        clearCharTextColor();
         var mt = $id("char-modal-title"),
           sb = $id("save-char-btn");
         if (mt) mt.textContent = "Create Character";
@@ -12550,6 +12719,12 @@
         syncGenderRow("#gender-row");
         setAvPreviewExisting(c.av || "");
         updateAllBasicGenButtons();
+        customCharTextColor = c.customTextColor || null;
+        if (customCharTextColor) {
+          selectCharTextColor(customCharTextColor);
+        } else {
+          clearCharTextColor();
+        }
         openModal("modal-char-create");
       }
       window.openEditChar = openEditChar;
@@ -12655,6 +12830,16 @@
         ).trim();
         var cau = $id("char-avatar-url");
         var av = pendingAvatar || (cau ? cau.value.trim() : "");
+        var originalName = "";
+        if (editingCharId) {
+          var originalChar = chars.find(function (ch) {
+            return ch.id === editingCharId;
+          });
+          if (originalChar) {
+            originalName = originalChar.name;
+          }
+        }
+
         if (editingCharId) {
           var c = chars.find(function (ch) {
             return ch.id === editingCharId;
@@ -12671,11 +12856,29 @@
             c.scenario = scenario;
             c.userRole = userRole;
             c.scenarioTone = scenTone;
+            c.customTextColor = customCharTextColor;
             c.lorebook = JSON.parse(JSON.stringify(tempLorebook));
           }
           if (activeId === editingCharId) {
             updateUIChatState();
           }
+
+          // Sync customTextColor to any matching single chats or dual/group characters
+          chars.forEach(function (ch) {
+            if (
+              ch.id === editingCharId ||
+              (!ch.dualMode && (ch.name === originalName || ch.name === name))
+            ) {
+              ch.customTextColor = customCharTextColor;
+            }
+            if (ch.dualMode && Array.isArray(ch.characters)) {
+              ch.characters.forEach(function (subChar) {
+                if (subChar.name === originalName || subChar.name === name) {
+                  subChar.customTextColor = customCharTextColor;
+                }
+              });
+            }
+          });
         } else {
           chars.push({
             id: "char_" + Date.now(),
@@ -12691,6 +12894,7 @@
             scenario,
             userRole,
             scenarioTone: scenTone,
+            customTextColor: customCharTextColor,
             msgs: [],
             color: "var(--primary-500)",
             color2: "var(--primary-400)",
@@ -12701,6 +12905,7 @@
         saveState();
         refreshSidebar();
         renderCharGrid();
+        if (typeof renderMsgs === "function") renderMsgs();
         showToast("Character saved!", "success");
       }
 
@@ -14888,6 +15093,7 @@
                   msgs: msgs,
                   color: ch.color || "var(--primary-500)",
                   color2: ch.color2 || "var(--primary-400)",
+                  customTextColor: ch.customTextColor || null,
                 });
                 count++;
                 lastNewId = newId;
@@ -16622,7 +16828,14 @@
                     var bubble = indicator.querySelector(".typing-bubble");
                     if (bubble) {
                       bubble.classList.add("streaming");
-                      bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatText(accText.trim()) + '</p>';
+                      var sp = c.characters[charIdx];
+                      var customColor = (sp && sp.customTextColor) ? sp.customTextColor : "";
+                      if (customColor) {
+                        bubble.style.color = customColor;
+                      } else {
+                        bubble.style.color = "";
+                      }
+                      bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatText(accText.trim(), customColor) + '</p>';
                     }
                     if (typeof scrollBottom === "function") scrollBottom();
                   }
@@ -16842,12 +17055,12 @@
               esc(m.text) +
               "</div>";
           } else {
+            var customColor = (sp && sp.customTextColor) ? sp.customTextColor : "";
+            var txtStyle = customColor ? ' style="color:' + customColor + '"' : '';
             txt =
               typeof formatText === "function"
-                ? formatText(m.text)
-                : '<p style="margin:0;white-space:pre-wrap">' +
-                  esc(m.text) +
-                  "</p>";
+                ? '<p style="margin:0;white-space:pre-wrap"' + txtStyle + '>' + formatText(m.text, customColor) + '</p>'
+                : '<p style="margin:0;white-space:pre-wrap"' + txtStyle + '>' + esc(m.text) + '</p>';
           }
 
           var promptBtn = "";
@@ -17759,8 +17972,14 @@
             var p = bubble ? bubble.querySelector("p") : null;
             if (p) {
               var txt = getDisplayedText(m);
+              var customColor = (c && c.customTextColor && m.role === "ai") ? c.customTextColor : "";
+              if (customColor) {
+                p.style.color = customColor;
+              } else {
+                p.style.color = "";
+              }
               p.innerHTML =
-                typeof formatText === "function" ? formatText(txt) : txt;
+                typeof formatText === "function" ? formatText(txt, customColor) : txt;
             }
 
             if (m.variants.length > 1) {
@@ -17783,8 +18002,16 @@
               var p = bubble ? bubble.querySelector("p") : null;
               if (p) {
                 var txt = getDisplayedText(m);
+                var ci = m.dualChar !== undefined ? m.dualChar : 0;
+                var sp = c && c.characters ? c.characters[ci] : null;
+                var customColor = (sp && sp.customTextColor) ? sp.customTextColor : "";
+                if (customColor) {
+                  p.style.color = customColor;
+                } else {
+                  p.style.color = "";
+                }
                 p.innerHTML =
-                  typeof formatText === "function" ? formatText(txt) : txt;
+                  typeof formatText === "function" ? formatText(txt, customColor) : txt;
               }
 
               if (m.variants.length > 1) {
@@ -17916,8 +18143,25 @@
             p.classList.add(
               delta > 0 ? "variant-slide-left" : "variant-slide-right",
             );
+            var customColor = "";
+            var isUser = m.role === "user";
+            var isNarrator = m.role === "narrator";
+            if (!isUser && !isNarrator) {
+              if (res.char.dualMode) {
+                var ci = m.dualChar !== undefined ? m.dualChar : 0;
+                var sp = res.char.characters ? res.char.characters[ci] : null;
+                customColor = (sp && sp.customTextColor) ? sp.customTextColor : "";
+              } else {
+                customColor = (res.char && res.char.customTextColor) ? res.char.customTextColor : "";
+              }
+            }
+            if (customColor) {
+              p.style.color = customColor;
+            } else {
+              p.style.color = "";
+            }
             p.innerHTML =
-              typeof formatText === "function" ? formatText(txt) : txt;
+              typeof formatText === "function" ? formatText(txt, customColor) : txt;
           }
 
           // Update All Possible Nav Elements (Standard + Actions)
