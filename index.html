@@ -2660,6 +2660,28 @@
       .send-btn.ready .send-icon {
         display: inline-flex;
       }
+      .send-btn.stop-mode {
+        opacity: 1 !important;
+        background: rgba(255, 77, 77, 0.08) !important;
+        color: #ff4d4d !important;
+        border-color: rgba(255, 77, 77, 0.3) !important;
+        cursor: pointer !important;
+      }
+      .send-btn.stop-mode:hover {
+        background: #ff4d4d !important;
+        color: #ffffff !important;
+        border-color: #ff4d4d !important;
+        transform: scale(1.15) translateY(-2px) !important;
+      }
+      .send-btn.stop-mode .mic-icon,
+      .send-btn.stop-mode .send-icon {
+        display: none !important;
+      }
+      .send-btn.stop-mode .stop-icon {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+      }
 
       /* ── Mini Gen Button ── */
       .btn-mini-gen {
@@ -4333,7 +4355,7 @@
 ═══════════════════════════════ */
       .toast-container {
         position: fixed;
-        bottom: 24px;
+        bottom: 110px;
         right: 24px;
         z-index: 10000;
         display: flex;
@@ -5719,10 +5741,12 @@
           width: 100%;
         }
         .toast-container {
-          bottom: 10px;
+          top: 70px;
+          bottom: auto;
           right: 10px;
           left: 10px;
           align-items: center;
+          flex-direction: column;
         }
         .form-row {
           grid-template-columns: 1fr;
@@ -6656,6 +6680,7 @@
           <button class="send-btn" id="send-btn" disabled>
             <i class="bi bi-mic mic-icon"></i>
             <i class="bi bi-send-fill send-icon" style="font-size: 20px"></i>
+            <i class="bi bi-square-fill stop-icon" style="font-size: 14px; display: none;"></i>
           </button>
         </div>
       </div>
@@ -9272,10 +9297,105 @@
           return c.id === activeId;
         });
       }
-      function setGen(v) {
+      function updateSendButtonState() {
+        var sb = document.getElementById("send-btn");
+        if (!sb) return;
+        
+        var c = typeof getActive === "function" ? getActive() : null;
+        var activeChatIsGenerating = c && c.isGenerating;
+        
+        if (activeChatIsGenerating) {
+          sb.disabled = false;
+          sb.classList.add("ready");
+          sb.classList.add("stop-mode");
+          
+          var stopIcon = sb.querySelector(".stop-icon");
+          if (stopIcon) stopIcon.style.display = "inline-flex";
+          var sendIcon = sb.querySelector(".send-icon");
+          if (sendIcon) sendIcon.style.display = "none";
+          var micIcon = sb.querySelector(".mic-icon");
+          if (micIcon) micIcon.style.display = "none";
+        } else {
+          sb.classList.remove("stop-mode");
+          var stopIcon = sb.querySelector(".stop-icon");
+          if (stopIcon) stopIcon.style.display = "none";
+          
+          var chatInput = document.getElementById("chat-input");
+          var val = chatInput ? chatInput.value.trim() : "";
+          var hasText = val.length > 0 || !!window.activeSlashCommand;
+          
+          sb.disabled = !hasText;
+          sb.classList.toggle("ready", hasText);
+          
+          if (hasText) {
+            var sendIcon = sb.querySelector(".send-icon");
+            if (sendIcon) sendIcon.style.display = "inline-flex";
+            var micIcon = sb.querySelector(".mic-icon");
+            if (micIcon) micIcon.style.display = "none";
+          } else {
+            var sendIcon = sb.querySelector(".send-icon");
+            if (sendIcon) sendIcon.style.display = "none";
+            var micIcon = sb.querySelector(".mic-icon");
+            if (micIcon) micIcon.style.display = "inline-flex";
+          }
+        }
+      }
+
+      function stopGeneration() {
+        window.activeGenerationRunId = "stopped_" + Date.now();
+        isGen = false;
+        if (typeof _dualBusy !== "undefined") {
+          _dualBusy = false;
+        }
+        if (typeof chars !== "undefined" && chars) {
+          chars.forEach(function (ch) {
+            if (ch.isGenerating) {
+              ch.isGenerating = false;
+            }
+            if (ch.generatingCharIdx !== undefined) {
+              delete ch.generatingCharIdx;
+            }
+          });
+        }
+        if (typeof removeTypingBubble === "function") {
+          removeTypingBubble();
+        }
+        if (typeof removeDualTypingRow === "function") {
+          removeDualTypingRow(0);
+          removeDualTypingRow(1);
+        }
+        if (typeof renderMsgs === "function") {
+          renderMsgs();
+        }
+        updateSendButtonState();
+        var headerAv = document.querySelector(".ch-av");
+        if (headerAv) headerAv.classList.remove("generating-pulse");
+        showToast("Generation stopped", "info");
+      }
+
+      function handleSendOrStopClick(e) {
+        if (e && e.preventDefault && typeof e.preventDefault === "function") {
+          e.preventDefault();
+        }
+        var sb = document.getElementById("send-btn");
+        if (sb && sb.classList.contains("stop-mode")) {
+          stopGeneration();
+        } else {
+          if (typeof window.sendMsg === "function") {
+            window.sendMsg();
+          } else if (typeof sendMsg === "function") {
+            sendMsg();
+          }
+        }
+      }
+
+      function setGen(v, charObj) {
         isGen = v;
-        var b = $id("send-btn");
-        if (b) b.disabled = v;
+        var targetChar = charObj || (typeof getActive === "function" ? getActive() : null);
+        if (targetChar) {
+          targetChar.isGenerating = v;
+        }
+        updateSendButtonState();
         var headerAv = document.querySelector(".ch-av");
         if (headerAv) {
           if (v) headerAv.classList.add("generating-pulse");
@@ -9285,8 +9405,7 @@
       function setImgGen(v) {
         isImgGen = v;
         isGen = v;
-        var b = $id("send-btn");
-        if (b) b.disabled = v;
+        updateSendButtonState();
         var appEl = $id("app");
         if (appEl) {
           if (v) appEl.classList.add("img-gen-glow");
@@ -10128,6 +10247,23 @@
           frag.appendChild(makeBubble(c.msgs[i], i, c));
         }
 
+        if (c.isGenerating) {
+          var typingRole = isNar ? "narrator" : "ai";
+          if (c.dualMode) {
+            var charIdxObj = c.generatingCharIdx !== undefined ? c.generatingCharIdx : 0;
+            if (c.characters && c.characters[charIdxObj]) {
+              var speakerObj = c.characters[charIdxObj];
+              if (typeof makeDualTypingRow === "function") {
+                frag.appendChild(makeDualTypingRow(charIdxObj, speakerObj));
+              }
+            }
+          } else {
+            if (typeof makeTypingBubble === "function") {
+              frag.appendChild(makeTypingBubble(typingRole));
+            }
+          }
+        }
+
         el.innerHTML = "";
         el.appendChild(frag);
 
@@ -10481,7 +10617,9 @@
       // ── CALL AI ──
       async function callAI(c, extra, replyToMsg, insertAt) {
         if (isGen || !c) return;
-        setGen(true);
+        var currentGenId = generateMsgId();
+        window.activeGenerationRunId = currentGenId;
+        setGen(true, c);
         var accText = "";
         try {
           var MAX_CTX = 20;
@@ -10673,17 +10811,25 @@
             temperature: 0.75,
             stopSequences: stopSeqs,
             onChunk: function (data) {
+              if (window.activeGenerationRunId !== currentGenId) {
+                throw new Error("aborted_by_user");
+              }
               accText += data.textChunk;
             },
           });
+          if (window.activeGenerationRunId !== currentGenId) {
+            throw new Error("aborted_by_user");
+          }
           removeTypingBubble();
           var fullText = accText.trim();
           if (!fullText) {
             c.msgs.forEach(function (m) {
               if (m.isRegenerating) delete m.isRegenerating;
             });
-            renderMsgs();
-            setGen(false);
+            if (activeId === c.id) {
+              renderMsgs();
+            }
+            setGen(false, c);
             return;
           }
           var mObj = {
@@ -10693,39 +10839,56 @@
             time: ts(),
             epoch: tsEpoch(),
           };
+          c.msgs.forEach(function (m) {
+            if (m.isRegenerating) delete m.isRegenerating;
+          });
           if (insertAt !== undefined && insertAt !== null) {
             c.msgs.splice(insertAt, 0, mObj);
-            renderMsgs();
+            if (activeId === c.id) {
+              renderMsgs();
+            }
           } else {
-            var newMsgIdx = c.msgs.length;
             c.msgs.push(mObj);
-            var newMsg = c.msgs[newMsgIdx];
-            var row = makeBubble(newMsg, newMsgIdx, c);
-            row.classList.add("slide-up");
-            chatMsgs.appendChild(row);
-            chatMsgs.querySelectorAll(".tick.sent").forEach(function (t) {
-              t.className = "tick read";
-            });
-            scrollBottom();
+            if (activeId === c.id) {
+              var newMsgIdx = c.msgs.length - 1;
+              var row = makeBubble(c.msgs[newMsgIdx], newMsgIdx, c);
+              row.classList.add("slide-up");
+              if (chatMsgs) {
+                chatMsgs.appendChild(row);
+                chatMsgs.querySelectorAll(".tick.sent").forEach(function (t) {
+                  t.className = "tick read";
+                });
+              }
+              scrollBottom();
+            }
           }
           notifyNewMsg();
           if (typeof saveState === "function") await saveState();
           refreshSidebar();
-          setGen(false);
+          setGen(false, c);
         } catch (e) {
           removeTypingBubble();
           c.msgs.forEach(function (m) {
             if (m.isRegenerating) delete m.isRegenerating;
           });
-          c.msgs.push({
-            role: "ai",
-            text: "Error: " + e.message,
-            time: ts(),
-            epoch: tsEpoch(),
-          });
-          saveState();
-          renderMsgs();
-          setGen(false);
+          if (e.message === "aborted_by_user" || window.activeGenerationRunId !== currentGenId) {
+            if (activeId === c.id) {
+              renderMsgs();
+            }
+          } else {
+            c.msgs.push({
+              role: "ai",
+              text: "Error: " + e.message,
+              time: ts(),
+              epoch: tsEpoch(),
+            });
+            if (activeId === c.id) {
+              renderMsgs();
+            }
+          }
+          if (typeof saveState === "function") await saveState();
+          refreshSidebar();
+          setGen(false, c);
         }
       }
 
@@ -14875,7 +15038,7 @@
             clearAttachment();
           };
         }
-        qs("#send-btn").onclick = sendMsg;
+        qs("#send-btn").onclick = handleSendOrStopClick;
         qs("#toolbar-pin-btn").onclick = function () {
           toolbarPinned = !toolbarPinned;
           applyToolbarPin();
@@ -15825,28 +15988,7 @@
           };
         });
 
-        var touchStartX = 0,
-          touchCurrentX = 0;
-        document.addEventListener(
-          "touchstart",
-          function (e) {
-            touchStartX = e.touches[0].clientX;
-          },
-          { passive: true },
-        );
-        document.addEventListener(
-          "touchend",
-          function (e) {
-            touchCurrentX = e.changedTouches[0].clientX;
-            if (
-              touchCurrentX - touchStartX > 80 &&
-              activeId &&
-              window.innerWidth <= 768
-            )
-              backToSidebar();
-          },
-          { passive: true },
-        );
+
 
         setInterval(function () {
           qsa(".contact-time[data-epoch]").forEach(function (el) {
@@ -16211,6 +16353,9 @@
            the typing row BEFORE awaiting generateText.
         ───────────────────────────────────────────────────────────── */
         async function dualCallAI(c, charIdx, instruction, insertAt) {
+          if (window.activeGenerationRunId && window.activeGenerationRunId.startsWith("stopped_")) {
+            return;
+          }
           /* Wait if previous dual call is still running */
           var waited = 0;
           while (_dualBusy && waited < 30000) {
@@ -16219,15 +16364,18 @@
             });
             waited += 100;
           }
-          _dualBusy = true;
-
-          /* Disable send button */
-          var sb = document.getElementById("send-btn");
-          if (sb) {
-            sb.disabled = true;
-            sb.classList.remove("ready");
+          if (window.activeGenerationRunId && window.activeGenerationRunId.startsWith("stopped_")) {
+            return;
           }
+          
+          var currentGenId = generateMsgId();
+          window.activeGenerationRunId = currentGenId;
+          c.isGenerating = true;
+          c.generatingCharIdx = charIdx;
+          _dualBusy = true;
+          updateSendButtonState();
 
+          var sb = document.getElementById("send-btn");
           var speaker = c.characters[charIdx];
           var other = c.characters[1 - charIdx];
           var uname =
@@ -16321,10 +16469,14 @@
               document.getElementById("dual-typing-" + charIdx);
           } else {
             typingRow = makeDualTypingRow(charIdx, speaker);
-            chatMsgs.appendChild(typingRow);
+            if (activeId === c.id && chatMsgs) {
+              chatMsgs.appendChild(typingRow);
+            }
           }
 
-          if (typeof scrollBottom === "function") scrollBottom();
+          if (activeId === c.id) {
+            if (typeof scrollBottom === "function") scrollBottom();
+          }
           if (typeof notifyNewMsg === "function") notifyNewMsg();
 
           /* Small paint frame so dots render before generateText blocks */
@@ -16338,32 +16490,60 @@
               instruction: fullPrompt,
               temperature: 0.75,
               onChunk: function (data) {
+                if (window.activeGenerationRunId !== currentGenId) {
+                  throw new Error("aborted_by_user");
+                }
                 accText += data.textChunk;
               },
             });
+            if (window.activeGenerationRunId !== currentGenId) {
+              throw new Error("aborted_by_user");
+            }
           } catch (e) {
-            removeDualTypingRow(charIdx);
+            if (activeId === c.id) {
+              removeDualTypingRow(charIdx);
+            }
             c.msgs.forEach(function (m) {
               if (m.isRegenerating) delete m.isRegenerating;
             });
-            if (typeof renderMsgs === "function") renderMsgs();
+            c.isGenerating = false;
+            delete c.generatingCharIdx;
+            _dualBusy = false;
+            updateSendButtonState();
+
+            if (e.message === "aborted_by_user" || window.activeGenerationRunId !== currentGenId) {
+              if (activeId === c.id) {
+                if (typeof renderMsgs === "function") renderMsgs();
+              }
+              if (typeof saveState === "function") saveState();
+              if (typeof refreshSidebar === "function") refreshSidebar();
+              return;
+            }
+
+            if (activeId === c.id) {
+              if (typeof renderMsgs === "function") renderMsgs();
+            }
             if (typeof showToast === "function")
               showToast("Error: " + e.message, "error");
-            _dualBusy = false;
-            if (sb) sb.disabled = false;
             return;
           }
 
-          removeDualTypingRow(charIdx);
+          if (activeId === c.id) {
+            removeDualTypingRow(charIdx);
+          }
+          c.isGenerating = false;
+          delete c.generatingCharIdx;
+          _dualBusy = false;
+          updateSendButtonState();
 
           var fullText = accText.trim();
           if (!fullText) {
             c.msgs.forEach(function (m) {
               if (m.isRegenerating) delete m.isRegenerating;
             });
-            if (typeof renderMsgs === "function") renderMsgs();
-            _dualBusy = false;
-            if (sb) sb.disabled = false;
+            if (activeId === c.id) {
+              if (typeof renderMsgs === "function") renderMsgs();
+            }
             return;
           }
 
@@ -16376,30 +16556,35 @@
             time: typeof ts === "function" ? ts() : now(),
             epoch: typeof tsEpoch === "function" ? tsEpoch() : Date.now(),
           };
-          var row = makeDualBubble(
-            mObj,
-            insertAt !== undefined && insertAt !== null
-              ? insertAt
-              : c.msgs.length - 1,
-            c,
-          );
-          row.classList.add("slide-up");
+
+          c.msgs.forEach(function (m) {
+            if (m.isRegenerating) delete m.isRegenerating;
+          });
 
           if (insertAt !== undefined && insertAt !== null) {
             c.msgs.splice(insertAt, 0, mObj);
-            if (typeof renderMsgs === "function") renderMsgs();
+            if (activeId === c.id) {
+              if (typeof renderMsgs === "function") renderMsgs();
+            }
           } else {
             c.msgs.push(mObj);
-            chatMsgs.appendChild(row);
-            if (typeof scrollBottom === "function") scrollBottom();
+            if (activeId === c.id) {
+              var row = makeDualBubble(
+                mObj,
+                c.msgs.length - 1,
+                c,
+              );
+              row.classList.add("slide-up");
+              if (chatMsgs) {
+                chatMsgs.appendChild(row);
+              }
+              if (typeof scrollBottom === "function") scrollBottom();
+            }
           }
 
           if (typeof notifyNewMsg === "function") notifyNewMsg();
           if (typeof saveState === "function") saveState();
           if (typeof refreshSidebar === "function") refreshSidebar();
-
-          _dualBusy = false;
-          if (sb) sb.disabled = false;
         }
 
         /* Both characters respond sequentially */
@@ -16862,12 +17047,12 @@
           /* Re-wire send button */
           var sb = document.getElementById("send-btn");
           if (sb) {
-            sb.onclick = window.sendMsg;
+            sb.onclick = handleSendOrStopClick;
             sb.ontouchstart = function (e) {
               /* Only trigger if not disabled */
               if (!sb.disabled) {
                 e.preventDefault();
-                window.sendMsg();
+                handleSendOrStopClick(e);
               }
             };
           }
