@@ -3265,6 +3265,8 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        padding: 0;
+        margin: 0;
         transition:
           background 0.16s ease,
           transform 0.16s ease;
@@ -3272,6 +3274,12 @@
       .language-chip__remove:hover {
         background: rgba(255, 68, 68, 0.2);
         transform: scale(1.05);
+      }
+      .language-chip__remove i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
       }
       .language-chip__remove svg {
         width: 12px;
@@ -7475,15 +7483,7 @@
                 <div class="sw-thumb"></div>
               </div>
             </div>
-            <div class="form-switch">
-              <div>
-                <div class="sw-label-title">Text Stream Mode</div>
-                <div class="sw-label-sub">Show text in chunks as it generates</div>
-              </div>
-              <div class="sw-track" id="stream-mode-toggle">
-                <div class="sw-thumb"></div>
-              </div>
-            </div>
+
           </div>
           <div
             class="settings-group"
@@ -8792,7 +8792,6 @@
       var uiScale = 100,
         fontScale = 100,
         selectedFont = "Plus Jakarta Sans",
-        textStreamMode = false,
         currentAccent = "blue";
         var customAccentColor = "#3396ff";
       var isBulkMode = false,
@@ -8891,7 +8890,6 @@
             uiScale,
             fontScale,
             selectedFont,
-            textStreamMode,
             currentAccent,
             customAccentColor,
           });
@@ -8935,7 +8933,6 @@
             uiScale = ss.uiScale !== undefined ? ss.uiScale : 100;
             fontScale = ss.fontScale !== undefined ? ss.fontScale : 100;
             selectedFont = ss.selectedFont !== undefined ? ss.selectedFont : "Plus Jakarta Sans";
-            textStreamMode = ss.textStreamMode !== undefined ? ss.textStreamMode : false;
             currentAccent = ss.currentAccent !== undefined ? ss.currentAccent : "blue";
             customAccentColor = ss.customAccentColor || "#3396ff";
             if (ss.aiSettings) {
@@ -8961,7 +8958,6 @@
           applyCustomBg();
           applyScales();
           applyFont();
-          applyStreamModeToggle();
           applyAccentColor(currentAccent, true);
         } catch (e) {
           console.error(e);
@@ -9001,11 +8997,6 @@
         if (selectedFont) {
           root.style.setProperty("--font", '"' + selectedFont + '", sans-serif');
         }
-      }
-
-      function applyStreamModeToggle() {
-        var stt = $id("stream-mode-toggle");
-        if (stt) stt.classList.toggle("on", textStreamMode);
       }
 
       var ACCENT_PALETTE = {
@@ -9651,14 +9642,22 @@
         return "\n[Pinned Memory:\n" + pinnedContext + "\n]";
       }
 
-      window.togglePinMsg = function (id) {
+      window.togglePinMsg = function (id, event) {
         var res = findMsg(id);
         if (!res) return;
         var c = getActive();
         var msg = c.msgs[res.idx];
         msg.pinned = !msg.pinned;
         saveState();
-        renderMsgs(true);
+        if (event && event.currentTarget) {
+          if (msg.pinned) {
+            event.currentTarget.classList.add('pinned');
+            event.currentTarget.title = "Unpin from memory";
+          } else {
+            event.currentTarget.classList.remove('pinned');
+            event.currentTarget.title = "Pin to memory";
+          }
+        }
         updateUIChatState();
         showToast(
           msg.pinned ? "Message pinned to memory!" : "Message unpinned",
@@ -10299,7 +10298,7 @@
           (m.pinned ? "Unpin from memory" : "Pin to memory") +
           '" onclick="togglePinMsg(\'' +
           id +
-          '\')"><i class="bi bi-pin-angle"></i></button>';
+          '\', event)"><i class="bi bi-pin-angle"></i></button>';
 
         if (m.type === "image-carousel") {
           // 3. Prompt (Image only)
@@ -10994,7 +10993,7 @@
                 throw new Error("aborted_by_user");
               }
               accText += data.textChunk;
-              if (textStreamMode) {
+              if (aiSettings.streaming) {
                 var indicator = document.getElementById("typing-indicator");
                 if (indicator) {
                   var bubble = indicator.querySelector(".typing-bubble");
@@ -15401,11 +15400,6 @@
           applyTheme();
           saveState();
         };
-        $id("stream-mode-toggle").onclick = function () {
-          textStreamMode = !textStreamMode;
-          applyStreamModeToggle();
-          saveState();
-        };
         $id("ui-scale-slider").oninput = function () {
           uiScale = parseInt(this.value);
           applyScales();
@@ -16822,7 +16816,7 @@
                   throw new Error("aborted_by_user");
                 }
                 accText += data.textChunk;
-                if (textStreamMode) {
+                if (aiSettings.streaming) {
                   var indicator = document.getElementById("dual-typing-" + charIdx);
                   if (indicator) {
                     var bubble = indicator.querySelector(".typing-bubble");
