@@ -3625,16 +3625,19 @@
       /* ═══════════════════════════════
    CHARACTER GRID
 ═══════════════════════════════ */
-      @media (min-width: 768px) {
-        #modal-char-list .modal {
-          max-width: 680px;
-        }
-      }
       .char-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 10px;
         padding: 2px 0;
+      }
+      @media (min-width: 768px) {
+        #modal-char-list .modal {
+          max-width: 680px;
+        }
+        .char-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
       }
       .char-card {
         background: var(--bg-raised);
@@ -8757,6 +8760,17 @@
               ch.scenario = ch.scenario || "";
               ch.userRole = ch.userRole || "";
               ch.scenarioTone = ch.scenarioTone || "";
+              ch.isGenerating = false;
+              if (ch.generatingCharIdx !== undefined) {
+                delete ch.generatingCharIdx;
+              }
+              if (Array.isArray(ch.msgs)) {
+                ch.msgs.forEach(function (m) {
+                  if (m.isRegenerating !== undefined) {
+                    delete m.isRegenerating;
+                  }
+                });
+              }
               return ch;
             });
           var ss = await kv.aura.get("settings");
@@ -10142,10 +10156,6 @@
         } else {
           // AI actions
           acts +=
-            '<button class="bact" title="Continue" onclick="continueMsg(\'' +
-            id +
-            '\')"><i class="bi bi-chevron-double-right"></i></button>';
-          acts +=
             '<button class="bact" title="Regenerate" onclick="regenMsg(\'' +
             id +
             '\')"><i class="bi bi-arrow-clockwise"></i></button>';
@@ -11391,23 +11401,20 @@
       };
       window.openRegen = function (id) {
         showQuickDialog({
-          title: "Regenerate Options",
+          title: "Message Tools",
           content:
             '<div class="qdialog-list">' +
-            "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');regenMsg('" +
-            id +
-            '\')"><i class="bi bi-reload"></i>Regenerate</div>' +
             "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');openRegenWithPrompt('" +
             id +
-            '\')"><i class="bi bi-stars"></i>Custom Instruction\u2026</div>' +
+            '\')"><i class="bi bi-stars"></i>Regenerate with custom prompt\u2026</div>' +
             "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');continueMsg('" +
             id +
-            '\')"><i class="bi bi-arrow-right"></i>Continue\u2026</div></div>',
+            '\')"><i class="bi bi-chevron-double-right"></i>Continue\u2026</div></div>',
         });
       };
       window.openRegenWithPrompt = function (id) {
         showQuickDialog({
-          title: "Custom Regenerate",
+          title: "Regenerate with Custom Prompt",
           content:
             '<div class="qdialog-input-group"><label>Instructions</label>' +
             '<textarea id="regen-input" class="qdialog-input" placeholder="e.g. Write more emotionally\u2026" style="min-height:76px"></textarea>',
@@ -11677,7 +11684,7 @@
             '</div><div class="char-card-sub">' +
             (c.gender || "Unknown") +
             '</div><div class="char-card-btns">' +
-            '<button class="char-card-btn new" onclick="event.stopPropagation();startNewChatSession(\'' +
+            '<button class="char-card-btn new" onclick="event.stopPropagation();closeModal(\'modal-char-list\');startNewChatSession(\'' +
             c.id +
             "')\">New</button>" +
             '<button class="char-card-btn" onclick="event.stopPropagation();closeModal(\'modal-char-list\');openEditChar(\'' +
@@ -11783,6 +11790,7 @@
       window.handleSelectedFile = handleSelectedFile;
 
       function startNewChatSession(id) {
+        closeModal("modal-char-list");
         var baseChar = chars.find(function (ch) {
           return ch.id === id || (ch.originalTemplateId && ch.originalTemplateId === id);
         });
@@ -16742,10 +16750,6 @@
             msgId +
             "')\">" +
             '<i class="bi bi-reload"></i></button>' +
-            '<button class="bact" title="Continue" onclick="dualContinue(' +
-            ci +
-            ')">' +
-            '<i class="bi bi-chevron-right"></i></button>' +
             '<button class="bact" title="Other reacts" onclick="dualReact(' +
             (1 - ci) +
             ')">' +
@@ -16874,15 +16878,12 @@
 
         window.dualOpenRegen = function (msgId) {
           showQuickDialog({
-            title: "Regenerate Options",
+            title: "Message Tools",
             content:
               '<div class="qdialog-list">' +
-              "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');dualRegen('" +
-              msgId +
-              '\')"><i class="bi bi-arrow-repeat"></i>Regenerate</div>' +
               "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');dualOpenRegenWithPrompt('" +
               msgId +
-              '\')"><i class="bi bi-stars"></i>Custom Instruction\u2026</div>' +
+              '\')"><i class="bi bi-stars"></i>Regenerate with custom prompt\u2026</div>' +
               '<div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');if(typeof window.openTimeskipModal === \'function\') window.openTimeskipModal()"><i class="bi bi-hourglass-split"></i>Time Skip\u2026</div>' +
               "</div>",
           });
@@ -16890,7 +16891,7 @@
 
         window.dualOpenRegenWithPrompt = function (msgId) {
           showQuickDialog({
-            title: "Custom Regenerate",
+            title: "Regenerate with Custom Prompt",
             content:
               '<div class="qdialog-input-group"><label>Instructions</label>' +
               '<textarea id="regen-input-dual" class="qdialog-input" placeholder="e.g. Write more emotionally\u2026" style="min-height:76px"></textarea>',
@@ -17936,17 +17937,14 @@
 
           window.openRegen = function (id) {
             showQuickDialog({
-              title: "Regenerate Options",
+              title: "Message Tools",
               content: `
                     <div class="qdialog-list">
-                      <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.regenMsg('${id}')">
-                        <i class="bi bi-arrow-repeat"></i>Regenerate
-                      </div>
                       <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.openRegenWithPrompt('${id}')">
-                        <i class="bi bi-stars"></i>Custom Instruction...
+                        <i class="bi bi-stars"></i>Regenerate with custom prompt...
                       </div>
                       <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.continueMsg('${id}')">
-                        <i class="bi bi-arrow-right"></i>Continue...
+                        <i class="bi bi-chevron-double-right"></i>Continue...
                       </div>
                       <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');if(typeof window.openTimeskipModal === 'function') window.openTimeskipModal()">
                         <i class="bi bi-hourglass-split"></i>Time Skip...
