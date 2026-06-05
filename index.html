@@ -7886,6 +7886,24 @@
               </button>
             </div>
           </div>
+
+          <div class="settings-label">Backup Privacy</div>
+          <div class="settings-group" style="padding: 14px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px;">
+            <div class="form-switch" style="padding: 0;">
+              <div>
+                <div class="sw-label-title" style="font-size:13.5px;font-weight:600;">Encrypt Backup Files</div>
+                <div class="sw-label-sub" style="font-size:11.5px;">Encrypt JSON data with a master password</div>
+              </div>
+              <div class="sw-track" id="backup-encryption-toggle">
+                <div class="sw-thumb"></div>
+              </div>
+            </div>
+            <div class="form-group" id="backup-password-container" style="display: none; margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 500; color: var(--t1); margin-bottom: 4px; display: block;">Backup Master Password</label>
+              <input type="password" id="backup-master-password" class="form-input" placeholder="Set backup password..." style="font-size:13px;" />
+            </div>
+          </div>
+
           <div class="settings-label">Data Export Options</div>
           <div class="qr-export-list">
             <label class="qr-export-item">
@@ -8891,6 +8909,8 @@
         userStyles: [],
         unrestricted: false,
         streaming: true,
+        backupEncryptionEnabled: false,
+        backupMasterPassword: "",
         maxTokensIdx: 0,
         customChars: null,
         language: "English",
@@ -9066,6 +9086,10 @@
                 la.unrestricted !== undefined ? la.unrestricted : false;
               aiSettings.streaming =
                 la.streaming !== undefined ? la.streaming : true;
+              aiSettings.backupEncryptionEnabled =
+                la.backupEncryptionEnabled !== undefined ? la.backupEncryptionEnabled : false;
+              aiSettings.backupMasterPassword =
+                la.backupMasterPassword !== undefined ? la.backupMasterPassword : "";
               aiSettings.responseStyle = la.responseStyle || "unspecified";
               aiSettings.userStyles = la.userStyles || [];
               aiSettings.maxTokensIdx = la.maxTokensIdx || 0;
@@ -10358,6 +10382,102 @@
         }
       }
 
+      // ── BACKUP ENCRYPTION & DECRYPTION ──
+      function simpleHash(str) {
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+          hash = (hash << 5) - hash + str.charCodeAt(i);
+          hash |= 0;
+        }
+        return hash;
+      }
+
+      function deriveKey(password, rounds) {
+        var key = [];
+        var salt = "LuminaraSecureSaltValue_2026";
+        var cur = password + salt;
+        for (var r = 0; r < rounds; r++) {
+          var h = simpleHash(cur);
+          key.push(h);
+          cur = h.toString(36) + password;
+        }
+        return key;
+      }
+
+      function encryptBackup(plaintext, password) {
+        var key = deriveKey(password, 64);
+        var res = [];
+        for (var i = 0; i < plaintext.length; i++) {
+          var charCode = plaintext.charCodeAt(i);
+          var keyVal = Math.abs(key[i % key.length]);
+          var xor = charCode ^ (keyVal & 0xFF);
+          res.push(String.fromCharCode(xor));
+        }
+        var encoded = btoa(unescape(encodeURIComponent(res.join(""))));
+        return "LUMINARA_ENC_v1:" + encoded;
+      }
+
+      function decryptBackup(ciphertext, password) {
+        if (!ciphertext.startsWith("LUMINARA_ENC_v1:")) {
+          throw new Error("Invalid encrypted backup signature");
+        }
+        var base64Part = ciphertext.slice(16);
+        var decoded = decodeURIComponent(escape(atob(base64Part)));
+        var key = deriveKey(password, 64);
+        var res = [];
+        for (var i = 0; i < decoded.length; i++) {
+          var charCode = decoded.charCodeAt(i);
+          var keyVal = Math.abs(key[i % key.length]);
+          var xor = charCode ^ (keyVal & 0xFF);
+          res.push(String.fromCharCode(xor));
+        }
+        return res.join("");
+      }
+
+      // ── TYPEWRITER STREAMING ──
+      window.activeTypewriters = {};
+      function startTypewriter(id, currentGenId, getFullText, renderFn, speedMs) {
+        if (window.activeTypewriters[id]) {
+          clearInterval(window.activeTypewriters[id].interval);
+        }
+        var state = {
+          currentText: "",
+          typedLength: 0,
+          interval: null,
+          isFinished: false
+        };
+        speedMs = speedMs || 8;
+        
+        state.interval = setInterval(function() {
+          if (window.activeGenerationRunId !== currentGenId) {
+            clearInterval(state.interval);
+            delete window.activeTypewriters[id];
+            return;
+          }
+          
+          var fullText = getFullText() || "";
+          
+          if (state.typedLength < fullText.length) {
+            var diff = fullText.length - state.typedLength;
+            var step = 1;
+            if (diff > 120) step = 8;
+            else if (diff > 60) step = 4;
+            else if (diff > 25) step = 2;
+            
+            state.typedLength = Math.min(state.typedLength + step, fullText.length);
+            state.currentText = fullText.slice(0, state.typedLength);
+            renderFn(state.currentText, false);
+          } else if (state.isFinished) {
+            clearInterval(state.interval);
+            delete window.activeTypewriters[id];
+            renderFn(fullText, true);
+          }
+        }, speedMs);
+        
+        window.activeTypewriters[id] = state;
+        return state;
+      }
+
       // ── FORMAT TEXT ──
       function formatText(t, customTextColor) {
         if (!t) return "";
@@ -10941,8 +11061,9 @@
       }
 
       // ── CALL AI ──
-      async function callAI(c, extra, replyToMsg, insertAt) {
+      async function callAI(c, extra, replyToMsg, insertAt, forceNarrator) {
         if (isGen || !c) return;
+        var activeIsNar = forceNarrator !== undefined ? forceNarrator : isNar;
         var currentGenId = generateMsgId();
         window.activeGenerationRunId = currentGenId;
         setGen(true, c);
@@ -10976,6 +11097,9 @@
           }
           var histText = ctxMsgs
             .map(function (m) {
+              if (m.role === "narrator") {
+                return "Narrator: " + m.text;
+              }
               return (
                 (m.role === "user" ? userProfile.name : c.name) + ": " + m.text
               );
@@ -10993,7 +11117,7 @@
               '"]';
           }
           var sysPrompt = "";
-          if (isNar) {
+          if (activeIsNar) {
             sysPrompt = NARRATOR_PROMPT;
             if (c.desc)
               sysPrompt +=
@@ -11103,7 +11227,7 @@
             summaryBlock +
             histText +
             "\n\n### Respond as " +
-            (isNar ? "the Narrator" : c.name) +
+            (activeIsNar ? "the Narrator" : c.name) +
             " ###";
 
           if (extra) {
@@ -11124,7 +11248,7 @@
               chatMsgs.children[insertAt] ||
               document.getElementById("typing-indicator");
           } else {
-            typingRow = makeTypingBubble(isNar ? "narrator" : "ai");
+            typingRow = makeTypingBubble(activeIsNar ? "narrator" : "ai");
             chatMsgs.appendChild(typingRow);
             scrollBottom();
           }
@@ -11142,31 +11266,49 @@
               }
               accText += data.textChunk;
               if (aiSettings.streaming) {
-                var indicator = document.getElementById("typing-indicator");
-                if (indicator) {
-                  var bubble = indicator.querySelector(".typing-bubble");
-                  if (bubble) {
-                    bubble.classList.add("streaming");
-                    var customColor = (c && c.customTextColor && !isNar) ? c.customTextColor : "";
-                    if (customColor) {
-                      bubble.style.color = customColor;
-                    } else {
-                      bubble.style.color = "";
+                var twId = "tw-single";
+                var tw = window.activeTypewriters[twId];
+                if (!tw) {
+                  var customColor = (c && c.customTextColor && !activeIsNar) ? c.customTextColor : "";
+                  tw = startTypewriter(twId, currentGenId, function() {
+                    return accText;
+                  }, function(textSegment) {
+                    var indicator = document.getElementById("typing-indicator");
+                    if (indicator) {
+                      var bubble = indicator.querySelector(".typing-bubble");
+                      if (bubble) {
+                        bubble.classList.add("streaming");
+                        if (customColor) {
+                          bubble.style.color = customColor;
+                        } else {
+                          bubble.style.color = "";
+                        }
+                        var formatted = formatText(textSegment.trim(), customColor);
+                        if (activeIsNar) {
+                          bubble.innerHTML = '<div class="nar-label"><i class="bi bi-journal-text"></i>Narrator</div><p style="margin:0;white-space:pre-wrap">' + formatted + '</p>';
+                        } else {
+                          bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatted + '</p>';
+                        }
+                      }
+                      scrollBottom();
                     }
-                    var formatted = formatText(accText.trim(), customColor);
-                    if (isNar) {
-                      bubble.innerHTML = '<div class="nar-label"><i class="bi bi-journal-text"></i>Narrator</div><p style="margin:0;white-space:pre-wrap">' + formatted + '</p>';
-                    } else {
-                      bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatted + '</p>';
-                    }
-                  }
-                  scrollBottom();
+                  });
                 }
               }
             },
           });
           if (window.activeGenerationRunId !== currentGenId) {
             throw new Error("aborted_by_user");
+          }
+          if (aiSettings.streaming) {
+            var twId = "tw-single";
+            var tw = window.activeTypewriters[twId];
+            if (tw) {
+              tw.isFinished = true;
+              while (window.activeTypewriters[twId]) {
+                await new Promise(function(r) { setTimeout(r, 20); });
+              }
+            }
           }
           removeTypingBubble();
           var fullText = accText.trim();
@@ -11182,7 +11324,7 @@
           }
           var mObj = {
             id: generateMsgId(),
-            role: isNar ? "narrator" : "ai",
+            role: activeIsNar ? "narrator" : "ai",
             text: fullText,
             time: ts(),
             epoch: tsEpoch(),
@@ -11250,18 +11392,15 @@
 
       async function narratorMessage(instruction) {
         if (isGen || !activeId) return;
-        var c = getActive(),
-          prev = isNar;
-        isNar = true;
-        try {
-          await callAI(
-            c,
-            instruction ||
-              "Describe current scene in vivid third-person detail as Narrator. Maximum two paragraphs.",
-          );
-        } finally {
-          isNar = prev;
-        }
+        var c = getActive();
+        await callAI(
+          c,
+          instruction ||
+            "Describe current scene in vivid third-person detail as Narrator. Maximum two paragraphs.",
+          null,
+          null,
+          true
+        );
       }
 
       // FIX: /user command — replaced custom inline dots HTML with makeTypingBubble("user")
@@ -15177,13 +15316,29 @@
           if (cbu)
             cbu.value =
               customBg && !customBg.startsWith("data:") ? customBg : "";
+
+          // Populate backup encryption options
+          var isEnc = !!aiSettings.backupEncryptionEnabled;
+          var encToggle = $id("backup-encryption-toggle");
+          if (encToggle) {
+            encToggle.classList.toggle("on", isEnc);
+          }
+          var pwdCont = $id("backup-password-container");
+          if (pwdCont) {
+            pwdCont.style.display = isEnc ? "block" : "none";
+          }
+          var pwdInput = $id("backup-master-password");
+          if (pwdInput) {
+            pwdInput.value = aiSettings.backupMasterPassword || "";
+          }
+
           openModal("modal-settings");
         };
         qs("#menu-import").onclick = function () {
           $id("main-menu").classList.remove("open");
           var input = document.createElement("input");
           input.type = "file";
-          input.accept = ".json";
+          input.accept = ".json,.enc";
           input.onchange = function (e) {
             if (typeof handleFileImport === "function") {
               handleFileImport(e.target.files[0]);
@@ -15321,26 +15476,78 @@
           if (!file) return;
           try {
             var text = await file.text();
-            var data = JSON.parse(text);
-            await processImportData(data);
+            text = text.trim();
+            if (text.startsWith("LUMINARA_ENC_v1:")) {
+              showQuickDialog({
+                title: "Encrypted Backup Detected",
+                content: '<div class="qdialog-input-group"><label style="font-size: 11.5px; font-weight: 500; color: var(--t1); margin-bottom: 4px; display: block;">Backup Password</label><input type="password" id="backup-decrypt-password" class="qdialog-input" placeholder="Enter password to decrypt..." style="font-size:13px;"/></div>',
+                actions: [
+                  {
+                    text: "Cancel",
+                    type: "secondary",
+                    onClick: function() { return true; }
+                  },
+                  {
+                    text: "Decrypt & Import",
+                    type: "primary",
+                    onClick: async function() {
+                      var pwdInput = document.getElementById("backup-decrypt-password");
+                      var pwd = pwdInput ? pwdInput.value : "";
+                      if (!pwd) {
+                        showToast("Password required", "warning");
+                        return false;
+                      }
+                      try {
+                        var decryptedText = decryptBackup(text, pwd);
+                        var data = JSON.parse(decryptedText);
+                        await processImportData(data);
+                        return true;
+                      } catch (err) {
+                        showToast("Decryption failed. Incorrect password or corrupted data.", "error");
+                        return false;
+                      }
+                    }
+                  }
+                ]
+              });
+            } else {
+              var data = JSON.parse(text);
+              await processImportData(data);
+            }
           } catch (e) {
-            showToast("Import failed: invalid JSON", "error");
+            showToast("Import failed: invalid JSON/backup", "error");
           }
         }
         qs("#menu-export").onclick = function () {
           $id("main-menu").classList.remove("open");
-          var blob = new Blob([JSON.stringify(chars, null, 2)], {
-            type: "application/json",
+          var jsonStr = JSON.stringify(chars, null, 2);
+          if (aiSettings.backupEncryptionEnabled) {
+            var pwd = aiSettings.backupMasterPassword || "";
+            if (!pwd) {
+              showToast("Encrypted Backups enabled but no password set! Pls set one in Settings first.", "warning");
+              return;
+            }
+            try {
+              jsonStr = encryptBackup(jsonStr, pwd);
+            } catch (e) {
+              console.error(e);
+              showToast("Encryption failed", "error");
+              return;
+            }
+          }
+
+          var blob = new Blob([jsonStr], {
+            type: aiSettings.backupEncryptionEnabled ? "text/plain" : "application/json",
           });
           var url = URL.createObjectURL(blob),
             a = document.createElement("a");
           a.href = url;
-          a.download = "luminara-backup-" + Date.now() + ".json";
+          a.download = "luminara-backup-" + Date.now() + (aiSettings.backupEncryptionEnabled ? ".enc" : ".json");
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-          showToast("Exported!", "success");
+          showToast(aiSettings.backupEncryptionEnabled ? "Exported securely! (Encrypted)" : "Exported!", "success");
         };
 
         // Settings Modal JSON Export Button
@@ -15386,18 +15593,34 @@
               return;
             }
 
-            var blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
-              type: "application/json",
+            var jsonStr = JSON.stringify(dataToExport, null, 2);
+            if (aiSettings.backupEncryptionEnabled) {
+              var pwd = aiSettings.backupMasterPassword || "";
+              if (!pwd) {
+                showToast("Encrypted Backups enabled but no password set! Pls set one in Settings first.", "warning");
+                return;
+              }
+              try {
+                jsonStr = encryptBackup(jsonStr, pwd);
+              } catch (e) {
+                console.error(e);
+                showToast("Encryption failed", "error");
+                return;
+              }
+            }
+
+            var blob = new Blob([jsonStr], {
+              type: aiSettings.backupEncryptionEnabled ? "text/plain" : "application/json",
             });
             var url = URL.createObjectURL(blob),
               a = document.createElement("a");
             a.href = url;
-            a.download = "luminara-settings-backup-" + Date.now() + ".json";
+            a.download = "luminara-settings-backup-" + Date.now() + (aiSettings.backupEncryptionEnabled ? ".enc" : ".json");
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast("Exported selected settings and data!", "success");
+            showToast(aiSettings.backupEncryptionEnabled ? "Exported selected data securely! (Encrypted)" : "Exported selected settings and data!", "success");
           };
         }
 
@@ -15602,6 +15825,18 @@
         $id("dark-mode-toggle").onclick = function () {
           isDark = !isDark;
           applyTheme();
+          saveState();
+        };
+        $id("backup-encryption-toggle").onclick = function () {
+          this.classList.toggle("on");
+          var isEnc = this.classList.contains("on");
+          aiSettings.backupEncryptionEnabled = isEnc;
+          var pwdCont = $id("backup-password-container");
+          if (pwdCont) pwdCont.style.display = isEnc ? "block" : "none";
+          saveState();
+        };
+        $id("backup-master-password").oninput = function () {
+          aiSettings.backupMasterPassword = this.value;
           saveState();
         };
         $id("ui-scale-slider").oninput = function () {
@@ -15836,6 +16071,8 @@
                     userStyles: [],
                     unrestricted: false,
                     streaming: true,
+                    backupEncryptionEnabled: false,
+                    backupMasterPassword: "",
                     maxTokensIdx: 0,
                     customChars: null,
                   };
@@ -17021,27 +17258,45 @@
                 }
                 accText += data.textChunk;
                 if (aiSettings.streaming) {
-                  var indicator = document.getElementById("dual-typing-" + charIdx);
-                  if (indicator) {
-                    var bubble = indicator.querySelector(".typing-bubble");
-                    if (bubble) {
-                      bubble.classList.add("streaming");
-                      var sp = c.characters[charIdx];
-                      var customColor = (sp && sp.customTextColor) ? sp.customTextColor : "";
-                      if (customColor) {
-                        bubble.style.color = customColor;
-                      } else {
-                        bubble.style.color = "";
+                  var twId = "tw-dual-" + charIdx;
+                  var tw = window.activeTypewriters[twId];
+                  if (!tw) {
+                    var sp = c.characters[charIdx];
+                    var customColor = (sp && sp.customTextColor) ? sp.customTextColor : "";
+                    tw = startTypewriter(twId, currentGenId, function() {
+                      return accText;
+                    }, function(textSegment) {
+                      var indicator = document.getElementById("dual-typing-" + charIdx);
+                      if (indicator) {
+                        var bubble = indicator.querySelector(".typing-bubble");
+                        if (bubble) {
+                          bubble.classList.add("streaming");
+                          if (customColor) {
+                            bubble.style.color = customColor;
+                          } else {
+                            bubble.style.color = "";
+                          }
+                          bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatText(textSegment.trim(), customColor) + '</p>';
+                        }
+                        if (typeof scrollBottom === "function") scrollBottom();
                       }
-                      bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatText(accText.trim(), customColor) + '</p>';
-                    }
-                    if (typeof scrollBottom === "function") scrollBottom();
+                    });
                   }
                 }
               },
             });
             if (window.activeGenerationRunId !== currentGenId) {
               throw new Error("aborted_by_user");
+            }
+            if (aiSettings.streaming) {
+              var twId = "tw-dual-" + charIdx;
+              var tw = window.activeTypewriters[twId];
+              if (tw) {
+                tw.isFinished = true;
+                while (window.activeTypewriters[twId]) {
+                  await new Promise(function(r) { setTimeout(r, 20); });
+                }
+              }
             }
           } catch (e) {
             if (activeId === c.id) {
@@ -18118,10 +18373,12 @@
             }
           }
 
+          var isMsgPrevNarrator = (m.role === "narrator") || (idx > 0 && c.msgs[idx - 1] && c.msgs[idx - 1].role === "timejump");
+
           try {
             var callFn = _origCallAI || window.callAI;
             if (typeof callFn === "function") {
-              await callFn(c, regenInstruction || null, null, idx);
+              await callFn(c, regenInstruction || null, null, idx, isMsgPrevNarrator);
             }
             // Capture the message at the expected index
             if (
@@ -18656,12 +18913,10 @@
           const prompt = `[CONTEXT: Time jump ${TS_STATE.dir === "forward" ? "forward" : "back"} by ${amt} ${unit}. ${TS_EL.note?.value ? `Hint: ${TS_EL.note.value}` : ""}]
       Write 2-4 sentences of *narration* describing this transition. Start with "${TS_STATE.dir === "forward" ? "Time passed..." : "Earlier..."}"`;
 
-          const wasNar = window.isNar;
-          window.isNar = true;
           try {
-            await window.callAI?.(c, prompt);
-          } finally {
-            window.isNar = wasNar;
+            await window.callAI?.(c, prompt, null, null, true);
+          } catch (e) {
+            console.error(e);
           }
         }
 
@@ -18772,12 +19027,10 @@
           const prompt = `[CONTEXT: Time jump ${dir === "forward" ? "forward" : "back"} by ${amountOfTime}. ${sceneHint ? `Hint: ${sceneHint}` : ""}]
       Write 2-4 sentences of *narration* describing this transition. Start with "${dir === "forward" ? "Time passed..." : "Earlier..."}"`;
 
-          const wasNar = window.isNar;
-          window.isNar = true;
           try {
-            await (window.callAI?.(c, prompt) || (typeof callAI === "function" ? callAI(c, prompt) : null));
-          } finally {
-            window.isNar = wasNar;
+            await (window.callAI?.(c, prompt, null, null, true) || (typeof callAI === "function" ? callAI(c, prompt, null, null, true) : null));
+          } catch (e) {
+            console.error(e);
           }
         };
 
