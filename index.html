@@ -2327,6 +2327,7 @@
         flex-shrink: 0;
         position: relative;
         z-index: 5;
+        min-width: 0;
       }
       #chat-input-area > * {
         pointer-events: auto;
@@ -2489,6 +2490,7 @@
         border-radius: 24px;
         padding: 10px 12px;
         min-height: 44px;
+        min-width: 0;
         transition:
           border-color var(--trans-hover),
           box-shadow var(--trans-hover),
@@ -4234,6 +4236,9 @@
           border-color var(--trans-hover),
           box-shadow var(--trans-hover);
       }
+      textarea.qdialog-input {
+        resize: vertical;
+      }
       .qdialog-input:focus {
         border-color: color-mix(in srgb, var(--primary) 50%, transparent);
         box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 8%, transparent);
@@ -5255,6 +5260,57 @@
         box-shadow: 0 0 5px var(--primary-glow);
       }
 
+      .ts-box-input {
+        background: var(--bg-1);
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        padding: 4px 8px;
+        font-size: 13px;
+        color: var(--t0);
+        outline: none;
+        height: 28px;
+        line-height: normal;
+        transition: border-color var(--trans-hover);
+        min-width: 0;
+      }
+      .ts-box-input:focus {
+        border-color: var(--primary);
+        background: var(--bg-surface);
+      }
+
+      .ts-param-box {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: color-mix(in srgb, var(--primary) 10%, transparent);
+        border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+        border-radius: var(--r-sm);
+        padding: 2px 8px;
+        height: 28.5px;
+        min-width: 0;
+        transition: border-color var(--trans-hover);
+      }
+      .ts-param-box:focus-within {
+        border-color: color-mix(in srgb, var(--primary) 60%, transparent);
+      }
+      .ts-param-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--primary);
+        white-space: nowrap;
+      }
+      .ts-param-input {
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        font-size: 13px;
+        color: var(--t0);
+        padding: 0 !important;
+        height: 20px !important;
+        min-width: 45px;
+        box-shadow: none !important;
+      }
+
       /* ── Time jump ── */
       .timejump-sep {
         display: flex;
@@ -5514,6 +5570,19 @@
         background: var(--primary-dim);
         border-color: color-mix(in srgb, var(--primary) 52%, transparent);
         color: var(--primary);
+      }
+      .adv-tone-chip .bi,
+      .adv-tone-chip .tone-icon {
+        color: var(--t2);
+        transition: color var(--trans-hover);
+      }
+      .adv-tone-chip:hover .bi,
+      .adv-tone-chip:hover .tone-icon {
+        color: var(--tone-color, var(--primary)) !important;
+      }
+      .adv-tone-chip.sel .bi,
+      .adv-tone-chip.sel .tone-icon {
+        color: var(--tone-color, var(--primary)) !important;
       }
       .adv-av-ring {
         width: 64px;
@@ -6231,6 +6300,48 @@
       .msg-row.bulk-mode .bulk-select-label {
         flex-shrink: 0;
       }
+      @media (max-width: 768px) {
+        #cmd-badge {
+          font-size: 11px !important;
+          max-width: 75px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        #cmd-param-label {
+          font-size: 11px !important;
+          margin-right: 3px !important;
+        }
+        #chat-input-area {
+          padding: 8px 10px 10px !important;
+          gap: 6px !important;
+        }
+        .input-wrap {
+          padding: 8px 10px !important;
+        }
+        .ts-box-input {
+          font-size: 11px !important;
+          padding: 2px 4px !important;
+          height: 24px !important;
+        }
+        .ts-param-box {
+          height: 24px !important;
+          padding: 1px 6px !important;
+          gap: 3px !important;
+        }
+        .ts-param-label {
+          font-size: 11px !important;
+        }
+        .ts-param-input {
+          font-size: 11px !important;
+          height: 18px !important;
+        }
+        #cmd-timeskip-inputs {
+          gap: 3px !important;
+        }
+        #cmd-param-box {
+          padding: 1px 3px !important;
+        }
+      }
       @media (max-width: 1024px) {
         input, textarea, select, .form-input, .form-textarea, #chat-input, .qdialog-input {
           font-size: 16px !important;
@@ -6639,16 +6750,16 @@
                 style="
                   background: color-mix(
                     in srgb,
-                    var(--t3) 10%,
+                    var(--primary-500) 10%,
                     transparent
                   );
-                  color: var(--t3);
+                  color: var(--primary-500);
                 "
               >
                 <i class="bi bi-hourglass-split" style="font-size: 10px"></i>
               </div>
               <div>
-                <div class="slash-cmd">/timeskip <span style="font-size:11px; opacity:0.6; font-weight:normal; margin-left:4px;">duration</span></div>
+                <div class="slash-cmd">/timeskip <span style="font-size:11px; opacity:0.6; font-weight:normal; margin-left:4px;">direction time hint</span></div>
                 <div class="slash-desc">Advances time in the story</div>
               </div>
             </div>
@@ -6681,15 +6792,29 @@
                 <i class="bi bi-paperclip" style="font-size: 20px"></i>
               </button>
               <input type="file" id="chat-file-input" style="display: none;" accept="image/*,text/plain,application/json,.txt,.json" />
-              <div style="flex:1; display:flex; align-items:center; gap:8px; width:100%;">
-                <div id="cmd-badge" style="display:none; font-weight:800; color:var(--primary); font-size:14px; white-space:nowrap; align-items:center; line-height:1;"></div>
-                <div id="cmd-param-box" style="display:flex; align-items:center; flex:1; transition: all 0.15s; border-radius: var(--r-sm); border:1px solid transparent; padding: 2px 0px;">
+              <div style="flex:1; display:flex; align-items:center; flex-wrap:wrap; gap:8px; width:100%; min-width:0;">
+                <div id="cmd-badge" style="display:none; font-weight:800; color:var(--primary); font-size:13px; white-space:nowrap; align-items:center; line-height:1;"></div>
+                <div id="cmd-param-box" style="display:flex; align-items:center; flex-wrap:wrap; flex:1; transition: all 0.15s; border-radius: var(--r-sm); border:1px solid transparent; padding: 2px 0px; min-width:0;">
                   <div id="cmd-param-label" style="display:none; font-size:13px; font-weight:700; color:var(--primary); margin-right:6px; white-space:nowrap; align-items:center; line-height:1;">message</div>
+                  <div id="cmd-timeskip-inputs" style="display:none; align-items:center; flex-wrap:wrap; gap:6px; flex:1; min-width:0;">
+                    <div class="ts-param-box" style="flex: 1; min-width: 130px;">
+                      <span class="ts-param-label">direction:</span>
+                      <input type="text" id="ts-input-dir" class="ts-param-input" placeholder="forward/backward" style="flex: 1; min-width: 30px;" />
+                    </div>
+                    <div class="ts-param-box" style="flex: 1.2; min-width: 150px;">
+                      <span class="ts-param-label">time:</span>
+                      <input type="text" id="ts-input-time" class="ts-param-input" placeholder="e.g. 2 hours" style="flex: 1; min-width: 30px;" />
+                    </div>
+                    <div class="ts-param-box" style="flex: 1.5; min-width: 170px;">
+                      <span class="ts-param-label">hint:</span>
+                      <input type="text" id="ts-input-hint" class="ts-param-input" placeholder="scene hint (optional)" style="flex: 1; min-width: 30px;" />
+                    </div>
+                  </div>
                   <textarea
                     id="chat-input"
                     rows="1"
                     placeholder="Message…"
-                    style="flex:1; background:transparent; border:none; padding:0; margin:0; outline:none; color:var(--t0);"
+                    style="flex:1; background:transparent; border:none; padding:0; margin:0; outline:none; color:var(--t0); min-width: 0;"
                   ></textarea>
                 </div>
               </div>
@@ -8017,14 +8142,14 @@
                 data-dir="forward"
                 onclick="tsPickDir('forward', this)"
               >
-                ⏩ Skip Forward
+                <i class="bi bi-chevron-double-right"></i> Skip Forward
               </div>
               <div
                 class="gender-opt"
                 data-dir="rewind"
                 onclick="tsPickDir('rewind', this)"
               >
-                ⏪ Rewind Back
+                <i class="bi bi-chevron-double-left"></i> Rewind Back
               </div>
             </div>
           </div>
@@ -10722,7 +10847,24 @@
       // ── SEND MESSAGE ──
       async function sendMsg() {
         var inp = $id("chat-input");
-        var text = (window.activeSlashCommand ? window.activeSlashCommand + " " : "") + (inp ? inp.value : "");
+        var text = "";
+        if (window.activeSlashCommand === "/timeskip") {
+          var tDir = (document.getElementById("ts-input-dir")?.value || "").trim();
+          var tTime = (document.getElementById("ts-input-time")?.value || "").trim();
+          var tHint = (document.getElementById("ts-input-hint")?.value || "").trim();
+          if (!tDir || !tTime) {
+            if (typeof showToast === "function") {
+              showToast("Direction and amount of time are required.", "warning");
+            }
+            return;
+          }
+          var qDir = tDir.includes(" ") ? `"${tDir}"` : tDir;
+          var qTime = tTime.includes(" ") ? `"${tTime}"` : tTime;
+          var qHint = tHint ? (tHint.includes(" ") ? `"${tHint}"` : tHint) : "";
+          text = `/timeskip ${qDir} ${qTime} ${qHint}`.trim();
+        } else {
+          text = (window.activeSlashCommand ? window.activeSlashCommand + " " : "") + (inp ? inp.value : "");
+        }
         text = text.trim();
         if (!text || isGen || !activeId) return;
         
@@ -10759,6 +10901,12 @@
           if (cmd === "/img") {
             if (args) await generateDualImages(c, args);
             else await generateContextualImage();
+            return;
+          }
+          if (cmd === "/timeskip") {
+            if (typeof window.executeTimeskipFromCommand === "function") {
+              await window.executeTimeskipFromCommand(args);
+            }
             return;
           }
           return;
@@ -13604,27 +13752,83 @@
         var box = $id("cmd-param-box");
         var label = $id("cmd-param-label");
         if (!badge || !inp || !box || !label) return;
+        
+        var tsInputs = $id("cmd-timeskip-inputs");
+        if (window.activeSlashCommand !== "/timeskip") {
+          var tsDir = $id("ts-input-dir");
+          if (tsDir) delete tsDir.dataset.dirty;
+        }
+
         if (window.activeSlashCommand) {
           badge.textContent = window.activeSlashCommand;
           badge.style.display = "inline-flex";
+          badge.style.background = "transparent";
+          badge.style.border = "none";
+          badge.style.borderRadius = "0";
+          badge.style.padding = "0";
+          badge.style.fontSize = "13px";
+          badge.style.fontWeight = "800";
+          badge.style.color = "var(--primary)";
+          badge.style.marginRight = "6px";
           
-          var pName = "message:";
-          if (window.activeSlashCommand === "/img") pName = "prompt:";
-          else if (window.activeSlashCommand === "/timeskip") pName = "duration:";
-          label.textContent = pName;
-          label.style.display = "inline-flex";
+          if (window.activeSlashCommand === "/timeskip") {
+            label.style.display = "none";
+            inp.style.display = "none";
+            if (tsInputs) {
+              tsInputs.style.display = "flex";
+              tsInputs.style.flexWrap = "wrap";
+              var tsDir = $id("ts-input-dir");
+              var tsTime = $id("ts-input-time");
+              var tsHint = $id("ts-input-hint");
+              if (tsDir && !tsDir.dataset.dirty) {
+                tsDir.value = "";
+                if (tsTime) tsTime.value = "";
+                if (tsHint) tsHint.value = "";
+                tsDir.dataset.dirty = "true";
+              }
+              if (tsDir) {
+                setTimeout(function() { tsDir.focus(); }, 10);
+              }
+            }
+            // Keep parameters box background transparent and borderless
+            box.style.background = "transparent";
+            box.style.border = "none";
+            box.style.padding = "0";
+            box.style.gap = "6px";
+            box.style.flexWrap = "wrap";
+          } else {
+            if (tsInputs) tsInputs.style.display = "none";
+            inp.style.display = "inline-block";
+            
+            var pName = "message:";
+            if (window.activeSlashCommand === "/img") pName = "prompt:";
+            label.textContent = pName;
+            label.style.display = "inline-flex";
 
-          box.style.background = "color-mix(in srgb, var(--primary) 10%, transparent)";
-          box.style.border = "1px solid color-mix(in srgb, var(--primary) 30%, transparent)";
-          box.style.padding = "2px 8px";
-          inp.style.minHeight = "22px";
-          inp.placeholder = "";
+            box.style.background = "color-mix(in srgb, var(--primary) 10%, transparent)";
+            box.style.border = "1px solid color-mix(in srgb, var(--primary) 30%, transparent)";
+            box.style.borderRadius = "var(--r-sm)";
+            box.style.padding = "2px 8px";
+            box.style.gap = "4px";
+            box.style.flexWrap = "nowrap";
+            inp.style.minHeight = "22px";
+            inp.placeholder = "";
+          }
         } else {
           badge.style.display = "none";
+          badge.style.background = "transparent";
+          badge.style.border = "none";
+          badge.style.padding = "0";
+          badge.style.marginRight = "0";
           label.style.display = "none";
+          if (tsInputs) tsInputs.style.display = "none";
+          inp.style.display = "inline-block";
+          
           box.style.background = "transparent";
           box.style.border = "1px solid transparent";
           box.style.padding = "2px 0px";
+          box.style.gap = "4px";
+          box.style.flexWrap = "nowrap";
           inp.style.minHeight = "22px";
           inp.placeholder = "Message…";
         }
@@ -14026,7 +14230,7 @@
             (isSel ? " sel" : "") +
             '" data-adv-tone="' +
             t.id +
-            '" onclick="advPickTone(this)" style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r-sm);border:1.5px solid ' +
+            '" onclick="advPickTone(this)" style="--tone-color:' + t.color + ';display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r-sm);border:1.5px solid ' +
             (isSel ? t.color : "var(--border)") +
             ";background:" +
             (isSel ? "var(--bg-active)" : "var(--bg-2)") +
@@ -16234,7 +16438,7 @@
         });
         chatInput.addEventListener("keydown", function (e) {
           if (e.key === "Backspace" && this.value === "" && window.activeSlashCommand) {
-            this.value = window.activeSlashCommand + " ";
+            this.value = window.activeSlashCommand;
             window.activeSlashCommand = null;
             if (typeof updateCmdBadge === "function") updateCmdBadge();
             e.preventDefault();
@@ -17261,7 +17465,24 @@
 
           window.sendMsg = async function () {
             var inp = document.getElementById("chat-input");
-            var text = (window.activeSlashCommand ? window.activeSlashCommand + " " : "") + (inp ? inp.value : "");
+            var text = "";
+            if (window.activeSlashCommand === "/timeskip") {
+              var tDir = (document.getElementById("ts-input-dir")?.value || "").trim();
+              var tTime = (document.getElementById("ts-input-time")?.value || "").trim();
+              var tHint = (document.getElementById("ts-input-hint")?.value || "").trim();
+              if (!tDir || !tTime) {
+                if (typeof showToast === "function") {
+                  showToast("Direction and amount of time are required.", "warning");
+                }
+                return;
+              }
+              var qDir = tDir.includes(" ") ? `"${tDir}"` : tDir;
+              var qTime = tTime.includes(" ") ? `"${tTime}"` : tTime;
+              var qHint = tHint ? (tHint.includes(" ") ? `"${tHint}"` : tHint) : "";
+              text = `/timeskip ${qDir} ${qTime} ${qHint}`.trim();
+            } else {
+              text = (window.activeSlashCommand ? window.activeSlashCommand + " " : "") + (inp ? inp.value : "");
+            }
             text = text.trim();
             if (!text) return;
 
@@ -18380,13 +18601,10 @@
             amt === 1 ? TS_STATE.unit.replace(/s$/, "") : TS_STATE.unit;
           const label = `${amt} ${unit} ${TS_STATE.dir === "forward" ? "later" : "earlier"}`;
           const isRewind = TS_STATE.dir === "rewind";
-          const icon = isRewind
-            ? '<i class="bi bi-arrow-left"></i>'
-            : '<i class="bi bi-arrow-right"></i>';
 
           TS_EL.prev.className = "timejump-sep" + (isRewind ? " rewind" : "");
           TS_EL.prev.style.cssText = "margin:15px 0; opacity:1;";
-          TS_EL.prev.innerHTML = `<div class="timejump-sep-line"></div><div class="timejump-sep-label">${icon} — ${label} —</div><div class="timejump-sep-line"></div>`;
+          TS_EL.prev.innerHTML = `<div class="timejump-sep-line"></div><div class="timejump-sep-label">— ${label} —</div><div class="timejump-sep-line"></div>`;
         }
 
         window.openTimeskipModal = () => {
@@ -18452,12 +18670,116 @@
           div.className = "msg-group narrator";
           if (m.id) div.id = "bubble-" + m.id;
           const isRewind = m.dir === "rewind";
-          const icon = isRewind
-            ? '<i class="bi bi-arrow-left"></i>'
-            : '<i class="bi bi-arrow-right"></i>';
-          div.innerHTML = `<div class="timejump-sep${isRewind ? " rewind" : ""}"><div class="timejump-sep-line"></div><div class="timejump-sep-label">${icon}${m.label}</div><div class="timejump-sep-line"></div></div>`;
+          div.innerHTML = `<div class="timejump-sep${isRewind ? " rewind" : ""}"><div class="timejump-sep-line"></div><div class="timejump-sep-label">${m.label}</div><div class="timejump-sep-line"></div></div>`;
           return div;
         }
+
+        window.executeTimeskipFromCommand = async function(argsString) {
+          argsString = (argsString || "").trim();
+          
+          // Find all quoted segments
+          const quotes = [];
+          const quoteRegex = /"([^"]*)"|'([^']*)'/g;
+          let match;
+          while ((match = quoteRegex.exec(argsString)) !== null) {
+            quotes.push(match[1] || match[2] || "");
+          }
+          
+          // Remove quotes to find remaining unquoted words
+          const unquotedStr = argsString.replace(/"[^"]*"|'[^']*'/g, "").replace(/\s+/g, " ").trim();
+          const unquotedParts = unquotedStr.split(" ").filter(Boolean);
+          
+          const hasDirection = unquotedParts.length >= 1;
+          const someTimeMaybe = quotes.length >= 1 || unquotedParts.length >= 2;
+          
+          if (!hasDirection || !someTimeMaybe) {
+            if (typeof showToast === "function") {
+              showToast('Direction and amount of time are required. Format: /timeskip direction "amount of time" "optional scene hint"', "warning");
+            }
+            return;
+          }
+          
+          let direction = unquotedParts[0];
+          let amountOfTime = "1 hour";
+          let sceneHint = "";
+          
+          if (quotes.length >= 2) {
+            amountOfTime = quotes[0];
+            sceneHint = quotes[1];
+          } else if (quotes.length === 1) {
+            if (unquotedParts.length >= 2) {
+              amountOfTime = unquotedParts.slice(1).join(" ");
+              sceneHint = quotes[0];
+            } else {
+              amountOfTime = quotes[0];
+              sceneHint = "";
+            }
+          } else {
+            // 0 quotes
+            if (unquotedParts.length >= 2) {
+              amountOfTime = unquotedParts.slice(1).join(" ");
+            }
+          }
+          
+          let expandedAmount = amountOfTime.trim().toLowerCase();
+          const pMatch = expandedAmount.match(/^(\d+(?:\.\d+)?)\s*(min|mins|m|h|hr|hrs|d|day|days|w|wk|wks|y|yr|yrs|mo|mos|month|months|year|years|week|weeks|hour|hours|minute|minutes)$/i);
+          if (pMatch) {
+            const v = pMatch[1];
+            let u = pMatch[2];
+            if (u === 'min' || u === 'mins' || u === 'minute' || u === 'minutes') u = v === "1" ? "minute" : "minutes";
+            else if (u === 'h' || u === 'hr' || u === 'hrs' || u === 'hour' || u === 'hours') u = v === "1" ? "hour" : "hours";
+            else if (u === 'd' || u === 'day' || u === 'days') u = v === "1" ? "day" : "days";
+            else if (u === 'w' || u === 'wk' || u === 'wks' || u === 'week' || u === 'weeks') u = v === "1" ? "week" : "weeks";
+            else if (u === 'm' || u === 'mo' || u === 'mos' || u === 'month' || u === 'months') u = v === "1" ? "month" : "months";
+            else if (u === 'y' || u === 'yr' || u === 'yrs' || u === 'year' || u === 'years') u = v === "1" ? "year" : "years";
+            amountOfTime = `${v} ${u}`;
+          }
+          
+          const c = window.getActive?.() || (typeof getActive === "function" ? getActive() : null);
+          if (!c) return;
+
+          let dir = "forward";
+          const lowerDir = direction.toLowerCase().trim();
+          if (lowerDir === "rewind" || lowerDir === "backward" || lowerDir === "back" || lowerDir === "earlier") {
+            dir = "rewind";
+          }
+
+          const label = `— ${amountOfTime} ${dir === "forward" ? "later" : "earlier"} —`;
+
+          const msg = {
+            id: "ts_" + Date.now(),
+            role: "timejump",
+            dir: dir,
+            amt: amountOfTime,
+            unit: "",
+            note: sceneHint,
+            label,
+            text: label,
+            time: window.ts?.() || (typeof ts === "function" ? ts() : ""),
+            epoch: Date.now(),
+          };
+          c.msgs.push(msg);
+          window.saveState?.();
+
+          const cont = document.getElementById("chat-messages");
+          if (cont) {
+            cont.appendChild(tsMakeBubble(msg));
+            window.scrollBottom?.() || (typeof scrollBottom === "function" ? scrollBottom() : null);
+          }
+
+          if (window.isGen) return;
+
+          const prompt = `[CONTEXT: Time jump ${dir === "forward" ? "forward" : "back"} by ${amountOfTime}. ${sceneHint ? `Hint: ${sceneHint}` : ""}]
+      Write 2-4 sentences of *narration* describing this transition. Start with "${dir === "forward" ? "Time passed..." : "Earlier..."}"`;
+
+          const wasNar = window.isNar;
+          window.isNar = true;
+          try {
+            await (window.callAI?.(c, prompt) || (typeof callAI === "function" ? callAI(c, prompt) : null));
+          } finally {
+            window.isNar = wasNar;
+          }
+        };
 
         function tsBootstrap() {
           if (!window.makeBubble || !window.renderMsgs || !window.selectChat)
@@ -18478,6 +18800,46 @@
             };
           }
           if (TS_EL.go) TS_EL.go.onclick = tsGo;
+
+          // Wire up timeskip keyboard handlers for inline input boxes
+          var tsDir = document.getElementById("ts-input-dir");
+          var tsTime = document.getElementById("ts-input-time");
+          var tsHint = document.getElementById("ts-input-hint");
+          [tsDir, tsTime, tsHint].forEach(function (inpNode) {
+            if (!inpNode) return;
+            inpNode.onkeydown = function (e) {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                window.sendMsg?.();
+              }
+              if (e.key === "Backspace" && this.value === "") {
+                e.preventDefault();
+                if (inpNode === tsHint) {
+                  var prev = document.getElementById("ts-input-time");
+                  if (prev) {
+                    prev.focus();
+                    prev.setSelectionRange(prev.value.length, prev.value.length);
+                  }
+                } else if (inpNode === tsTime) {
+                  var prev = document.getElementById("ts-input-dir");
+                  if (prev) {
+                    prev.focus();
+                    prev.setSelectionRange(prev.value.length, prev.value.length);
+                  }
+                } else if (inpNode === tsDir) {
+                  window.activeSlashCommand = null;
+                  var mainInp = document.getElementById("chat-input");
+                  if (typeof updateCmdBadge === "function") updateCmdBadge();
+                  if (mainInp) {
+                    mainInp.value = "/timeskip";
+                    mainInp.focus();
+                    mainInp.setSelectionRange(mainInp.value.length, mainInp.value.length);
+                    mainInp.dispatchEvent(new Event("input", { bubbles: true }));
+                  }
+                }
+              }
+            };
+          });
 
           // Aggressive Patching
           const _oldMb = window.makeBubble;
