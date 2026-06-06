@@ -10789,7 +10789,11 @@
         var rqHtml = "";
         if (m.replyTo) {
           var rqName =
-            m.replyTo.role === "user" ? userProfile.name : c ? c.name : "AI";
+            m.replyTo.role === "user"
+              ? userProfile.name
+              : (m.replyTo.role === "narrator"
+                 ? "Narrator"
+                 : (m.replyTo.dualCharName || (c ? c.name : "AI")));
           var rqTxt =
             (m.replyTo.text || "").slice(0, 80) +
             ((m.replyTo.text || "").length > 80 ? "\u2026" : "");
@@ -11033,7 +11037,7 @@
         }
         var c = getActive();
         var rep = replyingTo
-          ? { role: replyingTo.role, text: replyingTo.text }
+          ? { role: replyingTo.role, text: replyingTo.text, dualCharName: replyingTo.dualCharName }
           : null;
         var msgIdx = c.msgs.length;
         var newMsg = {
@@ -11100,13 +11104,16 @@
               if (m.role === "narrator") {
                 return "Narrator: " + m.text;
               }
-              return (
-                (m.role === "user" ? userProfile.name : c.name) + ": " + m.text
-              );
+              var senderName = m.role === "user" ? userProfile.name : (m.dualCharName || c.name);
+              return senderName + ": " + m.text;
             })
             .join("\n\n");
           if (replyToMsg) {
-            var rn = replyToMsg.role === "user" ? userProfile.name : c.name;
+            var rn = replyToMsg.role === "user"
+              ? userProfile.name
+              : (replyToMsg.role === "narrator"
+                 ? "the Narrator"
+                 : (replyToMsg.dualCharName || c.name));
             histText +=
               "\n\n[" +
               userProfile.name +
@@ -11513,7 +11520,11 @@
         var res = findMsg(id);
         if (!res) return;
         replyingTo = res.msg;
-        var name = replyingTo.role === "user" ? userProfile.name : c.name;
+        var name = replyingTo.role === "user"
+          ? userProfile.name
+          : (replyingTo.role === "narrator"
+             ? "Narrator"
+             : (replyingTo.dualCharName || c.name));
         var rp = $id("reply-preview"),
           rn = $id("reply-name"),
           rt = $id("reply-text");
@@ -17558,7 +17569,11 @@
           var rqHtml = "";
           if (m.replyTo) {
             var rqName =
-              m.replyTo.role === "user" ? userProfile.name : c ? c.name : "AI";
+              m.replyTo.role === "user"
+                ? userProfile.name
+                : (m.replyTo.role === "narrator"
+                   ? "Narrator"
+                   : (m.replyTo.dualCharName || (c ? c.name : "AI")));
             var rqTxt =
               (m.replyTo.text || "").slice(0, 80) +
               ((m.replyTo.text || "").length > 80 ? "\u2026" : "");
@@ -17817,7 +17832,7 @@
               /* Push user message */
               var rep =
                 typeof replyingTo !== "undefined" && replyingTo
-                  ? { role: replyingTo.role, text: replyingTo.text }
+                  ? { role: replyingTo.role, text: replyingTo.text, dualCharName: replyingTo.dualCharName }
                   : null;
               c.msgs.push({
                 id:
