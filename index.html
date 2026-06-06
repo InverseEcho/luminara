@@ -15104,6 +15104,7 @@
         var last = _adv.qaHistory[_adv.qaHistory.length - 1];
         if (last.role !== "ai") return;
 
+        var isStoryStart = !!last.storyStart;
         var saved = _adv.qaHistory.pop();
         _adv.qaComplete = false;
         _adv.qaLoading = true;
@@ -15112,6 +15113,32 @@
         try {
           if (!_adv.qaHistory.length) {
             await advStartQA();
+          } else if (isStoryStart) {
+            var ctx = _adv.qaHistory
+              .map(function (m) {
+                return (m.role === "ai" ? "AI" : "User") + ": " + m.text;
+              })
+              .join("\n");
+            var result = await generateText({
+              instruction:
+                'Designing how "' + _adv.name + '" interacts with user.' +
+                (_getAdvToneLabel() ? " Tone: " + _getAdvToneLabel() + "." : "") +
+                "\nConversation:\n" + ctx +
+                '\n\nAsk one final question about how the story begins. Then provide four suggested opening messages in first-person voice. The answers should be ready-to-use opening lines and should not include questions. Return ONLY valid JSON with exactly these keys: {"question":"...","storyStartSuggestions":["...","...","...","..."]}.',
+              maxTokens: 260,
+            });
+            var match = result.match(/\{[\s\S]*\}/),
+              p2 = match ? JSON.parse(match[0]) : null;
+            if (p2 && p2.question) {
+              _adv.qaHistory.push({
+                role: "ai",
+                text: p2.question,
+                suggestions: p2.storyStartSuggestions || [],
+                storyStart: true,
+              });
+            } else {
+              throw new Error("Invalid format");
+            }
           } else {
             var ctx = _adv.qaHistory
               .map(function (m) {
@@ -15121,13 +15148,10 @@
             var toneLabel = _getAdvToneLabel();
             var result = await generateText({
               instruction:
-                'The character "' +
-                _adv.name +
-                '" is interacting with the user.' +
+                'Designing how "' + _adv.name + '" interacts with user.' +
                 (toneLabel ? " Tone: " + toneLabel + "." : "") +
-                "\nConversation:\n" +
-                ctx +
-                '\n\nAsk one new, uncovered interaction question (1-2 sentences) focused only on the character\'s behavior toward the user. Then provide four suggested answers to that question. After that, ask one final question about how the story starts, and provide four suggested answers for that story start question. Suggested answers must use first-person voice (I, me, my, we, us, our), express feelings or relationship tone, and must not ask more questions. Output only JSON or the single word DONE.\nReturn EXACTLY this JSON structure: {"question":"...","suggestions":["...","...","...","..."],"storyStartQuestion":"...","storyStartSuggestions":["...","...","...","..."]}',
+                "\nConversation:\n" + ctx +
+                '\n\nAsk the next uncovered interaction question in 1-2 sentences, focusing only on the character\'s behavior toward the user. Provide 4 answer suggestions in first-person voice (I, me, my, us, our, we). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
               maxTokens: 240,
             });
             var clean = result.trim();
@@ -15140,10 +15164,9 @@
                 _adv.qaHistory.push({
                   role: "ai",
                   text: p2.question,
-                  suggestions: p2.storyStartSuggestions || p2.suggestions || [],
-                  storyStart: !!p2.storyStartSuggestions,
+                  suggestions: p2.suggestions || [],
                 });
-              else _adv.qaComplete = true;
+              else throw new Error("Invalid format");
             }
           }
         } catch (e) {
