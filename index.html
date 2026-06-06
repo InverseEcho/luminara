@@ -14904,7 +14904,7 @@
               (_adv.extra ? " Notes: " + _adv.extra : "") +
               "\n\nAsk the FIRST question about how " +
               _adv.name +
-              ' behaves toward the user. Keep it 1-2 sentences and generate exactly 4 brief answer suggestions in first-person voice from the user\'s perspective. Return ONLY valid JSON with exactly these keys: {"question":"...","suggestions":["...","...","...","..."]}.',
+              ' behaves toward the user. Keep it 1-2 sentences and generate exactly 4 brief answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Return ONLY valid JSON with exactly these keys: {"question":"...","suggestions":["...","...","...","..."]}.',
             maxTokens: 220,
           });
           var match = q.match(/\{[\s\S]*\}/),
@@ -15028,7 +15028,7 @@
                   : "") +
                 "\nConversation:\n" +
                 ctx +
-                '\n\nAsk one final question about how the story begins. Then provide four suggested opening messages in first-person voice. The answers should be ready-to-use opening lines and should not include questions. Return ONLY valid JSON with exactly these keys: {"question":"...","storyStartSuggestions":["...","...","...","..."]}.',
+                '\n\nAsk one final question about how the story begins. Then provide four suggested opening messages spoken by the character. The answers should be ready-to-use opening lines for the chat and should not include questions. Return ONLY valid JSON with exactly these keys: {"question":"...","storyStartSuggestions":["...","...","...","..."]}.',
               maxTokens: 260,
             });
             var match = result.match(/\{[\s\S]*\}/),
@@ -15073,7 +15073,7 @@
               (_getAdvToneLabel() ? " Tone: " + _getAdvToneLabel() + "." : "") +
               "\nConversation:\n" +
               ctx +
-              '\n\nAsk the next uncovered interaction question in 1-2 sentences, focusing only on the character\'s behavior toward the user. Provide 4 answer suggestions in first-person voice (I, me, my, us, our, we). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
+              '\n\nAsk the next uncovered interaction question in 1-2 sentences, focusing only on the character\'s behavior toward the user. Provide 4 answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
             maxTokens: 240,
           });
           var clean = result.trim();
@@ -15124,7 +15124,7 @@
                 'Designing how "' + _adv.name + '" interacts with user.' +
                 (_getAdvToneLabel() ? " Tone: " + _getAdvToneLabel() + "." : "") +
                 "\nConversation:\n" + ctx +
-                '\n\nAsk one final question about how the story begins. Then provide four suggested opening messages in first-person voice. The answers should be ready-to-use opening lines and should not include questions. Return ONLY valid JSON with exactly these keys: {"question":"...","storyStartSuggestions":["...","...","...","..."]}.',
+                '\n\nAsk one final question about how the story begins. Then provide four suggested opening messages spoken by the character. The answers should be ready-to-use opening lines for the chat and should not include questions. Return ONLY valid JSON with exactly these keys: {"question":"...","storyStartSuggestions":["...","...","...","..."]}.',
               maxTokens: 260,
             });
             var match = result.match(/\{[\s\S]*\}/),
@@ -15151,7 +15151,7 @@
                 'Designing how "' + _adv.name + '" interacts with user.' +
                 (toneLabel ? " Tone: " + toneLabel + "." : "") +
                 "\nConversation:\n" + ctx +
-                '\n\nAsk the next uncovered interaction question in 1-2 sentences, focusing only on the character\'s behavior toward the user. Provide 4 answer suggestions in first-person voice (I, me, my, us, our, we). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
+                '\n\nAsk the next uncovered interaction question in 1-2 sentences, focusing only on the character\'s behavior toward the user. Provide 4 answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
               maxTokens: 240,
             });
             var clean = result.trim();
