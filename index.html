@@ -1887,8 +1887,9 @@
         position: relative;
         z-index: 1;
       }
-      .msg-group:hover {
-        z-index: 10;
+      .msg-group:hover,
+      .msg-group:has(.show-actions) {
+        z-index: 50 !important;
       }
       .msg-group.ai {
         align-self: flex-start;
@@ -1928,7 +1929,7 @@
       }
       .msg-bubble:hover,
       .msg-bubble.show-actions {
-        z-index: 10;
+        z-index: 60 !important;
       }
       .msg-bubble:active {
         transform: scale(0.99);
