@@ -2784,6 +2784,30 @@
         line-height: 0;
         overflow: visible;
       }
+      /* Transparent hover-bridge to prevent actions from disappearing on layout gaps */
+      .msg-bubble.img-bubble::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: transparent !important;
+        border-radius: inherit;
+        z-index: -1;
+        transition: bottom var(--trans-hover);
+        pointer-events: auto; /* Active pointer events to keep hover alive! */
+      }
+      .msg-bubble.img-bubble:hover::after,
+      .msg-bubble.img-bubble.show-actions::after {
+        bottom: -50px !important;
+      }
+      .msg-bubble.img-bubble .bubble-actions {
+        top: auto !important;
+        z-index: 12;
+      }
+      .msg-bubble.img-bubble:hover .bubble-actions,
+      .msg-bubble.img-bubble.show-actions .bubble-actions {
+        bottom: -36px !important;
+        top: auto !important;
+      }
       .msg-bubble.img-bubble .msg-meta {
         display: none;
       }
@@ -16685,6 +16709,9 @@
           if (b) {
             b.disabled = !(hasText || !!window.activeSlashCommand);
             b.classList.toggle("ready", hasText || !!window.activeSlashCommand);
+            if (typeof updateSendButtonState === "function") {
+              updateSendButtonState();
+            }
           }
           updateInputCounter();
           var expanded = newHeight > _prevInputHeight;
