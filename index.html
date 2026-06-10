@@ -222,7 +222,7 @@
       }
 
       :root[data-theme="dark"] {
-        --italic-color: #a1a1aa;
+        --italic-color: #d1d1d6;
         --text-50: #0f0f10;
         --text-100: #18181b;
         --text-200: #27272a;
@@ -291,7 +291,7 @@
         /* Typography */
         --font: "Plus Jakarta Sans", sans-serif;
         --mono: "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas, monospace;
-        --italic-color: #52525d;
+        --italic-color: #2e3038;
 
         /* Semantic color roles */
         --bg-app: var(--background-50);
@@ -1952,7 +1952,6 @@
       [data-theme="light"] .msg-bubble.ai {
         box-shadow:
           2px 2px 8px rgba(0, 0, 0, 0.06),
-          -1px -1px 5px rgba(255, 255, 255, 0.9),
           inset 0 1px 0 rgba(255, 255, 255, 0.6);
       }
       .msg-group.ai .msg-row:first-child .msg-bubble.ai::before {
@@ -6449,8 +6448,12 @@
       <defs>
         <filter id="crisp-outline" x="-20%" y="-20%" width="140%" height="140%">
           <feMorphology operator="dilate" radius="3" in="SourceAlpha" result="dilated" />
+          <!-- Threshold the dilated alpha to strip any transparency/interpolation blur, making it perfectly razor-sharp -->
+          <feComponentTransfer in="dilated" result="crispAlpha">
+            <feFuncA type="linear" slope="100" intercept="-50" />
+          </feComponentTransfer>
           <feFlood flood-color="#000000" flood-opacity="1" result="color" />
-          <feComposite in="color" in2="dilated" operator="in" result="outline" />
+          <feComposite in="color" in2="crispAlpha" operator="in" result="outline" />
           <feMerge>
             <feMergeNode in="outline" />
             <feMergeNode in="SourceGraphic" />
@@ -8868,9 +8871,9 @@
         var hsl = hexToHsl(resolvedColor);
         var newL;
         if (isDarkTheme) {
-          newL = Math.max(10, hsl.l - 20);
+          newL = Math.max(10, hsl.l - 32);
         } else {
-          newL = Math.min(90, hsl.l + 20);
+          newL = Math.min(90, hsl.l + 32);
         }
         return hslToHex(hsl.h, hsl.s, newL);
       }
@@ -10619,7 +10622,7 @@
       }
 
       // ── FORMAT TEXT ──
-      function formatText(t, customTextColor) {
+      function formatText(t, customTextColor, isUser) {
         if (!t) return "";
         var h = escHtml(String(t));
         h = h.replace(/```([\s\S]*?)```/g, function (_, code) {
@@ -10640,7 +10643,11 @@
             : '<span style="color:var(--t0);font-weight:500">"$1"</span>',
         );
         h = h.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        var resolvedItalicColor = getItalicColor(customTextColor, isDark);
+        var textIsLight = isDark;
+        if (isUser) {
+          textIsLight = true;
+        }
+        var resolvedItalicColor = getItalicColor(customTextColor, textIsLight);
         h = h.replace(
           /\*(.*?)\*/g,
           '<em style="color:' + resolvedItalicColor + ';font-style:italic">$1</em>',
@@ -10968,7 +10975,7 @@
           var txtStyle = customColor ? ' style="color:' + customColor + '"' : '';
           var txt =
             '<p style="margin:0;white-space:pre-wrap"' + txtStyle + '>' +
-            formatText((displayedText || "").trim(), customColor) +
+            formatText((displayedText || "").trim(), customColor, isUser) +
             "</p>";
           if (isNarrator)
             content =
@@ -11401,7 +11408,7 @@
                         } else {
                           bubble.style.color = "";
                         }
-                        var formatted = formatText(textSegment.trim(), customColor);
+                        var formatted = formatText(textSegment.trim(), customColor, false);
                         if (activeIsNar) {
                           bubble.innerHTML = '<div class="nar-label"><i class="bi bi-journal-text"></i>Narrator</div><p style="margin:0;white-space:pre-wrap">' + formatted + '</p>';
                         } else {
@@ -17886,7 +17893,7 @@
                           } else {
                             bubble.style.color = "";
                           }
-                          bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatText(textSegment.trim(), customColor) + '</p>';
+                          bubble.innerHTML = '<p style="margin:0;white-space:pre-wrap">' + formatText(textSegment.trim(), customColor, false) + '</p>';
                         }
                         if (typeof scrollBottom === "function") scrollBottom();
                       }
@@ -18122,7 +18129,7 @@
             var txtStyle = customColor ? ' style="color:' + customColor + '"' : '';
             txt =
               typeof formatText === "function"
-                ? '<p style="margin:0;white-space:pre-wrap"' + txtStyle + '>' + formatText((m.text || "").trim(), customColor) + '</p>'
+                ? '<p style="margin:0;white-space:pre-wrap"' + txtStyle + '>' + formatText((m.text || "").trim(), customColor, m.role === "user") + '</p>'
                 : '<p style="margin:0;white-space:pre-wrap"' + txtStyle + '>' + esc((m.text || "").trim()) + '</p>';
           }
 
@@ -19067,7 +19074,7 @@
                 p.style.color = "";
               }
               p.innerHTML =
-                typeof formatText === "function" ? formatText((txt || "").trim(), customColor) : (txt || "").trim();
+                typeof formatText === "function" ? formatText((txt || "").trim(), customColor, m.role === "user") : (txt || "").trim();
             }
 
             if (m.type !== "image-carousel") {
@@ -19104,7 +19111,7 @@
                   p.style.color = "";
                 }
                 p.innerHTML =
-                  typeof formatText === "function" ? formatText((txt || "").trim(), customColor) : (txt || "").trim();
+                  typeof formatText === "function" ? formatText((txt || "").trim(), customColor, m.role === "user") : (txt || "").trim();
               }
 
               if (m.type !== "image-carousel") {
@@ -19222,7 +19229,7 @@
               p.style.color = "";
             }
             p.innerHTML =
-              typeof formatText === "function" ? formatText((txt || "").trim(), customColor) : (txt || "").trim();
+              typeof formatText === "function" ? formatText((txt || "").trim(), customColor, m.role === "user") : (txt || "").trim();
           }
 
           // Update All Possible Nav Elements (Standard + Actions)
