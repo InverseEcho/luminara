@@ -282,6 +282,12 @@
         --accent-800: #ffe7ad;
         --accent-900: #fff3d6;
         --accent-950: #fff9eb;
+
+        /* Chat bubble colors for dark mode */
+        --out-bg: var(--background-300);
+        --out-t: #fff;
+        --bubble-out-bg: var(--primary);
+        --bubble-out-t: #fff;
       }
 
       /* ═══════════════════════════════
@@ -339,8 +345,8 @@
         /* Chat bubble colors */
         --in-bg: var(--background-100);
         --in-t: var(--text-950);
-        --out-bg: var(--background-300);
-        --out-t: #fff;
+        --out-bg: #cbd5f0;
+        --out-t: var(--text-950);
 
         /* Component tokens */
         --sb-bg: var(--bg-surface);
@@ -348,8 +354,8 @@
         --input-bg: var(--bg-raised);
         --bubble-in-bg: var(--background-100);
         --bubble-in-t: var(--text-950);
-        --bubble-out-bg: var(--primary);
-        --bubble-out-t: #fff;
+        --bubble-out-bg: #cbd5f0;
+        --bubble-out-t: var(--text-950);
 
         /* Borders */
         --border: color-mix(in srgb, var(--text-500) 12%, transparent);
@@ -1986,6 +1992,24 @@
         background: var(--out-bg);
         clip-path: polygon(0 0, 100% 0, 0 100%);
         z-index: -1;
+      }
+
+      /* Light theme adjustments for user bubbles */
+      [data-theme="light"] .msg-bubble.user .msg-time {
+        color: rgba(10, 14, 25, 0.55);
+      }
+      [data-theme="light"] .msg-bubble.user .tick.sent {
+        color: rgba(10, 14, 25, 0.45);
+      }
+      [data-theme="light"] .msg-bubble.user .tick.read {
+        color: #1a66ff;
+      }
+      [data-theme="light"] .msg-bubble.user .reply-quote {
+        background: rgba(10, 14, 25, 0.06);
+        border-left-color: rgba(10, 14, 25, 0.3);
+      }
+      [data-theme="light"] .msg-bubble.user .reply-quote-name {
+        color: rgba(10, 14, 25, 0.75);
       }
 
       .msg-bubble.narrator {
@@ -10644,9 +10668,6 @@
         );
         h = h.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
         var textIsLight = isDark;
-        if (isUser) {
-          textIsLight = true;
-        }
         var resolvedItalicColor = getItalicColor(customTextColor, textIsLight);
         h = h.replace(
           /\*(.*?)\*/g,
