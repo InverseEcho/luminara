@@ -2080,10 +2080,6 @@
         z-index: 2;
         font-style: normal;
       }
-      #chat-messages:not(.actions-floating) .msg-bubble:hover .msg-meta,
-      #chat-messages:not(.actions-floating) .msg-bubble.show-actions .msg-meta {
-        transform: translateY(16px);
-      }
       .msg-time {
         font-size: 10px;
         color: var(--t3);
@@ -2109,7 +2105,11 @@
         color: #64c8ff;
       }
 
-      /* ── Bubble Actions ── */
+      /* ══════════════════════════════════════════════════
+         BUBBLE ACTIONS — bottom (default) style
+      ══════════════════════════════════════════════════ */
+
+      /* Subtle background extension so actions appear to "grow out" of the bubble */
       .msg-bubble::after {
         content: "";
         position: absolute;
@@ -2121,140 +2121,189 @@
         box-shadow: inherit;
         pointer-events: none;
       }
-      .msg-bubble:hover::after,
-      .msg-bubble.show-actions::after {
-        bottom: -16px; /* Gentle visual expansion that bleeds seamlessly downward */
+      #chat-messages:not(.actions-floating) .msg-bubble:hover::after,
+      #chat-messages:not(.actions-floating) .msg-bubble.show-actions::after {
+        bottom: -16px;
       }
+
+      /* Default (bottom) – hidden until hover/tap */
       .bubble-actions {
         display: flex;
         align-items: center;
-        gap: 2px;
+        flex-wrap: nowrap;
+        gap: 1px;
         position: absolute;
         bottom: 6px;
+        left: 8px;
         opacity: 0;
         pointer-events: none;
         transition:
           opacity var(--trans-hover),
           bottom var(--trans-hover);
-        padding: 0 4px;
+        padding: 0 3px;
+        z-index: 10;
       }
-      .msg-bubble:hover .bubble-actions,
-      .msg-bubble.show-actions .bubble-actions {
-        bottom: -10px; /* bleeds into the time */
+      #chat-messages:not(.actions-floating) .msg-bubble:hover .bubble-actions,
+      #chat-messages:not(.actions-floating) .msg-bubble.show-actions .bubble-actions {
+        bottom: -10px;
         opacity: 1;
         pointer-events: auto;
       }
-      .msg-bubble.ai .bubble-actions {
-        left: 8px;
-        right: auto;
-      }
-      .msg-bubble.user .bubble-actions {
-        left: 8px;
-        right: auto;
-      }
-      .msg-bubble.narrator .bubble-actions {
-        left: 8px;
-        right: auto;
+      /* Keep meta text out of the way when bottom actions appear */
+      #chat-messages:not(.actions-floating) .msg-bubble:hover .msg-meta,
+      #chat-messages:not(.actions-floating) .msg-bubble.show-actions .msg-meta {
+        transform: translateY(16px);
       }
 
-      /* Floating variant */
+      /* ══════════════════════════════════════════════════
+         BUBBLE ACTIONS — floating pill style
+         A tight horizontal pill that floats ABOVE the bubble
+         (never covers message content).
+      ══════════════════════════════════════════════════ */
+
+      /* ── Floating pill: give the bubble a top margin so the pill
+            has a "slot" to appear in without overlapping content.
+            Also relax `contain` so the pill (top: -32px) can visually
+            escape above the bubble bounds. ── */
+      #chat-messages.actions-floating .msg-bubble {
+        margin-top: 34px;
+        contain: style;    /* drop `layout` so absolute children can overflow */
+        overflow: visible;
+      }
+
       #chat-messages.actions-floating .bubble-actions {
+        /* Reset default bottom placement */
+        bottom: auto;
+        left: auto;
+
+        /* Anchor above the bubble top edge */
         position: absolute;
-        top: -30px;
-        right: 0;
-        height: auto !important;
-        opacity: 0;
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-        border-top: none !important;
-        background: color-mix(in srgb, var(--bg-raised) 92%, transparent);
+        top: -32px;       /* sits neatly in the margin-top gap */
+        height: 28px;     /* single fixed row — never taller */
+
+        /* Pill chrome */
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 0;
+        padding: 0 6px;
+        background: var(--bg-raised);
         border: 1px solid var(--border2);
-        border-radius: var(--r-lg);
-        padding: 4px 6px !important;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+        border-radius: var(--r-full);
+        box-shadow:
+          0 2px 10px rgba(0, 0, 0, 0.22),
+          0 0 0 1px rgba(255,255,255,0.05) inset;
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+
+        /* Hidden → animate in */
+        opacity: 0;
         pointer-events: none;
+        transform: translateY(5px) scale(0.94);
         transition:
           opacity var(--trans-hover),
           transform var(--trans-hover);
-        transform: translateY(4px);
+        z-index: 30;
+        white-space: nowrap;
+        width: max-content;
+        overflow: visible;
       }
-      #chat-messages.actions-floating .msg-bubble {
-        position: relative;
+
+      /* AI / Narrator → left-aligned pill */
+      #chat-messages.actions-floating .msg-bubble.ai .bubble-actions,
+      #chat-messages.actions-floating .msg-bubble.narrator .bubble-actions {
+        left: 2px;
+        right: auto;
+        transform-origin: left center;
       }
-      #chat-messages.actions-floating .msg-bubble:hover,
-      #chat-messages.actions-floating .msg-bubble.show-actions {
-        margin-bottom: 0px;
+
+      /* User → right-aligned pill */
+      #chat-messages.actions-floating .msg-bubble.user .bubble-actions {
+        right: 2px;
+        left: auto;
+        transform-origin: right center;
       }
+
+      /* Visible state */
       #chat-messages.actions-floating .msg-bubble:hover .bubble-actions,
       #chat-messages.actions-floating .msg-bubble.show-actions .bubble-actions {
         opacity: 1;
         pointer-events: auto;
-        transform: translateY(0);
-        -webkit-backdrop-filter: blur(16px);
-        backdrop-filter: blur(16px);
+        transform: translateY(0) scale(1);
       }
-      #chat-messages.actions-floating .msg-bubble.ai .bubble-actions {
-        left: 0;
-        right: auto;
-        width: max-content;
+
+      /* Thin vertical dividers between button groups in the pill */
+      .bact-divider {
+        width: 1px;
+        height: 14px;
+        background: var(--border2);
+        margin: 0 2px;
+        flex-shrink: 0;
+        border-radius: 1px;
+        display: none;       /* hidden in bottom mode */
       }
-      #chat-messages.actions-floating .msg-bubble.user .bubble-actions {
-        right: 0;
-        left: auto;
-        width: max-content;
-      }
-      #chat-messages.actions-floating .msg-bubble.narrator .bubble-actions {
-        left: 0;
-        right: auto;
-        width: max-content;
-      }
-      #chat-messages.actions-floating .msg-bubble.show-actions .bubble-actions {
-        transform: translateX(var(--align-x, 0));
+      #chat-messages.actions-floating .bact-divider {
+        display: block;      /* visible in floating pill */
       }
 
       .bact {
-        width: 20px;
-        height: 20px;
+        width: 26px;
+        height: 26px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--t3);
+        color: var(--t2);
         border-radius: var(--r-sm);
-        opacity: 0.75;
+        opacity: 0.8;
         transition:
           background var(--trans-hover),
           color var(--trans-hover),
           transform var(--trans-spring),
           opacity var(--trans-hover);
         flex-shrink: 0;
-        margin: 1px;
+        font-size: 13px;
       }
       .bact:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: color-mix(in srgb, var(--primary) 14%, transparent);
         color: var(--t0);
-        transform: translateY(-2px) scale(1.16);
+        transform: translateY(-1px) scale(1.12);
         opacity: 1;
       }
       .bact:active {
-        transform: scale(0.85);
+        transform: scale(0.82);
         transition-duration: var(--dur-micro);
       }
-      .bact.pinned, .msg-bubble.user .bact.pinned {
-        color: var(--secondary-400) !important;
+      /* Pinned state */
+      .bact.pinned {
+        color: var(--secondary) !important;
         opacity: 1 !important;
       }
-      .bact.pinned:hover, .msg-bubble.user .bact.pinned:hover {
-        color: var(--secondary-300) !important;
+      .bact.pinned:hover {
+        color: var(--secondary-600) !important;
+        background: var(--secondary-dim) !important;
+      }
+      /* Delete button – red tint on hover */
+      .bact[title="Delete"]:hover {
+        background: color-mix(in srgb, var(--error) 14%, transparent) !important;
+        color: var(--error) !important;
       }
       .bact svg {
-        width: 11px;
-        height: 11px;
+        width: 12px;
+        height: 12px;
       }
+      /* Inside the floating pill the icon buttons are a bit tighter */
+      #chat-messages.actions-floating .bact {
+        width: 28px;
+        height: 22px;
+        border-radius: var(--r-xs);
+        font-size: 12px;
+      }
+      /* User bubble bact colours */
       .msg-bubble.user .bact {
-        color: var(--t3);
+        color: var(--t2);
       }
       .msg-bubble.user .bact:hover {
-        background: rgba(128, 128, 128, 0.15);
+        background: rgba(128, 128, 128, 0.18);
         color: var(--t0);
       }
 
@@ -10600,76 +10649,39 @@
       function buildActionsHtml(m, i) {
         var acts = '<div class="bubble-actions">';
         var id = m.id || i;
-        // 1. Reply (Always)
-        acts +=
-          '<button class="bact" title="Reply" onclick="startReply(\'' +
-          id +
-          '\')"><i class="bi bi-reply"></i></button>';
+        var div = '<span class="bact-divider"></span>';
 
-        // 2. Pin to Memory (Always)
-        var pinClass = m.pinned ? "pinned" : "";
-        acts +=
-          '<button class="bact ' +
-          pinClass +
-          '" title="' +
-          (m.pinned ? "Unpin from memory" : "Pin to memory") +
-          '" onclick="togglePinMsg(\'' +
-          id +
-          '\', event)"><i class="bi bi-pin-angle"></i></button>';
+        // Group 1 — quick utility: Reply + Pin
+        acts += '<button class="bact" title="Reply" onclick="startReply(\'' + id + '\')"><i class="bi bi-reply"></i></button>';
+        var pinClass = m.pinned ? " pinned" : "";
+        acts += '<button class="bact' + pinClass + '" title="' + (m.pinned ? "Unpin" : "Pin") + '" onclick="togglePinMsg(\'' + id + '\', event)"><i class="bi bi-pin-angle"></i></button>';
+
+        acts += div; // ─── divider ───
 
         if (m.type === "image-carousel") {
-          // 3. Prompt (Image only)
-          acts +=
-            '<button class="bact" title="Show Prompt" onclick="togglePrompt(this)"><i class="bi bi-file-earmark-image"></i></button>';
-          // 4. Continue (Image only)
-          acts +=
-            '<button class="bact" title="Continue" onclick="continueMsg(\'' +
-            id +
-            '\')"><i class="bi bi-chevron-double-right"></i></button>';
+          // Group 2 — image actions
+          acts += '<button class="bact" title="Show Prompt" onclick="togglePrompt(this)"><i class="bi bi-file-earmark-image"></i></button>';
+          acts += '<button class="bact" title="Continue" onclick="continueMsg(\'' + id + '\')"><i class="bi bi-chevron-double-right"></i></button>';
         } else if (m.role === "user") {
-          // User actions
-          acts +=
-            '<button class="bact" title="Regenerate Options" onclick="regenUserMsg(\'' +
-            id +
-            '\')"><i class="bi bi-arrow-clockwise"></i></button>';
-          acts +=
-            '<button class="bact" title="Custom Options" onclick="openUserRegen(\'' +
-            id +
-            '\')"><i class="bi bi-stars"></i></button>';
-          acts +=
-            '<button class="bact" title="Copy" onclick="copyMsg(\'' +
-            id +
-            '\',this)"><i class="bi bi-copy"></i></button>';
-          acts +=
-            '<button class="bact" title="Edit" onclick="openEdit(\'' +
-            id +
-            '\')"><i class="bi bi-pencil-square"></i></button>';
+          // Group 2 — user edit actions
+          acts += '<button class="bact" title="Regenerate" onclick="regenUserMsg(\'' + id + '\')"><i class="bi bi-arrow-clockwise"></i></button>';
+          acts += '<button class="bact" title="Custom Regen" onclick="openUserRegen(\'' + id + '\')"><i class="bi bi-stars"></i></button>';
+          acts += '<button class="bact" title="Copy" onclick="copyMsg(\'' + id + '\',this)"><i class="bi bi-copy"></i></button>';
+          acts += '<button class="bact" title="Edit" onclick="openEdit(\'' + id + '\')"><i class="bi bi-pencil-square"></i></button>';
         } else {
-          // AI actions
-          acts +=
-            '<button class="bact" title="Regenerate" onclick="regenMsg(\'' +
-            id +
-            '\')"><i class="bi bi-arrow-clockwise"></i></button>';
-          acts +=
-            '<button class="bact" title="Custom" onclick="openRegen(\'' +
-            id +
-            '\')"><i class="bi bi-stars"></i></button>';
-          acts +=
-            '<button class="bact" title="Copy" onclick="copyMsg(\'' +
-            id +
-            '\',this)"><i class="bi bi-copy"></i></button>';
-          acts +=
-            '<button class="bact" title="Edit" onclick="openEdit(\'' +
-            id +
-            '\')"><i class="bi bi-pencil-square"></i></button>';
+          // Group 2 — AI edit actions
+          acts += '<button class="bact" title="Regenerate" onclick="regenMsg(\'' + id + '\')"><i class="bi bi-arrow-clockwise"></i></button>';
+          acts += '<button class="bact" title="Custom Regen" onclick="openRegen(\'' + id + '\')"><i class="bi bi-stars"></i></button>';
+          acts += '<button class="bact" title="Copy" onclick="copyMsg(\'' + id + '\',this)"><i class="bi bi-copy"></i></button>';
+          acts += '<button class="bact" title="Edit" onclick="openEdit(\'' + id + '\')"><i class="bi bi-pencil-square"></i></button>';
         }
 
-        // Delete (Always)
-        acts +=
-          '<button class="bact" style="color:var(--rose)" title="Delete" onclick="deleteMsg(\'' +
-          id +
-          '\')"><i class="bi bi-trash"></i></button>';
-        acts += "</div>";
+        acts += div; // ─── divider ───
+
+        // Group 3 — destructive
+        acts += '<button class="bact" title="Delete" onclick="deleteMsg(\'' + id + '\')"><i class="bi bi-trash"></i></button>';
+
+        acts += '</div>';
         return acts;
       }
 
