@@ -1840,7 +1840,7 @@
         min-height: 0;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 88px 16px 16px;
+        padding: 88px 16px 50px;
         display: flex;
         flex-direction: column;
         gap: 2px;
@@ -1943,7 +1943,7 @@
           0 1px 4px rgba(0, 0, 0, 0.12),
           inset 0 1px 0 rgba(255, 255, 255, 0.04);
         position: relative;
-        min-width: 270px;
+        min-width: 240px;
       }
       [data-theme="light"] .msg-bubble.ai {
         box-shadow:
@@ -1971,7 +1971,7 @@
           0 1px 4px rgba(0, 0, 0, 0.15),
           inset 0 1px 0 rgba(255, 255, 255, 0.06);
         position: relative;
-        min-width:230px;
+        min-width: 240px;
       }
       .msg-group.user .msg-row:first-child .msg-bubble.user::before {
         content: "";
@@ -1993,7 +1993,7 @@
         font-style: italic;
         text-align: left;
         padding: 10px 18px;
-        min-width: 270px;
+        min-width: 240px;
       }
       .nar-label {
         display: inline-flex;
@@ -2070,7 +2070,7 @@
         align-items: center;
         gap: 3px;
         float: right;
-        margin-left: 10px;
+        margin-left: 18px;
         margin-top: 3px;
         margin-bottom: -2px;
         min-height: 16px;
@@ -2212,8 +2212,8 @@
       }
 
       .bact {
-        width: 26px;
-        height: 26px;
+        width: 20px;
+        height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2226,6 +2226,7 @@
           transform var(--trans-spring),
           opacity var(--trans-hover);
         flex-shrink: 0;
+        margin: 1px;
       }
       .bact:hover {
         background: rgba(255, 255, 255, 0.1);
@@ -2784,6 +2785,9 @@
         box-shadow: none !important;
         line-height: 0;
         overflow: visible;
+      }
+      .msg-group .msg-row .msg-bubble.img-bubble::before {
+        display: none !important;
       }
       /* Transparent hover-bridge to prevent actions from disappearing on layout gaps */
       .msg-bubble.img-bubble::after {
@@ -5235,88 +5239,141 @@
       /* ═══════════════════════════════
          VARIANT NAV
       ═══════════════════════════════ */
+      @media (min-width: 769px) {
+        .variant-nav {
+          display: flex !important;
+          pointer-events: auto !important;
+          justify-content: center !important;
+          width: 100% !important;
+          align-self: center !important;
+        }
+      }
+      @media (max-width: 768px) {
+        .variant-nav {
+          position: static !important;
+          transform: none !important;
+          background: transparent !important;
+          border: none !important;
+          backdrop-filter: none !important;
+          padding: 0 !important;
+          margin-top: 1px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 6px !important;
+          pointer-events: auto !important;
+          width: 100% !important;
+          align-self: center !important;
+        }
+        .msg-group.user .variant-nav {
+           align-self: center !important;
+        }
+      }
+      .msg-bubble:has(.variant-nav) {
+        padding-bottom: 2.5px !important;
+      }
+      body.swipe-enabled .variant-nav .variant-nav-btn,
+      body.swipe-enabled .variant-nav .variant-counter {
+        display: none !important;
+      }
+      body.swipe-enabled .variant-nav .variant-dots {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+      }
+      body:not(.swipe-enabled) .variant-nav .variant-nav-btn {
+        display: inline-flex !important;
+        pointer-events: auto !important;
+      }
+      body:not(.swipe-enabled) .variant-nav .variant-counter {
+        display: inline-block !important;
+      }
+      body:not(.swipe-enabled) .variant-nav .variant-dots {
+        display: none !important;
+      }
       .variant-nav {
         display: flex;
         align-items: center;
-        gap: 6px;
-        margin-top: 8px;
-        padding: 5px 7px;
-        background: color-mix(in srgb, var(--bg-surface) 45%, transparent);
-        backdrop-filter: blur(8px);
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        gap: 2px;
+        margin-top: 1px;
+        padding: 0;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        outline: none !important;
         user-select: none;
+        height: 11px;
       }
       .variant-nav-btn {
-        width: 26px;
-        height: 26px;
-        border-radius: 8px;
-        display: flex;
+        width: 14px;
+        height: 11px;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: var(--bg-raised);
-        border: 1px solid var(--border);
-        color: var(--t2);
         cursor: pointer;
         flex-shrink: 0;
-        transition:
-          background var(--trans-hover),
-          color var(--trans-hover),
-          border-color var(--trans-hover),
-          transform var(--trans-spring);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        padding: 0 !important;
+        margin: 0 !important;
+        transition: color var(--trans-hover), opacity var(--trans-hover), transform var(--trans-spring);
+      }
+      .variant-nav-btn i {
+        font-size: 8.5px !important;
+        display: inline-block;
+        line-height: 1;
+      }
+      .variant-nav-btn:not(:disabled) {
+        color: var(--t2) !important;
+        opacity: 0.8 !important;
       }
       .variant-nav-btn:hover:not(:disabled) {
-        background: var(--bg-overlay);
-        color: var(--primary);
-        border-color: color-mix(in srgb, var(--primary) 40%, transparent);
-        transform: scale(1.08);
-      }
-      .variant-nav-btn:active:not(:disabled) {
-        transform: scale(0.88);
-        background: var(--primary-dim);
-        color: var(--primary);
-        transition-duration: var(--dur-micro);
+        opacity: 1 !important;
+        color: var(--t0) !important;
+        transform: scale(1.15);
       }
       .variant-nav-btn:disabled {
-        opacity: 0.2;
+        color: var(--t3) !important;
+        opacity: 0.25 !important;
         cursor: default;
       }
-      .variant-nav-btn svg {
-        width: 13px;
-        height: 13px;
-        stroke-width: 2.5;
-      }
       .variant-counter {
-        font-size: 11px;
+        font-size: 9px;
         font-weight: 700;
         font-family: var(--mono);
-        color: var(--t3);
-        min-width: 32px;
+        color: var(--t2);
+        min-width: 20px;
         text-align: center;
-        letter-spacing: 0.5px;
-        opacity: 0.85;
+        letter-spacing: 0.1px;
+        opacity: 0.75;
+        line-height: 1;
+        margin: 0 1px !important;
       }
       .variant-dots {
-        display: flex;
+        display: none;
         align-items: center;
-        gap: 5px;
-        flex: 1;
+        gap: 3.5px;
         justify-content: center;
-        padding: 4px;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 11px;
       }
       .variant-dot {
-        width: 4px;
-        height: 4px;
-        border-radius: 2px;
+        width: 3.5px;
+        height: 3.5px;
+        border-radius: 50%;
         background: var(--border2);
         transition: all var(--trans-hover);
         flex-shrink: 0;
       }
       .variant-dot.active {
-        background: var(--primary);
-        width: 12px;
-        box-shadow: 0 0 5px var(--primary-glow);
+        background: var(--t2);
+        width: 8px;
+        border-radius: 1.5px;
+        box-shadow: none;
       }
 
       .ts-box-input {
@@ -5770,7 +5827,7 @@
           display: flex;
         }
 
-        #chat-header .ch-actions > button:not(#chat-more-btn):not(#chat-search-btn):not(#image-gen-btn):not(#chat-bulk-btn) {
+        #chat-header .ch-actions > button:not(#chat-more-btn):not(#chat-search-btn):not(#image-gen-btn):not(#chat-bulk-btn):not(#pinned-messages-btn) {
           display: none;
         }
         .ch-actions {
@@ -5782,7 +5839,7 @@
         }
 
         .chat-scroll {
-          padding: 58px 14px 14px;
+          padding: 58px 14px 65px;
           -webkit-overflow-scrolling: touch;
           scroll-behavior: auto !important;
         }
@@ -6032,86 +6089,9 @@
         .modal-close:active {
           transform: scale(0.88);
         }
+      }
 
-        .variant-nav .variant-nav-btn,
-        .variant-nav .variant-counter {
-          display: none !important;
-        }
-        .variant-nav {
-          margin-top: 4px;
-          background: transparent;
-          border: none;
-          backdrop-filter: none;
-          padding: 0;
-          justify-content: center;
-          pointer-events: none;
-        }
-        .variant-dots {
-          opacity: 0.3;
-          transition: opacity var(--trans-hover);
-        }
-        .msg-bubble:hover .variant-dots {
-          opacity: 1;
-        }
-        .bubble-actions .variant-nav-btns {
-          display: flex;
-          align-items: center;
-          gap: 2px;
-          margin-right: 6px;
-          padding-right: 6px;
-          border-right: 1px solid var(--border);
-        }
-        .bubble-actions .variant-nav-btn {
-          width: 24px;
-          height: 24px;
-          background: transparent;
-          border: none;
-          box-shadow: none;
-          color: var(--t2);
-          opacity: 0.65;
-        }
-        .bubble-actions .variant-nav-btn:hover:not(:disabled) {
-          opacity: 1;
-          color: var(--primary);
-          background: var(--bg-hover);
-        }
-        .bubble-actions .variant-counter {
-          font-size: 10px;
-          min-width: 28px;
-          margin: 0;
-          opacity: 0.55;
-        }
-      }
-      @media (max-width: 768px) {
-        .variant-nav {
-          position: absolute;
-          bottom: -4px;
-          left: 50%;
-          transform: translateX(-50%);
-          margin-top: 0;
-          background: transparent;
-          border: none;
-          backdrop-filter: none;
-          padding: 0;
-          z-index: 5;
-          pointer-events: none;
-        }
-        .variant-nav-btn,
-        .variant-counter {
-          display: none !important;
-        }
-        .variant-dots {
-          gap: 1px;
-          padding: 12px;
-        }
-        .variant-dot {
-          width: 5px;
-          height: 5px;
-        }
-        .variant-dot.active {
-          width: 14px;
-        }
-      }
+
       /* ═══════════════════════════════
          QR SCANNER & DATA EXPORT
       ═══════════════════════════════ */
@@ -6599,7 +6579,9 @@
               </div>
             </div>
             <div class="ch-actions">
-              <span id="memory-indicator" class="memory-badge"></span>
+              <button class="icon-btn" id="pinned-messages-btn" title="Pinned Messages" style="display: none;">
+                <i class="bi bi-pin-angle" style="font-size: 20px"></i>
+              </button>
               <button class="nar-btn" id="nar-toggle">
                 <i class="bi bi-chat-square-text" style="font-size: 20px"></i>
                 Narrator
@@ -6867,6 +6849,7 @@
           <button class="send-btn" id="send-btn" disabled>
             <i class="bi bi-mic mic-icon"></i>
             <i class="bi bi-send-fill send-icon" style="font-size: 20px"></i>
+            <i class="bi bi-cpu cpu-icon" style="font-size: 20px; display: none;"></i>
             <i class="bi bi-square-fill stop-icon" style="font-size: 14px; display: none;"></i>
           </button>
         </div>
@@ -6884,6 +6867,20 @@
           <div class="adv-step-bar" id="adv-step-bar"></div>
           <div class="modal-body" id="adv-body" style="min-height: 300px"></div>
           <div class="modal-ft" id="adv-footer"></div>
+        </div>
+      </div>
+
+      <!-- tag-based modal -->
+      <div class="overlay" id="modal-tag-wizard">
+        <div class="modal" style="max-width: 650px">
+          <div class="modal-hd">
+            <span class="modal-title" id="tag-title">Tag-Based Create</span>
+            <button class="modal-close" data-close="modal-tag-wizard">
+              <i class="bi bi-x" style="font-size: 24px"></i>
+            </button>
+          </div>
+          <div class="modal-body" id="tag-body" style="min-height: 300px"></div>
+          <div class="modal-ft" id="tag-footer"></div>
         </div>
       </div>
     </div>
@@ -7036,6 +7033,9 @@
                 </div>
                 <div class="gender-opt" onclick="selectGender('Male', this)">
                   Male
+                </div>
+                <div class="gender-opt" onclick="selectGender('Other', this)">
+                  Other
                 </div>
               </div>
             </div>
@@ -7647,6 +7647,15 @@
                 <div class="sw-label-sub">Disable animations</div>
               </div>
               <div class="sw-track" id="perf-mode-toggle">
+                <div class="sw-thumb"></div>
+              </div>
+            </div>
+            <div class="form-switch">
+              <div>
+                <div class="sw-label-title">Swipe Variant Navigation</div>
+                <div class="sw-label-sub">Enable touch swipe instead of buttons for message revisions</div>
+              </div>
+              <div class="sw-track" id="swipe-nav-toggle">
                 <div class="sw-thumb"></div>
               </div>
             </div>
@@ -8605,6 +8614,7 @@
           "menu-user-name",
           "modal-ai-settings",
           "modal-adv-wizard",
+          "modal-tag-wizard",
           "modal-char-create",
           "modal-char-editor",
           "modal-char-info",
@@ -8633,6 +8643,7 @@
           "stb",
           "stb-count",
           "streaming-toggle",
+          "swipe-nav-toggle",
           "tab-dot-advanced",
           "tab-dot-ai",
           "tab-dot-general",
@@ -9079,6 +9090,7 @@
             selectedFont,
             currentAccent,
             customAccentColor,
+            swipeVariantNav: window.swipeVariantNav,
           });
         } catch (e) {
           console.error(e);
@@ -9122,6 +9134,7 @@
             selectedFont = ss.selectedFont !== undefined ? ss.selectedFont : "Plus Jakarta Sans";
             currentAccent = ss.currentAccent !== undefined ? ss.currentAccent : "blue";
             customAccentColor = ss.customAccentColor || "#3396ff";
+            window.swipeVariantNav = ss.swipeVariantNav !== undefined ? ss.swipeVariantNav : false;
             if (ss.aiSettings) {
               var la = ss.aiSettings;
               aiSettings.unrestricted =
@@ -9150,6 +9163,9 @@
           applyScales();
           applyFont();
           applyAccentColor(currentAccent, true);
+          if (typeof window.applySwipeNavSetting === "function") {
+            window.applySwipeNavSetting();
+          }
         } catch (e) {
           console.error(e);
         }
@@ -9664,20 +9680,22 @@
         var c = typeof getActive === "function" ? getActive() : null;
         var activeChatIsGenerating = c && c.isGenerating;
         
+        var stopIcon = sb.querySelector(".stop-icon");
+        var sendIcon = sb.querySelector(".send-icon");
+        var micIcon = sb.querySelector(".mic-icon");
+        var cpuIcon = sb.querySelector(".cpu-icon");
+
         if (activeChatIsGenerating) {
           sb.disabled = false;
           sb.classList.add("ready");
           sb.classList.add("stop-mode");
           
-          var stopIcon = sb.querySelector(".stop-icon");
           if (stopIcon) stopIcon.style.display = "inline-flex";
-          var sendIcon = sb.querySelector(".send-icon");
           if (sendIcon) sendIcon.style.display = "none";
-          var micIcon = sb.querySelector(".mic-icon");
           if (micIcon) micIcon.style.display = "none";
+          if (cpuIcon) cpuIcon.style.display = "none";
         } else {
           sb.classList.remove("stop-mode");
-          var stopIcon = sb.querySelector(".stop-icon");
           if (stopIcon) stopIcon.style.display = "none";
           
           var chatInput = document.getElementById("chat-input");
@@ -9687,15 +9705,17 @@
           sb.disabled = !hasText;
           sb.classList.toggle("ready", hasText);
           
-          if (hasText) {
-            var sendIcon = sb.querySelector(".send-icon");
+          if (window.activeSlashCommand) {
+            if (cpuIcon) cpuIcon.style.display = "inline-flex";
+            if (sendIcon) sendIcon.style.display = "none";
+            if (micIcon) micIcon.style.display = "none";
+          } else if (hasText) {
+            if (cpuIcon) cpuIcon.style.display = "none";
             if (sendIcon) sendIcon.style.display = "inline-flex";
-            var micIcon = sb.querySelector(".mic-icon");
             if (micIcon) micIcon.style.display = "none";
           } else {
-            var sendIcon = sb.querySelector(".send-icon");
+            if (cpuIcon) cpuIcon.style.display = "none";
             if (sendIcon) sendIcon.style.display = "none";
-            var micIcon = sb.querySelector(".mic-icon");
             if (micIcon) micIcon.style.display = "inline-flex";
           }
         }
@@ -9888,6 +9908,12 @@
           desc = ($id("char-description") || {}).value || "";
           sys = ($id("char-system-prompt") || {}).value || "";
           targetId = "char-first-message";
+        } else if (type === "tag") {
+          name =
+            ($id("tag-final-name") || {}).value || _tag.name || "Character";
+          desc = ($id("tag-final-desc") || {}).value || _tag.desc || "";
+          sys = _tag.sys || "";
+          targetId = "tag-final-firstmsg";
         } else {
           name =
             ($id("adv-final-name") || {}).value || _adv.name || "Character";
@@ -9922,6 +9948,8 @@
           btn.disabled = false;
           if (type === "basic") {
             updateGenBtnText("char-first-message", "btn-gen-first-msg-basic");
+          } else if (type === "tag") {
+            updateGenBtnText("tag-final-firstmsg", "btn-gen-first-msg-tag");
           } else {
             updateGenBtnText("adv-final-firstmsg", "btn-gen-first-msg-adv");
           }
@@ -9936,6 +9964,13 @@
           desc = ($id("char-description") || {}).value || "";
           url = ($id("char-avatar-url") || {}).value || "";
           targetId = "char-appearance";
+        } else if (type === "tag") {
+          name =
+            ($id("tag-final-name") || {}).value || _tag.name || "Character";
+          gender = _tag.gender || "Female";
+          desc = ($id("tag-final-desc") || {}).value || _tag.desc || "";
+          url = "";
+          targetId = "tag-final-appearance";
         } else {
           name =
             ($id("adv-final-name") || {}).value || _adv.name || "Character";
@@ -10012,6 +10047,8 @@
           btn.disabled = false;
           if (type === "basic") {
             updateGenBtnText("char-appearance", "btn-gen-appearance-basic");
+          } else if (type === "tag") {
+            updateGenBtnText("tag-final-appearance", "btn-gen-appearance-tag");
           } else {
             updateGenBtnText("adv-final-appearance", "btn-gen-appearance-adv");
           }
@@ -10093,6 +10130,8 @@
                 selectGender("Female", $id("gender-row").children[0]);
               else if (g.includes("male"))
                 selectGender("Male", $id("gender-row").children[1]);
+              else
+                selectGender("Other", $id("gender-row").children[2]);
             }
 
             // Update counters
@@ -10353,24 +10392,13 @@
             nb.style.display = "none";
             nb.classList.toggle("active", isNar);
           }
-          var pinnedCount = 0;
-          if (c.msgs && c.msgs.length > 0) {
-            pinnedCount = c.msgs.filter(function (m) {
-              return m.pinned === true;
-            }).length;
-          }
-          var memoryBadge = $id("memory-indicator");
-          if (memoryBadge) {
-            if (pinnedCount > 0) {
-              memoryBadge.textContent = pinnedCount + " pinned";
-              memoryBadge.style.color = "var(--accent)";
-              memoryBadge.style.display = "inline-block";
-              memoryBadge.classList.add("glow-pulse-active");
-            } else {
-              memoryBadge.style.display = "none";
-            }
+          var pinBtn = $id("pinned-messages-btn");
+          if (pinBtn) {
+            pinBtn.style.display = "inline-flex";
           }
         } else {
+          var pinBtn2 = $id("pinned-messages-btn");
+          if (pinBtn2) pinBtn2.style.display = "none";
           var nb2 = $id("nar-toggle");
           if (nb2) nb2.style.display = "none";
         }
@@ -10598,6 +10626,14 @@
             '\')"><i class="bi bi-chevron-double-right"></i></button>';
         } else if (m.role === "user") {
           // User actions
+          acts +=
+            '<button class="bact" title="Regenerate Options" onclick="regenUserMsg(\'' +
+            id +
+            '\')"><i class="bi bi-arrow-clockwise"></i></button>';
+          acts +=
+            '<button class="bact" title="Custom Options" onclick="openUserRegen(\'' +
+            id +
+            '\')"><i class="bi bi-stars"></i></button>';
           acts +=
             '<button class="bact" title="Copy" onclick="copyMsg(\'' +
             id +
@@ -10921,7 +10957,7 @@
         var tickHtml = isUser
           ? '<div class="tick ' +
             (isRead ? "read" : "sent") +
-            '"><i class="bi bi-check-all"></i></div>'
+            '"></div>'
           : "";
         var metaHtml =
           '<div class="msg-meta"><span class="msg-time">' +
@@ -11535,15 +11571,66 @@
               };
               cont.appendChild(btn);
             });
+            // Add utility buttons below the choices
+            var actionRow = document.createElement("div");
+            actionRow.style.cssText = "display:flex; gap:6px; justify-content:center; margin-top:6px; width:100%; border-top:1px solid rgba(255,255,255,0.08); padding-top:6px;";
+
             var cancel = document.createElement("button");
             cancel.className = "choice-btn";
-            cancel.style.cssText =
-              "color:var(--rose);text-align:center;font-weight:700";
+            cancel.style.cssText = "color:var(--rose); text-align:center; font-weight:700; flex:1; padding: 4px;";
             cancel.textContent = "Cancel";
             cancel.onclick = function () {
               el.remove();
             };
-            cont.appendChild(cancel);
+
+            var regen = document.createElement("button");
+            regen.className = "choice-btn";
+            regen.style.cssText = "color:var(--primary); text-align:center; font-weight:700; flex:1; padding: 4px;";
+            regen.innerHTML = "<i class='bi bi-arrow-clockwise'></i> Regenerate";
+            regen.onclick = function () {
+              el.remove();
+              userWithAIReply(instruction);
+            };
+
+            var customOpt = document.createElement("button");
+            customOpt.className = "choice-btn";
+            customOpt.style.cssText = "color:var(--green); text-align:center; font-weight:700; flex:1; padding: 4px;";
+            customOpt.innerHTML = "<i class='bi bi-stars'></i> Custom";
+            customOpt.onclick = function () {
+              el.remove();
+              showQuickDialog({
+                title: "Generate Options with Custom Prompt",
+                content:
+                  '<div class="qdialog-input-group"><label>Instructions</label>' +
+                  '<textarea id="user-regen-input-first" class="qdialog-input" placeholder="e.g. More sarcastic..." style="min-height:76px"></textarea>',
+                actions: [
+                  {
+                    text: "Cancel",
+                    type: "secondary",
+                    onClick: function () {
+                      return true;
+                    },
+                  },
+                  {
+                    text: "Generate",
+                    type: "primary",
+                    onClick: async function () {
+                      var inputEl = document.getElementById("user-regen-input-first");
+                      var instr = inputEl ? inputEl.value.trim() : "";
+                      if (!instr) return false;
+                      closeModal("modal-quick-dialog");
+                      await userWithAIReply(instr);
+                      return false;
+                    },
+                  },
+                ],
+              });
+            };
+
+            actionRow.appendChild(cancel);
+            actionRow.appendChild(regen);
+            actionRow.appendChild(customOpt);
+            cont.appendChild(actionRow);
             scrollBottom();
           }
           setGen(false);
@@ -12007,14 +12094,22 @@
                 if (!el) return true;
                 var txt = el.value;
                 var msg = c.msgs[res.idx];
-                msg.text = txt;
-                if (msg.variants && msg.variants.length > 0) {
-                  var vIdx =
-                    msg.vIdx !== undefined && msg.vIdx !== null
-                      ? msg.vIdx
-                      : msg.variants.length - 1;
-                  msg.variants[vIdx] = txt;
+                
+                // Initialize variants if not present
+                if (!msg.variants) {
+                  msg.variants = [];
                 }
+                if (msg.text && msg.variants.indexOf(msg.text) === -1) {
+                  msg.variants.push(msg.text);
+                }
+                
+                // Add new edited text as a new variant (revision)
+                if (msg.variants.indexOf(txt) === -1) {
+                  msg.variants.push(txt);
+                }
+                msg.vIdx = msg.variants.indexOf(txt);
+                msg.text = txt;
+                
                 saveState();
                 renderMsgs(true);
                 return true;
@@ -12022,6 +12117,52 @@
             },
           ],
         });
+      };
+
+      window.openPinnedMessages = function (c) {
+        var pinnedMsgs = c.msgs.filter(function(m) { return m.pinned; });
+        var count = pinnedMsgs.length;
+
+        var contentHtml = 
+          '<div style="display:flex;flex-direction:column;gap:12px;">' +
+          '<div id="pinned-messages-results" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>' +
+          '</div>';
+
+        showQuickDialog({
+          title: "Pinned Messages (" + count + ")",
+          content: contentHtml,
+          actions: [
+            { text: "Close", type: "secondary", onClick: function() { return true; } }
+          ]
+        });
+
+        var resEl = document.getElementById("pinned-messages-results");
+        if (!resEl) return;
+        
+        if (pinnedMsgs.length === 0) {
+          resEl.innerHTML = '<div style="color:var(--t3);font-size:12px;text-align:center;padding:20px;">No pinned messages in this chat.</div>';
+          return;
+        }
+
+        var html = "";
+        pinnedMsgs.forEach(function(m) {
+          var truncated = m.text;
+          if (m.text.length > 250) {
+            truncated = m.text.substring(0, 250) + "...";
+          }
+          var roleName = m.role === "user" ? "You" : (m.role === "ai" ? c.name : "Narrator");
+          var pinIcon = m.pinned ? '<i class="bi bi-pin-angle-fill" style="color:var(--primary);margin-left:6px;"></i>' : '';
+          
+          var safeTruncated = escHtml(truncated);
+          
+          html += '<div style="padding:10px;background:var(--bg-2);border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:all var(--dur-micro) ease;" ' +
+            'onmouseover="this.style.borderColor=\'var(--primary)\'" onmouseout="this.style.borderColor=\'transparent\'" ' +
+            'onclick="scrollToMessage(\'' + m.id + '\')">' +
+            '<div style="font-size:11px;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;"><b>' + roleName + '</b>' + pinIcon + '<span style="margin-left:auto">' + (m.time || "") + '</span></div>' +
+            '<div style="font-size:13px;color:var(--t1);white-space:pre-wrap;line-height:1.4;">' + safeTruncated + '</div>' +
+          '</div>';
+        });
+        resEl.innerHTML = html;
       };
 
       window.openChatSearch = function (c) {
@@ -12041,7 +12182,7 @@
           ]
         });
 
-        // Initialize with pinned messages
+        // Initialize empty search
         window.activeSearchChar = c;
         updateChatSearchList();
       };
@@ -12057,8 +12198,7 @@
         var matches = [];
         
         if (q === "") {
-          // Show pinned when empty
-          matches = c.msgs.filter(function(m) { return m.pinned; });
+          matches = [];
         } else {
           matches = c.msgs.filter(function(m) { 
             return m.text && m.text.toLowerCase().indexOf(q) !== -1;
@@ -12066,7 +12206,7 @@
         }
         
         if (matches.length === 0) {
-          resEl.innerHTML = '<div style="color:var(--t3);font-size:12px;text-align:center;padding:20px;">' + (q === "" ? "No pinned messages." : "No results found.") + '</div>';
+          resEl.innerHTML = '<div style="color:var(--t3);font-size:12px;text-align:center;padding:20px;">' + (q === "" ? "Type a query to search messages." : "No results found.") + '</div>';
           return;
         }
         
@@ -12769,10 +12909,12 @@
         qsa(rowSelector + " .gender-opt").forEach(function (o) {
           var isFemale = o.textContent.indexOf("Female") !== -1;
           var isMale = o.textContent.indexOf("Male") !== -1;
+          var isOther = o.textContent.indexOf("Other") !== -1;
           o.classList.toggle(
             "sel",
             (isFemale && selectedGender.toLowerCase() === "female") ||
-              (isMale && selectedGender.toLowerCase() === "male"),
+              (isMale && selectedGender.toLowerCase() === "male") ||
+              (isOther && selectedGender.toLowerCase() === "other"),
           );
         });
       }
@@ -14228,6 +14370,320 @@
       // ── ADV WIZARD ──
       var _adv = {};
 
+      // ── TAG-BASED WIZARD ──
+      var _tag = {
+        step: 1,
+        name: "",
+        gender: "Female",
+        tags: [],
+        av: "",
+        appearance: "",
+        desc: "",
+        sys: "",
+        firstMsg: "",
+        reminder: ""
+      };
+
+      function openTagWizard() {
+        _tag = {
+          step: 1,
+          name: "",
+          gender: "Female",
+          tags: [],
+          av: "",
+          appearance: "",
+          desc: "",
+          sys: "",
+          firstMsg: "",
+          reminder: ""
+        };
+        _renderTag();
+        openModal("modal-tag-wizard");
+      }
+
+      window.openTagWizard = openTagWizard;
+
+      window.tagGender = function (val, el) {
+        _tag.gender = val;
+        qsa("#tag-gender-row .gender-opt").forEach(function (o) {
+          o.classList.remove("sel");
+        });
+        if (el) el.classList.add("sel");
+      };
+
+      window.tagFinalGender = function (val, el) {
+        _tag.gender = val;
+        qsa("#tag-final-gender-row .gender-opt").forEach(function (o) {
+          o.classList.remove("sel");
+        });
+        if (el) el.classList.add("sel");
+      };
+
+      window.tagAddInputTag = function () {
+        var el = document.getElementById("tag-input-field");
+        if (!el) return;
+        var val = el.value.trim();
+        if (val) {
+          var parts = val.split(",");
+          parts.forEach(function(p) {
+            var tag = p.trim();
+            if (tag && _tag.tags.indexOf(tag) === -1) {
+              _tag.tags.push(tag);
+            }
+          });
+          el.value = "";
+          _renderTag();
+        }
+      };
+
+      window.tagRemoveTag = function (idx) {
+        _tag.tags.splice(idx, 1);
+        _renderTag();
+      };
+
+      window.tagToggleSuggestion = function (sug) {
+        var idx = _tag.tags.indexOf(sug);
+        if (idx === -1) {
+          _tag.tags.push(sug);
+        } else {
+          _tag.tags.splice(idx, 1);
+        }
+        _renderTag();
+      };
+
+      window.tagBack = function () {
+        if (_tag.step > 1) {
+          _tag.step--;
+          _renderTag();
+        }
+      };
+
+      async function tagGenerate() {
+        var nameInput = document.getElementById("tag-name");
+        var name = (nameInput ? nameInput.value : "").trim();
+        _tag.name = name; // can be empty
+
+        if (_tag.tags.length === 0) {
+          showToast("Please add or select at least one tag", "warning");
+          return;
+        }
+
+        var btn = document.getElementById("tag-gen-btn");
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML =
+            '<div style="display:inline-flex;gap:4px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s infinite ease-in-out"></span><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s .18s infinite ease-in-out"></span><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s .36s infinite ease-in-out"></span></div>&nbsp;Generating';
+        }
+
+        try {
+          var tagsCtx = _tag.tags.join(", ");
+          
+          var namePromptLine = _tag.name 
+            ? "Character Name: " + _tag.name + " (" + _tag.gender + ")\n"
+            : "Character Gender: " + _tag.gender + " (Please pick a creative name fitting for this gender and tags)\n";
+
+          var jsonInst = _tag.name
+            ? "Return EXACTLY this JSON structure:\n" +
+              '{"appearance":"...","description":"...","systemPrompt":"...","firstMessage":"...","reminder":"..."}'
+            : "Return EXACTLY this JSON structure. Since no name was specified, you MUST choose a fitting, creative roleplay name for this character and return it in the 'name' field, and write the 'systemPrompt' starting with 'You are [Name]...':\n" +
+              '{"name":"(selected character name)","appearance":"...","description":"...","systemPrompt":"...","firstMessage":"...","reminder":"..."}';
+
+          var prompt =
+            "Create a high-quality AI roleplay character based on the traits tags below. Respond ONLY with valid JSON and include no additional fields or explanation.\n\n" +
+            namePromptLine +
+            "Traits / Tags: " +
+            tagsCtx +
+            "\n\nInstructions for JSON fields:\n" +
+            "- appearance: A highly detailed, physical description (50-100 words). Include build, hair, eyes, skin, and specific clothing style matching the tags.\n" +
+            "- description: Deep personality, background, motives, and speech patterns (100-200 words).\n" +
+            "- systemPrompt: Comprehensive roleplay instructions starting with 'You are " + (_tag.name || "[Chosen Name]") + "...'. Keep it concise and focused on role, tone, and behavior.\n" +
+            "- firstMessage: An evocative, in-character opening line.\n" +
+            "- reminder: A short (1 sentence) core instruction for the AI.\n\n" +
+            jsonInst;
+
+          var result = await generateText({
+            instruction: prompt,
+            maxTokens: 1400,
+            temperature: 0.7,
+          });
+          var match = result.match(/\{[\s\S]*\}/);
+          if (!match) throw new Error("No JSON found");
+          var parsed = JSON.parse(match[0]);
+          
+          if (!_tag.name && parsed.name) {
+            _tag.name = parsed.name.trim();
+          }
+          if (!_tag.name) {
+            _tag.name = "Character";
+          }
+          
+          _tag.appearance = (parsed.appearance || "").trim();
+          _tag.desc = (parsed.description || "").trim();
+          _tag.sys = (
+            parsed.systemPrompt || "You are " + _tag.name + "."
+          ).trim();
+          _tag.firstMsg = (parsed.firstMessage || "").trim();
+          _tag.reminder = (parsed.reminder || "").trim();
+          _tag.step = 2;
+          _renderTag();
+        } catch (e) {
+          showToast("Generation failed: " + e.message, "error");
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-stars"></i> Generate Character';
+          }
+        }
+      }
+
+      window.tagGenerate = tagGenerate;
+
+      window.tagSave = function () {
+        var afn = document.getElementById("tag-final-name");
+        var afa = document.getElementById("tag-final-appearance");
+        var afd = document.getElementById("tag-final-desc");
+        var affm = document.getElementById("tag-final-firstmsg");
+        var name = (afn ? afn.value : "").trim() || _tag.name;
+        var app = (afa ? afa.value : "").trim();
+        var desc = (afd ? afd.value : "").trim();
+        var firstMsg = (affm ? affm.value : "").trim();
+        if (!name) {
+          showToast("Name is required", "warning");
+          return;
+        }
+        chars.push({
+          id: "char_" + Date.now(),
+          name: name,
+          av: _tag.av || "",
+          gender: _tag.gender,
+          appearance: app,
+          desc: desc,
+          sys: _tag.sys || "You are " + name + ".",
+          firstMsg: firstMsg,
+          pre: "",
+          reminder: _tag.reminder || "",
+          scenario: "",
+          userRole: "",
+          scenarioTone: "",
+          msgs: [],
+          color: "var(--primary-500)",
+          color2: "var(--primary-400)",
+        });
+        closeModal("modal-tag-wizard");
+        saveState();
+        refreshSidebar();
+        showToast("Character created!", "success");
+        selectChat(chars[chars.length - 1].id);
+      };
+
+      function _renderTag() {
+        var body = $id("tag-body"),
+          footer = $id("tag-footer"),
+          titleEl = $id("tag-title");
+        if (!body || !footer) return;
+
+        if (titleEl) {
+          titleEl.textContent = "Tag-Based Create " + (_tag.step === 1 ? "\u00b7 Setup" : "\u00b7 Review");
+        }
+
+        if (_tag.step === 1) {
+          var chipsHtml = "";
+          _tag.tags.forEach(function(tag, index) {
+             chipsHtml += '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--border);color:var(--t1);border-radius:99px;font-size:12.5px;font-weight:500;border:1.5px solid var(--primary);">' +
+               _safeEscapeHTML(tag) + 
+               ' <i class="bi bi-x-circle-fill" style="cursor:pointer;color:var(--accent);opacity:0.8;" onclick="tagRemoveTag(' + index + ')"></i>' +
+             '</span>';
+          });
+
+          var suggestions = [
+             "Sarcastic", "Tsundere", "Gentle", "Cold", "Sweet", "Arrogant", "Mysterious", "Hacker", 
+             "Vampire", "Detective", "Cyborg", "Demon", "Mercenary", "Haughty", "Protective", 
+             "Yandere", "Shy", "Flirtatious", "Noble", "Rebel", "Royalty", "Villain", "Playful"
+          ];
+
+          var sugHtml = "";
+          suggestions.forEach(function(sug) {
+            var isSelected = _tag.tags.indexOf(sug) !== -1;
+            var borderStyle = isSelected ? 'border-color:var(--primary);background:rgba(var(--primary-rgb),0.15);' : 'border-color:var(--border);background:var(--bg-1);';
+            var iconClass = isSelected ? 'bi-check-circle-fill' : 'bi-plus-circle';
+            var iconColor = isSelected ? 'color:var(--primary);' : 'color:var(--t3);';
+            sugHtml += '<button onclick="tagToggleSuggestion(\'' + _safeEscapeHTML(sug) + '\')" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r-sm);font-size:12px;font-weight:500;border:1.5px solid;cursor:pointer;color:var(--t1);transition:all var(--dur-micro) ease; ' + borderStyle + '">' +
+              '<i class="bi ' + iconClass + '" style="' + iconColor + '"></i>' +
+              '<span>' + _safeEscapeHTML(sug) + '</span>' +
+            '</button>';
+          });
+
+          body.innerHTML =
+            '<p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Specify physical traits and personality keywords to describe the character. Luminara will automatically craft a rich, detailed persona.</p>' +
+            '<div style="display:flex;flex-direction:column;gap:14px;width:100%">' +
+              '<div class="form-group"><label class="form-label">Character Name <span style="font-size:11px;font-weight:normal;color:var(--t3)">(Optional - AI will choose if empty)</span></label><input type="text" id="tag-name" class="form-input" placeholder="e.g. Alistair, Detective Vance\u2026" value="' + _safeEscapeHTML(_tag.name || "") + '"/></div>' +
+              '<div class="form-group"><label class="form-label">Gender</label><div class="gender-seg" id="tag-gender-row"><div class="gender-opt ' + (_tag.gender === "Female" ? "sel" : "") + '" onclick="tagGender(\'Female\',this)">Female</div><div class="gender-opt ' + (_tag.gender === "Male" ? "sel" : "") + '" onclick="tagGender(\'Male\',this)">Male</div><div class="gender-opt ' + (_tag.gender === "Other" ? "sel" : "") + '" onclick="tagGender(\'Other\',this)">Other</div></div></div>' +
+              '<div class="form-group"><label class="form-label">Active Tags</label>' +
+                '<div style="display:flex;gap:8px;margin-bottom:8px;">' +
+                  '<input type="text" id="tag-input-field" class="form-input" style="flex:1" placeholder="Enter a trait (e.g. detective, witty, introverted)..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();tagAddInputTag();}" />' +
+                  '<button class="btn btn-primary" onclick="tagAddInputTag()" style="padding:10px 14px;"><i class="bi bi-plus-lg"></i></button>' +
+                '</div>' +
+                '<div id="tag-chips-container" style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px;padding:8px;background:var(--bg-2);border-radius:var(--r-md);border:1px solid var(--border);">' +
+                  (chipsHtml ? chipsHtml : '<div style="color:var(--t3);font-size:12px;padding:4px 8px;">No tags added yet. Choose from suggestions below or enter custom traits.</div>') +
+                '</div>' +
+              '</div>' +
+              '<div class="form-group"><label class="form-label">Tag Suggestions</label>' +
+                '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;max-height:150px;overflow-y:auto;padding:2px;">' + sugHtml + '</div>' +
+              '</div>' +
+            '</div>';
+
+          footer.innerHTML =
+            '<button class="btn btn-secondary" onclick="closeModal(\'modal-tag-wizard\')">Cancel</button>' +
+            '<button class="btn btn-primary" id="tag-gen-btn" onclick="tagGenerate()"><i class="bi bi-stars"></i> Generate Character</button>';
+        } else {
+          body.innerHTML =
+            '<p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Your character has been successfully generated! Review and fine-tune their details before creation.</p>' +
+            '<div style="display:flex;flex-direction:column;gap:14px;width:100%">' +
+              '<div class="form-group">' +
+                '<label class="form-label">Character Name</label>' +
+                '<input type="text" id="tag-final-name" class="form-input" value="' + _safeEscapeHTML(_tag.name) + '"/>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<label class="form-label">Gender</label>' +
+                '<div class="gender-seg" id="tag-final-gender-row">' +
+                  '<div class="gender-opt ' + (_tag.gender === "Female" ? "sel" : "") + '" onclick="tagFinalGender(\'Female\',this)">Female</div>' +
+                  '<div class="gender-opt ' + (_tag.gender === "Male" ? "sel" : "") + '" onclick="tagFinalGender(\'Male\',this)">Male</div>' +
+                  '<div class="gender-opt ' + (_tag.gender === "Other" ? "sel" : "") + '" onclick="tagFinalGender(\'Other\',this)">Other</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+                  '<label class="form-label" style="margin-bottom:0">Physical Appearance</label>' +
+                  '<button class="btn-mini-gen" id="btn-gen-appearance-tag" onclick="genDetailedAppearance(\'tag\')" title="Generate appearance"><i class="bi bi-stars"></i> Regenerate</button>' +
+                '</div>' +
+                '<textarea id="tag-final-appearance" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'tag-final-appearance\', \'btn-gen-appearance-tag\')">' + _safeEscapeHTML(_tag.appearance || "") + '</textarea>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<label class="form-label">Personality / Background</label>' +
+                '<textarea id="tag-final-desc" class="form-textarea" style="min-height:68px">' + _safeEscapeHTML(_tag.desc || "") + '</textarea>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+                  '<label class="form-label" style="margin-bottom:0">Opening Message</label>' +
+                  '<button class="btn-mini-gen" id="btn-gen-first-msg-tag" onclick="regenEditorFirstMsg(\'tag\')" title="Regenerate with AI"><i class="bi bi-stars"></i> Regenerate</button>' +
+                '</div>' +
+                '<textarea id="tag-final-firstmsg" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'tag-final-firstmsg\', \'btn-gen-first-msg-tag\')">' + _safeEscapeHTML(_tag.firstMsg || "") + '</textarea>' +
+              '</div>' +
+            '</div>';
+
+          footer.innerHTML =
+            '<button class="btn btn-secondary" onclick="tagBack()"><i class="bi bi-arrow-left"></i> Back</button>' +
+            '<button class="btn btn-primary" onclick="tagSave()"><i class="bi bi-check-lg"></i> Create Character</button>';
+        }
+      }
+
+      window._renderTag = _renderTag;
+      window.tagGender = tagGender;
+      window.tagFinalGender = tagFinalGender;
+      window.tagAddInputTag = tagAddInputTag;
+      window.tagRemoveTag = tagRemoveTag;
+      window.tagToggleSuggestion = tagToggleSuggestion;
+      window.tagBack = tagBack;
+
       // Safe fallback definition to prevent crashes regardless of whether your app uses escapeHTML or escHtml
       var _safeEscapeHTML =
         typeof escapeHTML === "function"
@@ -14606,7 +15062,9 @@
             (_adv.gender === "Female" ? "sel" : "") +
             '" onclick="advGender(\'Female\',this)">Female</div><div class="gender-opt ' +
             (_adv.gender === "Male" ? "sel" : "") +
-            '" onclick="advGender(\'Male\',this)">Male</div></div></div>' +
+            '" onclick="advGender(\'Male\',this)">Male</div><div class="gender-opt ' +
+            (_adv.gender === "Other" ? "sel" : "") +
+            '" onclick="advGender(\'Other\',this)">Other</div></div></div>' +
             '<div class="form-group"><label class="form-label">Story Tones / Genre</label><div style="font-size:13px;color:var(--t2);margin:6px 0 12px;line-height:1.5">Choose one or more tones, or add a custom genre keyword.</div>' +
             _buildToneGrid(_adv.toneGenres) +
             '<div id="adv-tone-hint" style="font-size:11.5px;color:var(--t3);margin-top:7px;min-height:16px">' +
@@ -14762,7 +15220,9 @@
             (_adv.gender === "Female" ? "sel" : "") +
             '" onclick="advFinalGender(\'Female\',this)">Female</div><div class="gender-opt ' +
             (_adv.gender === "Male" ? "sel" : "") +
-            '" onclick="advFinalGender(\'Male\',this)">Male</div></div></div>' +
+            '" onclick="advFinalGender(\'Male\',this)">Male</div><div class="gender-opt ' +
+            (_adv.gender === "Other" ? "sel" : "") +
+            '" onclick="advFinalGender(\'Other\',this)">Other</div></div></div>' +
             '<div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label class="form-label" style="margin-bottom:0">Physical Appearance</label><button class="btn-mini-gen" id="btn-gen-appearance-adv" onclick="genDetailedAppearance(\'adv\')" title="Generate appearance"><i class="bi bi-stars"></i> ' +
             ((_adv.appearance || "").trim() ? "Regenerate" : "Generate") +
             '</button></div><textarea id="adv-final-appearance" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'adv-final-appearance\', \'btn-gen-appearance-adv\')">' +
@@ -15316,7 +15776,29 @@
         showQuickDialog({
           title: "Create Character",
           content:
-            '<div class="qdialog-list"><div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openNewChar()"><i class="bi bi-person" style="font-size:20px;color:var(--primary)"></i><div><div class="qdialog-item-title">General Create</div><div class="qdialog-item-sub">Fill in the character form manually</div></div></div><div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openAdvWizard()"><i class="bi bi-stars" style="font-size:20px;color:var(--primary)"></i><div><div class="qdialog-item-title">Advanced Create</div><div class="qdialog-item-sub">Generate character details with AI prompts</div></div></div></div>',
+            '<div class="qdialog-list">' +
+            '<div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openNewChar()">' +
+              '<i class="bi bi-person text-xl" style="color:var(--primary)"></i>' +
+              '<div>' +
+                '<div class="qdialog-item-title">General Create</div>' +
+                '<div class="qdialog-item-sub">Fill in the character form manually</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openTagWizard()">' +
+              '<i class="bi bi-tags text-xl" style="color:var(--primary)"></i>' +
+              '<div>' +
+                '<div class="qdialog-item-title">Tag-Based Create</div>' +
+                '<div class="qdialog-item-sub">Specify traits and tags to auto-generate details</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="qdialog-item" onclick="closeModal(\'modal-quick-dialog\');openAdvWizard()">' +
+              '<i class="bi bi-stars text-xl" style="color:var(--primary)"></i>' +
+              '<div>' +
+                '<div class="qdialog-item-title">Advanced Create</div>' +
+                '<div class="qdialog-item-sub">Generate character details with AI prompts</div>' +
+              '</div>' +
+            '</div>' +
+            '</div>',
         });
       }
 
@@ -15385,6 +15867,10 @@
         qs("#menu-settings").onclick = function () {
           $id("main-menu").classList.remove("open");
           $id("perf-mode-toggle").classList.toggle("on", isPerfMode);
+          var swipeToggle = $id("swipe-nav-toggle");
+          if (swipeToggle) {
+            swipeToggle.classList.toggle("on", !!window.swipeVariantNav);
+          }
           var cbu = $id("custom-bg-url");
           if (cbu)
             cbu.value =
@@ -15752,6 +16238,12 @@
           openChatSearch(c);
         };
 
+        qs("#pinned-messages-btn").onclick = function () {
+          var c = getActive();
+          if (!c) return;
+          openPinnedMessages(c);
+        };
+
         qs("#chat-more-btn").onclick = function (e) {
           if (!getActive()) return;
           var menu = $id("chat-ctx-menu");
@@ -15861,6 +16353,15 @@
           isPerfMode = !isPerfMode;
           applyPerformanceMode();
           saveState();
+        };
+        $id("swipe-nav-toggle").onclick = function () {
+          window.swipeVariantNav = !window.swipeVariantNav;
+          $id("swipe-nav-toggle").classList.toggle("on", window.swipeVariantNav);
+          if (typeof window.applySwipeNavSetting === "function") {
+            window.applySwipeNavSetting();
+          }
+          saveState();
+          renderMsgs(true);
         };
 
         var mToggle = $id("mobile-anim-toggle");
@@ -17671,6 +18172,7 @@
             // Bubble with tail via CSS class
             '<div class="msg-bubble ai ' +
             bub +
+            (m.type === "image-carousel" ? " img-bubble" : "") +
             '" onclick="handleBubbleClick(event,this)">' +
             rqHtml +
             txt +
@@ -18516,15 +19018,16 @@
           _origMakeBubble = window.makeBubble;
           window.makeBubble = function (m, i, c) {
             var el = _origMakeBubble(m, i, c);
-            if (m.role !== "ai" && m.role !== "narrator") return el;
-            if (m.type === "image-carousel" || !m.id) return el;
+            if (m.role !== "ai" && m.role !== "narrator" && m.role !== "user") return el;
+            if (!m.id) return el;
 
             if (!m.variants) m.variants = [];
             var bubble = el.querySelector(".msg-bubble");
-            var p = bubble ? bubble.querySelector("p") : null;
+            var p = bubble ? (bubble.querySelector("p") || bubble.querySelector(".prompt-text")) : null;
             if (p) {
               var txt = getDisplayedText(m);
               var customColor = (c && c.customTextColor && m.role === "ai") ? c.customTextColor : "";
+              if (m.role === "user") customColor = ""; // user messages use default text color or standard overrides
               if (customColor) {
                 p.style.color = customColor;
               } else {
@@ -18534,11 +19037,15 @@
                 typeof formatText === "function" ? formatText((txt || "").trim(), customColor) : (txt || "").trim();
             }
 
-            if (m.variants.length > 1) {
-              var accent = c && c.color ? c.color : null;
-              _injectVariantNav(el, m, accent);
+            if (m.type !== "image-carousel") {
+              if (m.variants.length > 1) {
+                var accent = c && c.color ? c.color : null;
+                if (m.role === "user") accent = "var(--primary)";
+                // TODO: Re-enable variant nav and swiping for image generation once we support regenerating images
+                _injectVariantNav(el, m, accent);
+              }
+              _attachSwipe(el, m);
             }
-            _attachSwipe(el, m);
             return el;
           };
 
@@ -18547,16 +19054,17 @@
             var _origDual = window.makeDualBubble;
             window.makeDualBubble = function (m, i, c) {
               var el = _origDual(m, i, c);
-              if (m.type === "image-carousel" || !m.id) return el;
+              if (!m.id) return el;
               if (!m.variants) m.variants = [];
 
               var bubble = el.querySelector(".msg-bubble");
-              var p = bubble ? bubble.querySelector("p") : null;
+              var p = bubble ? (bubble.querySelector("p") || bubble.querySelector(".prompt-text")) : null;
               if (p) {
                 var txt = getDisplayedText(m);
                 var ci = m.dualChar !== undefined ? m.dualChar : 0;
                 var sp = c && c.characters ? c.characters[ci] : null;
                 var customColor = (sp && sp.customTextColor) ? sp.customTextColor : "";
+                if (m.role === "user") customColor = "";
                 if (customColor) {
                   p.style.color = customColor;
                 } else {
@@ -18566,13 +19074,17 @@
                   typeof formatText === "function" ? formatText((txt || "").trim(), customColor) : (txt || "").trim();
               }
 
-              if (m.variants.length > 1) {
-                var ci = m.dualChar !== undefined ? m.dualChar : 0;
-                var sp = c && c.characters ? c.characters[ci] : null;
-                var accent = sp ? sp.color : null;
-                _injectVariantNav(el, m, accent);
+              if (m.type !== "image-carousel") {
+                if (m.variants.length > 1) {
+                  var ci = m.dualChar !== undefined ? m.dualChar : 0;
+                  var sp = c && c.characters ? c.characters[ci] : null;
+                  var accent = sp ? sp.color : null;
+                  if (m.role === "user") accent = "var(--primary)";
+                  // TODO: Re-enable variant nav and swiping for image generation once we support regenerating images
+                  _injectVariantNav(el, m, accent);
+                }
+                _attachSwipe(el, m);
               }
-              _attachSwipe(el, m);
               return el;
             };
           }
@@ -18601,15 +19113,7 @@
               dotHtml +=
                 '<div class="variant-dot' +
                 (d === curIdx ? " active" : "") +
-                '"' +
-                (color && d === curIdx
-                  ? ' style="background:' +
-                    color +
-                    "; box-shadow: 0 0 6px " +
-                    color +
-                    '80"'
-                  : "") +
-                "></div>";
+                '"></div>';
             }
           }
 
@@ -18620,7 +19124,7 @@
                   <button class="variant-nav-btn" id="vp-${m.id}" title="Previous" ${curIdx === 0 ? "disabled" : ""}>
                     <i class="bi bi-chevron-left"></i>
                   </button>
-                  <span class="variant-counter" id="vc-${m.id}" ${color ? `style="color:${color}; font-weight:700"` : ""}>${curIdx + 1}/${total}</span>
+                  <span class="variant-counter" id="vc-${m.id}">${curIdx + 1}/${total}</span>
                   <button class="variant-nav-btn" id="vn-${m.id}" title="Next" ${curIdx >= total - 1 ? "disabled" : ""}>
                     <i class="bi bi-chevron-right"></i>
                   </button>
@@ -18639,34 +19143,6 @@
             _navigateVariant(m.id, 1, bubble);
           };
 
-          // Desktop Specific: Inject buttons into bubble-actions
-          if (window.innerWidth > 768 && actions) {
-            var navBtns = document.createElement("div");
-            navBtns.className = "variant-nav-btns";
-            navBtns.innerHTML = `
-                    <button class="variant-nav-btn" id="vp-act-${m.id}" title="Previous Variant" ${curIdx === 0 ? "disabled" : ""}>
-                      <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <span class="variant-counter" id="vc-act-${m.id}" ${color ? `style="color:${color}; font-weight:700"` : ""}>${curIdx + 1}/${total}</span>
-                    <button class="variant-nav-btn" id="vn-act-${m.id}" title="Next Variant" ${curIdx >= total - 1 ? "disabled" : ""}>
-                      <i class="bi bi-chevron-right"></i>
-                    </button>
-                  `;
-
-            navBtns.querySelector("#vp-act-" + m.id).onclick = function (e) {
-              e.stopPropagation();
-              _navigateVariant(m.id, -1, bubble);
-            };
-            navBtns.querySelector("#vn-act-" + m.id).onclick = function (e) {
-              e.stopPropagation();
-              _navigateVariant(m.id, 1, bubble);
-            };
-
-            // Insert at the beginning of actions
-            if (actions.firstChild)
-              actions.insertBefore(navBtns, actions.firstChild);
-            else actions.appendChild(navBtns);
-          }
 
           if (actions) bubble.insertBefore(nav, actions);
           else bubble.appendChild(nav);
@@ -18688,7 +19164,7 @@
           var txt = m.variants[newIdx];
           m.text = txt;
 
-          var p = bubbleEl.querySelector("p");
+          var p = bubbleEl.querySelector("p") || bubbleEl.querySelector(".prompt-text");
           if (p) {
             p.classList.remove("variant-slide-left", "variant-slide-right");
             void p.offsetWidth;
@@ -18734,10 +19210,6 @@
             if (vNext) vNext.disabled = newIdx >= total - 1;
             if (vCount) {
               vCount.textContent = newIdx + 1 + "/" + total;
-              if (color) {
-                vCount.style.color = color;
-                vCount.style.fontWeight = "700";
-              }
             }
           };
 
@@ -18760,9 +19232,23 @@
             });
           }
           if (typeof saveState === "function") saveState();
+
+          if (m.role === "user") {
+            var nextAIIdx = res.idx + 1;
+            if (nextAIIdx < res.char.msgs.length) {
+              var nextMsg = res.char.msgs[nextAIIdx];
+              if (nextMsg.role === "ai" || nextMsg.role === "narrator") {
+                // Automatically regenerate the subsequent AI reply!
+                // setTimeout(function() {
+                //   regenMsg(nextMsg.id);
+                // }, 200);
+              }
+            }
+          }
         }
 
         function _attachSwipe(el, m) {
+          if (!window.swipeVariantNav) return;
           var b = el.querySelector(".msg-bubble");
           if (!b) return;
           var sX = 0,
@@ -18884,6 +19370,205 @@
               : res.msg.variants
                 ? res.msg.variants.length - 1
                 : 0;
+          };
+
+          window.swipeVariantNav = false;
+          window.applySwipeNavSetting = function () {
+            document.body.classList.toggle("swipe-enabled", !!window.swipeVariantNav);
+          };
+
+          window.regenUserMsg = async function (id, instruction) {
+            if (isGen || !activeId) return;
+            var res = findMsg(id);
+            if (!res) return;
+            var c = getActiveChar();
+            var idx = res.idx;
+            var m = res.msg;
+
+            setGen(true);
+            if (typeof updateSendButtonState === "function") updateSendButtonState();
+
+            var bubbleEl = document.getElementById("bubble-" + id) || document.querySelector('[data-msg-id="' + id + '"] .msg-bubble');
+            if (!bubbleEl) {
+              setGen(false);
+              if (typeof updateSendButtonState === "function") updateSendButtonState();
+              return;
+            }
+
+            var originalHTML = bubbleEl.innerHTML;
+
+            bubbleEl.innerHTML = `
+              <div style="display:flex; flex-direction:column; gap:4px; padding:4px; width:100%;">
+                <div style="font-size:12px; opacity:0.7; font-weight:700;"><i class="bi bi-stars"></i> Generating user options...</div>
+                <div class="typing-bubble user" style="margin:6px 0; align-self: flex-end;">
+                  <div class="typing-dot"></div>
+                  <div class="typing-dot"></div>
+                  <div class="typing-dot"></div>
+                </div>
+              </div>
+            `;
+
+            try {
+              var hist = c.msgs.slice(0, idx)
+                .map(function (msg) {
+                  return msg.role + ": " + (msg.text || "");
+                })
+                .join("\n");
+              
+              var uPrompt =
+                "You are " +
+                userProfile.name +
+                " in this roleplay with " +
+                c.name +
+                "." +
+                (userProfile.persona
+                  ? " Persona: " + userProfile.persona + "."
+                  : "") +
+                " Generate exactly 3 short, natural reply options for what you might say or do next (1-2 sentences each). Output ONLY a single valid JSON array of 3 strings. Do not include markdown, numbering, labels, or extra explanation.\n\nChat:\n" +
+                hist;
+              if (instruction) uPrompt += "\n\nInstruction: " + instruction;
+
+              var uText = await generateText({
+                instruction: uPrompt,
+                maxTokens: 500,
+              });
+
+              var options = [];
+              try {
+                var match = uText.match(/\[[\s\S]*\]/);
+                if (match) options = JSON.parse(match[0]);
+                else options = JSON.parse(uText);
+              } catch (err) {
+                options = uText
+                  .split("\n")
+                  .filter(function (l) { return l.trim(); })
+                  .map(function (l) { return l.replace(/^[\d\-\*\.]+\s*/, ""); })
+                  .slice(0, 3);
+              }
+
+              if (!Array.isArray(options) || !options.length) {
+                throw new Error("Invalid options generated");
+              }
+
+              bubbleEl.innerHTML = '<div style="display:flex; flex-direction:column; gap:7px; width: 100%;"></div>';
+              var cont = bubbleEl.querySelector("div");
+
+              var headerLabel = document.createElement("div");
+              headerLabel.style.cssText = "font-size:11px; font-weight:700; opacity:0.8; margin-bottom:2px; display:flex; align-items:center; gap:4px;";
+              headerLabel.innerHTML = '<i class="bi bi-stars"></i> Select Options Revision:';
+              cont.appendChild(headerLabel);
+
+              options.forEach(function (opt) {
+                var btn = document.createElement("button");
+                btn.className = "choice-btn";
+                btn.style.width = "100%";
+                btn.style.textAlign = "left";
+                btn.textContent = opt;
+                btn.onclick = async function (e) {
+                  e.stopPropagation();
+                  if (isGen) return;
+
+                  if (!m.variants) m.variants = [];
+                  if (m.text && m.variants.indexOf(m.text) === -1) {
+                    m.variants.push(m.text);
+                  }
+                  if (m.variants.indexOf(opt) === -1) {
+                    m.variants.push(opt);
+                  }
+                  m.vIdx = m.variants.indexOf(opt);
+                  m.text = opt;
+
+                  var nextAIIdx = idx + 1;
+                  var hasNextAI = nextAIIdx < c.msgs.length && (c.msgs[nextAIIdx].role === "ai" || c.msgs[nextAIIdx].role === "narrator");
+
+                  saveState();
+                  renderMsgs();
+
+                  if (hasNextAI) {
+                    await regenMsg(c.msgs[nextAIIdx].id);
+                  } else {
+                    await callAI(c);
+                  }
+                };
+                cont.appendChild(btn);
+              });
+
+              var actionRow = document.createElement("div");
+              actionRow.style.cssText = "display:flex; gap:6px; justify-content:flex-end; margin-top:4px;";
+
+              var cancelBtn = document.createElement("button");
+              cancelBtn.className = "choice-btn";
+              cancelBtn.style.cssText = "color:var(--rose); padding:4px 8px; font-size:12px; font-weight:700;";
+              cancelBtn.textContent = "Cancel";
+              cancelBtn.onclick = function (e) {
+                e.stopPropagation();
+                bubbleEl.innerHTML = originalHTML;
+                renderMsgs();
+              };
+
+              var regenAgainBtn = document.createElement("button");
+              regenAgainBtn.className = "choice-btn";
+              regenAgainBtn.style.cssText = "color:var(--primary); padding:4px 8px; font-size:12px; font-weight:700;";
+              regenAgainBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Try Again';
+              regenAgainBtn.onclick = function (e) {
+                e.stopPropagation();
+                window.regenUserMsg(id, instruction);
+              };
+
+              actionRow.appendChild(cancelBtn);
+              actionRow.appendChild(regenAgainBtn);
+              cont.appendChild(actionRow);
+
+            } catch (e) {
+              console.error(e);
+              bubbleEl.innerHTML = originalHTML;
+              showToast("Failed to generate options", "error");
+            } finally {
+              setGen(false);
+              if (typeof updateSendButtonState === "function") updateSendButtonState();
+            }
+          };
+
+          window.openUserRegen = function (id) {
+            showQuickDialog({
+              title: "User Generation Options",
+              content: `
+                <div class="qdialog-list">
+                  <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.openUserRegenWithPrompt('${id}')">
+                    <i class="bi bi-stars"></i>Regenerate options with custom prompt...
+                  </div>
+                </div>`,
+            });
+          };
+
+          window.openUserRegenWithPrompt = function (id) {
+            showQuickDialog({
+              title: "Generate Options with Custom Prompt",
+              content:
+                '<div class="qdialog-input-group"><label>Instructions</label>' +
+                '<textarea id="user-regen-input" class="qdialog-input" placeholder="e.g. Make my responses more aggressive or flirty..." style="min-height:76px"></textarea>',
+              actions: [
+                {
+                  text: "Cancel",
+                  type: "secondary",
+                  onClick: function () {
+                    return true;
+                  },
+                },
+                {
+                  text: "Generate",
+                  type: "primary",
+                  onClick: async function () {
+                    var el = document.getElementById("user-regen-input");
+                    var instr = el ? el.value.trim() : "";
+                    if (!instr) return false;
+                    closeModal("modal-quick-dialog");
+                    await window.regenUserMsg(id, instr);
+                    return false;
+                  },
+                },
+              ],
+            });
           };
 
           console.log("[Variant History Patch] V5 Booted ✓");
