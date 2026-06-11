@@ -2022,6 +2022,10 @@
         padding: 10px 18px;
         min-width: 245px;
       }
+      /* Prevent italics inheritance on timestamps, actions, and nav options */
+      .msg-meta, .msg-time, .variant-nav, .variant-counter, .variant-dots, .variant-dot, .bubble-actions, .bact {
+        font-style: normal !important;
+      }
       .nar-label {
         display: inline-flex;
         align-items: center;
@@ -3510,6 +3514,55 @@
         justify-content: space-between;
         padding: 5px 0;
       }
+      .regen-chk-wrapper {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .regen-chk-wrapper:hover {
+        border-color: var(--primary);
+      }
+      .regen-chk {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid var(--t3);
+        border-radius: 4px;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        flex-shrink: 0;
+        margin: 0;
+      }
+      .regen-chk:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .regen-chk:checked::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 5px;
+        width: 4px;
+        height: 8px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      .regen-chk-label {
+        font-size: 13px;
+        color: var(--t1);
+        font-weight: 500;
+        user-select: none;
+      }
       .sw-label-title {
         font-size: 14px;
         font-weight: 600;
@@ -3617,6 +3670,14 @@
       }
       .gender-opt.sel {
         color: #fff !important;
+      }
+      .gender-opt.opt-other {
+        flex: 0.6;
+        font-size: 11px;
+        font-weight: 500;
+        opacity: 0.9;
+        padding-left: 8px;
+        padding-right: 8px;
       }
 
       /* ── Avatar Upload Zone ── */
@@ -3822,9 +3883,14 @@
 ═══════════════════════════════ */
       .char-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         padding: 2px 0;
+      }
+      @media (min-width: 480px) {
+        .char-grid {
+          grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        }
       }
       @media (min-width: 768px) {
         #modal-char-list .modal {
@@ -4139,6 +4205,36 @@
         border-radius: var(--r-md);
         padding: 15px;
         margin-bottom: 14px;
+      }
+      .basic-len-btn {
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+      .basic-len-btn:hover {
+        border-color: color-mix(in srgb, var(--primary) 50%, transparent);
+      }
+      .basic-len-btn.active {
+        background: color-mix(in srgb, var(--primary) 10%, transparent);
+        border-color: var(--primary);
+      }
+      .basic-len-btn .b-title {
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--t1);
+        margin-bottom: 2px;
+        transition: color 0.2s ease;
+      }
+      .basic-len-btn .b-sub {
+        font-size: 11.5px;
+        color: var(--t2);
+      }
+      .basic-len-btn.active .b-title {
+        color: var(--primary);
       }
       .token-hd {
         display: flex;
@@ -7174,7 +7270,10 @@
                 <div class="gender-opt" onclick="selectGender('Male', this)">
                   Male
                 </div>
-                <div class="gender-opt" onclick="selectGender('Other', this)">
+                <div class="gender-opt" onclick="selectGender('Nonbinary', this)">
+                  Nonbinary
+                </div>
+                <div class="gender-opt opt-other" onclick="selectGender('Other', this)">
                   Other
                 </div>
               </div>
@@ -7600,8 +7699,31 @@
         <div class="modal-body">
           <div class="settings-label">Response Style</div>
           <div class="style-grid" id="rs-grid"></div>
-          <div class="settings-label">Response Length</div>
-          <div class="token-card">
+          <div class="settings-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Response Length</span>
+            <span id="toggle-length-mode-btn" onclick="toggleAdvLengthMode()" style="color:var(--primary);cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;padding:4px;margin-right:-4px">Advanced</span>
+          </div>
+          
+          <div id="basic-length-settings" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px;">
+            <div class="basic-len-btn" data-val="200" onclick="setBasicLength(200)">
+              <div class="b-title">Short</div>
+              <div class="b-sub">~1 paragraph</div>
+            </div>
+            <div class="basic-len-btn" data-val="500" onclick="setBasicLength(500)">
+              <div class="b-title">Medium</div>
+              <div class="b-sub">1-2 paragraphs</div>
+            </div>
+            <div class="basic-len-btn" data-val="1000" onclick="setBasicLength(1000)">
+              <div class="b-title">Long</div>
+              <div class="b-sub">3+ paragraphs</div>
+            </div>
+            <div class="basic-len-btn active" data-val="0" onclick="setBasicLength(0)">
+              <div class="b-title">Infinite</div>
+              <div class="b-sub">Full natural length</div>
+            </div>
+          </div>
+
+          <div class="token-card" id="adv-length-settings" style="display:none;">
             <div class="token-hd">
               <span class="token-title">Max Length</span
               ><span class="token-badge unlimited" id="token-value-badge"
@@ -9968,6 +10090,58 @@
         updateTokenPreview();
       };
 
+      // ── BASIC LENGTH TOGGLE ──
+      var isAdvLengthMode = false;
+
+      window.setBasicLength = function(val) {
+        // Find all basic len btns, update classes
+        document.querySelectorAll(".basic-len-btn").forEach(function(b) {
+          b.classList.remove("active");
+          if (parseInt(b.getAttribute("data-val")) === val) {
+            b.classList.add("active");
+          }
+        });
+        
+        var slider = $id("token-limit-slider");
+        var manual = $id("token-manual-input");
+        
+        if (val === 0) {
+          if (slider) slider.value = 0;
+          if (manual) manual.value = "";
+        } else {
+          // Find closest slider index or just set manual
+          if (manual) manual.value = val;
+        }
+        updateTokenPreview();
+      };
+
+      function updateBasicLengthSelection() {
+        var manual = getManualChars();
+        var sliderIdx = parseInt(($id("token-limit-slider") || {}).value) || 0;
+        var chars = manual !== null ? manual : (TOKEN_STEPS[sliderIdx] ? TOKEN_STEPS[sliderIdx].chars : null);
+        
+        var valToMatch = 0;
+        if (chars !== null) {
+          if (chars <= 250) valToMatch = 200;
+          else if (chars <= 750) valToMatch = 500;
+          else valToMatch = 1000;
+        }
+        
+        document.querySelectorAll(".basic-len-btn").forEach(function(b) {
+          b.classList.remove("active");
+          if (parseInt(b.getAttribute("data-val")) === valToMatch) {
+            b.classList.add("active");
+          }
+        });
+      }
+
+      window.toggleAdvLengthMode = function() {
+        isAdvLengthMode = !isAdvLengthMode;
+        $id("basic-length-settings").style.display = isAdvLengthMode ? "none" : "grid";
+        $id("adv-length-settings").style.display = isAdvLengthMode ? "block" : "none";
+        $id("toggle-length-mode-btn").textContent = isAdvLengthMode ? "Standard" : "Advanced";
+      };
+
       // ── PINNED MESSAGE MEMORY SYSTEM ──
       function buildMemoryContext(c) {
         if (!c.msgs || c.msgs.length === 0) return "";
@@ -10295,6 +10469,9 @@
 
       // ── TOKEN PREVIEW ──
       function updateTokenPreview() {
+        if (typeof updateBasicLengthSelection === "function") {
+          updateBasicLengthSelection();
+        }
         var manual = getManualChars();
         var slider = $id("token-limit-slider");
         var idx = parseInt(slider ? slider.value : 0) || 0;
@@ -11706,9 +11883,56 @@
               el.remove();
               showQuickDialog({
                 title: "Generate Options with Custom Prompt",
-                content:
-                  '<div class="qdialog-input-group"><label>Instructions</label>' +
-                  '<textarea id="user-regen-input-first" class="qdialog-input" placeholder="e.g. More sarcastic..." style="min-height:76px"></textarea>',
+                maxWidth: "480px",
+                content: `
+                  <div style="display:flex;flex-direction:column;gap:12px">
+                    <div class="qdialog-input-group">
+                      <label class="form-label" style="font-size:12.5px;font-weight:600;color:var(--t2);margin-bottom:4px">Core Instruction / Focus</label>
+                      <textarea id="user-regen-instruction-first" class="qdialog-input" placeholder="e.g. Make my responses more aggressive or passionate..." style="min-height:76px;width:100%;font-size:13px;"></textarea>
+                    </div>
+                    
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                      <div class="qdialog-input-group">
+                        <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Role Tone</label>
+                        <select id="user-regen-tone-first" class="qdialog-input">
+                          <option value="default">— Same Tone —</option>
+                          <option value="Sarcastic & Witty">Sarcastic &amp; Witty</option>
+                          <option value="Aggressive & Bold">Aggressive &amp; Bold</option>
+                          <option value="Gentle & Empathetic">Gentle &amp; Empathetic</option>
+                          <option value="Cold & Subdued">Cold &amp; Subdued</option>
+                          <option value="Flirtatious & Teasing">Flirtatious &amp; Teasing</option>
+                          <option value="Suspicious & Cautious">Suspicious &amp; Cautious</option>
+                        </select>
+                      </div>
+                      <div class="qdialog-input-group">
+                        <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Option Style</label>
+                        <select id="user-regen-style-first" class="qdialog-input">
+                          <option value="default">— Default Style —</option>
+                          <option value="Short responses or choices">Short / Snappy Choice</option>
+                          <option value="Long, descriptive actions/narratives">Action and Dialogue rich</option>
+                          <option value="Inner monologues combined with speech">Speech + Inner thoughts</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="qdialog-input-group">
+                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Emotion <span style="font-weight:normal;color:var(--t3)">(Optional)</span></label>
+                      <input type="text" id="user-regen-emotion-first" class="qdialog-input" placeholder="e.g. nervous, confident, holding back anger..." />
+                    </div>
+
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
+                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:2px">Directives &amp; Emphasis</label>
+                      <label class="regen-chk-wrapper">
+                        <input type="checkbox" id="user-regen-sensory-first" class="regen-chk" />
+                        <span class="regen-chk-label">Emphasize physical interactions &amp; sensory responses</span>
+                      </label>
+                      <label class="regen-chk-wrapper">
+                        <input type="checkbox" id="user-regen-thoughts-first" class="regen-chk" />
+                        <span class="regen-chk-label">Include rich internal thoughts or doubts</span>
+                      </label>
+                    </div>
+                  </div>
+                `,
                 actions: [
                   {
                     text: "Cancel",
@@ -11721,8 +11945,35 @@
                     text: "Generate",
                     type: "primary",
                     onClick: async function () {
-                      var inputEl = document.getElementById("user-regen-input-first");
-                      var instr = inputEl ? inputEl.value.trim() : "";
+                      var elIns = document.getElementById("user-regen-instruction-first");
+                      var elTone = document.getElementById("user-regen-tone-first");
+                      var elStyle = document.getElementById("user-regen-style-first");
+                      var elEmo = document.getElementById("user-regen-emotion-first");
+                      var elSensory = document.getElementById("user-regen-sensory-first");
+                      var elThoughts = document.getElementById("user-regen-thoughts-first");
+  
+                      var parts = [];
+                      var primaryIns = elIns ? elIns.value.trim() : "";
+                      if (primaryIns) {
+                        parts.push("Main Focus: " + primaryIns);
+                      }
+                      if (elTone && elTone.value && elTone.value !== "default") {
+                        parts.push("Tone/Mood: " + elTone.value);
+                      }
+                      if (elStyle && elStyle.value && elStyle.value !== "default") {
+                        parts.push("Format Style: " + elStyle.value);
+                      }
+                      if (elEmo && elEmo.value.trim()) {
+                        parts.push("User Emotion/State: " + elEmo.value.trim());
+                      }
+                      if (elSensory && elSensory.checked) {
+                        parts.push("Emphasis: Emphasize somatic reactions, touch, physical items, and sensory details.");
+                      }
+                      if (elThoughts && elThoughts.checked) {
+                        parts.push("Emphasis: Include deep personal monologue/thoughts in the choices.");
+                      }
+  
+                      var instr = parts.join("\n");
                       if (!instr) return false;
                       closeModal("modal-quick-dialog");
                       await userWithAIReply(instr);
@@ -12001,6 +12252,7 @@
             {
               text: "Generate",
               type: "primary",
+              loadingText: "Generating...",
               onClick: async function () {
                 const promptInput = document.getElementById("ai-av-prompt");
                 const prompt = (promptInput?.value || "").trim();
@@ -12009,10 +12261,6 @@
                   showToast("Please enter a prompt", "warning");
                   return false;
                 }
-
-                const btn = this;
-                btn.disabled = true;
-                btn.textContent = "Generating…";
 
                 try {
                   if (typeof setImgGen === "function") setImgGen(true);
@@ -12024,17 +12272,14 @@
                   const url = await generateImage(finalPrompt, {
                     resolution: "768x768",
                   });
-                  closeModal("modal-quick-dialog");
                   openAvatarCropper(url, target);
+                  return true;
                 } catch (err) {
                   showToast("Generation failed: " + err.message, "error");
-                  btn.disabled = false;
-                  btn.textContent = "Generate";
+                  return false;
                 } finally {
                   if (typeof setImgGen === "function") setImgGen(false);
                 }
-
-                return false; // Keep dialog open on error
               },
             },
           ],
@@ -13015,11 +13260,13 @@
         qsa(rowSelector + " .gender-opt").forEach(function (o) {
           var isFemale = o.textContent.indexOf("Female") !== -1;
           var isMale = o.textContent.indexOf("Male") !== -1;
+          var isNonbinary = o.textContent.indexOf("Nonbinary") !== -1;
           var isOther = o.textContent.indexOf("Other") !== -1;
           o.classList.toggle(
             "sel",
             (isFemale && selectedGender.toLowerCase() === "female") ||
               (isMale && selectedGender.toLowerCase() === "male") ||
+              (isNonbinary && selectedGender.toLowerCase() === "nonbinary") ||
               (isOther && selectedGender.toLowerCase() === "other"),
           );
         });
@@ -14084,8 +14331,20 @@
             btn.className = "btn btn-" + (a.type || "secondary");
             btn.textContent = a.text;
             btn.onclick = async function () {
-              var r = await a.onClick();
-              if (r !== false) closeModal("modal-quick-dialog");
+              var prevHTML = btn.innerHTML;
+              if (a.type === "primary") {
+                btn.innerHTML = '<i class="bi bi-hourglass-split"></i> ' + (a.loadingText || "Working...");
+                btn.disabled = true;
+              }
+              try {
+                var r = await a.onClick(btn);
+                if (r !== false) closeModal("modal-quick-dialog");
+              } finally {
+                if (a.type === "primary") {
+                  btn.innerHTML = prevHTML;
+                  btn.disabled = false;
+                }
+              }
             };
             footerEl.appendChild(btn);
           });
@@ -14630,8 +14889,40 @@
           ).trim();
           _tag.firstMsg = (parsed.firstMessage || "").trim();
           _tag.reminder = (parsed.reminder || "").trim();
-          _tag.step = 2;
-          _renderTag();
+          
+          closeModal("modal-tag-wizard");
+          
+          // Pre-populate standard character general creator
+          editingCharId = null;
+          var mt = document.querySelector("#modal-char-create .modal-title");
+          var sb = $id("save-char-btn");
+          if (mt) mt.textContent = "Create Character";
+          if (sb) sb.textContent = "Create";
+          
+          initAvZone();
+          
+          if ($id("char-name")) $id("char-name").value = _tag.name || "";
+          if ($id("char-appearance")) $id("char-appearance").value = _tag.appearance || "";
+          if ($id("char-description")) $id("char-description").value = _tag.desc || "";
+          if ($id("char-system-prompt")) $id("char-system-prompt").value = _tag.sys || "";
+          if ($id("char-first-message")) $id("char-first-message").value = _tag.firstMsg || "";
+          if ($id("char-reminder")) $id("char-reminder").value = _tag.reminder || "";
+          
+          // Clear optional fields
+          if ($id("char-source-url")) $id("char-source-url").value = "";
+          if ($id("char-scenario")) $id("char-scenario").value = "";
+          if ($id("char-user-role")) $id("char-user-role").value = "";
+          if ($id("char-scenario-tone")) $id("char-scenario-tone").value = "";
+          
+          selectedGender = _tag.gender || "Female";
+          syncGenderRow("#gender-row");
+          updateAllBasicGenButtons();
+          
+          tempLorebook = [];
+          renderLorebookEntriesUI();
+          switchCharTab("char-tab-general");
+          
+          openModal("modal-char-create");
         } catch (e) {
           showToast("Generation failed: " + e.message, "error");
           if (btn) {
@@ -14641,17 +14932,38 @@
         }
       }
 
+      function syncTagReviewInputsToMemory() {
+        if (_tag.step === 2) {
+          var afn = document.getElementById("tag-final-name");
+          var afa = document.getElementById("tag-final-appearance");
+          var afd = document.getElementById("tag-final-desc");
+          var affm = document.getElementById("tag-final-firstmsg");
+          var afsys = document.getElementById("tag-final-sys");
+          var afrem = document.getElementById("tag-final-reminder");
+          
+          if (afn) _tag.name = afn.value.trim();
+          if (afa) _tag.appearance = afa.value.trim();
+          if (afd) _tag.desc = afd.value.trim();
+          if (affm) _tag.firstMsg = affm.value.trim();
+          if (afsys) _tag.sys = afsys.value.trim();
+          if (afrem) _tag.reminder = afrem.value.trim();
+        }
+      }
+
+      window.switchTagReviewTab = function (tabName) {
+        syncTagReviewInputsToMemory();
+        _tag.reviewTab = tabName;
+        _renderTag();
+      };
+
       window.tagGenerate = tagGenerate;
 
       window.tagSave = function () {
-        var afn = document.getElementById("tag-final-name");
-        var afa = document.getElementById("tag-final-appearance");
-        var afd = document.getElementById("tag-final-desc");
-        var affm = document.getElementById("tag-final-firstmsg");
-        var name = (afn ? afn.value : "").trim() || _tag.name;
-        var app = (afa ? afa.value : "").trim();
-        var desc = (afd ? afd.value : "").trim();
-        var firstMsg = (affm ? affm.value : "").trim();
+        syncTagReviewInputsToMemory();
+        var name = _tag.name;
+        var app = _tag.appearance;
+        var desc = _tag.desc;
+        var firstMsg = _tag.firstMsg;
         if (!name) {
           showToast("Name is required", "warning");
           return;
@@ -14722,7 +15034,12 @@
             '<p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Specify physical traits and personality keywords to describe the character. Luminara will automatically craft a rich, detailed persona.</p>' +
             '<div style="display:flex;flex-direction:column;gap:14px;width:100%">' +
               '<div class="form-group"><label class="form-label">Character Name <span style="font-size:11px;font-weight:normal;color:var(--t3)">(Optional - AI will choose if empty)</span></label><input type="text" id="tag-name" class="form-input" placeholder="e.g. Alistair, Detective Vance\u2026" value="' + _safeEscapeHTML(_tag.name || "") + '"/></div>' +
-              '<div class="form-group"><label class="form-label">Gender</label><div class="gender-seg" id="tag-gender-row"><div class="gender-opt ' + (_tag.gender === "Female" ? "sel" : "") + '" onclick="tagGender(\'Female\',this)">Female</div><div class="gender-opt ' + (_tag.gender === "Male" ? "sel" : "") + '" onclick="tagGender(\'Male\',this)">Male</div><div class="gender-opt ' + (_tag.gender === "Other" ? "sel" : "") + '" onclick="tagGender(\'Other\',this)">Other</div></div></div>' +
+              '<div class="form-group"><label class="form-label">Gender</label><div class="gender-seg" id="tag-gender-row">' +
+                '<div class="gender-opt ' + (_tag.gender === "Female" ? "sel" : "") + '" onclick="tagGender(\'Female\',this)">Female</div>' +
+                '<div class="gender-opt ' + (_tag.gender === "Male" ? "sel" : "") + '" onclick="tagGender(\'Male\',this)">Male</div>' +
+                '<div class="gender-opt ' + (_tag.gender === "Nonbinary" ? "sel" : "") + '" onclick="tagGender(\'Nonbinary\',this)">Nonbinary</div>' +
+                '<div class="gender-opt opt-other ' + (_tag.gender === "Other" ? "sel" : "") + '" onclick="tagGender(\'Other\',this)">Other</div>' +
+              '</div></div>' +
               '<div class="form-group"><label class="form-label">Active Tags</label>' +
                 '<div style="display:flex;gap:8px;margin-bottom:8px;">' +
                   '<input type="text" id="tag-input-field" class="form-input" style="flex:1" placeholder="Enter a trait (e.g. detective, witty, introverted)..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();tagAddInputTag();}" />' +
@@ -14741,40 +15058,81 @@
             '<button class="btn btn-secondary" onclick="closeModal(\'modal-tag-wizard\')">Cancel</button>' +
             '<button class="btn btn-primary" id="tag-gen-btn" onclick="tagGenerate()"><i class="bi bi-stars"></i> Generate Character</button>';
         } else {
-          body.innerHTML =
-            '<p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Your character has been successfully generated! Review and fine-tune their details before creation.</p>' +
-            '<div style="display:flex;flex-direction:column;gap:14px;width:100%">' +
-              '<div class="form-group">' +
-                '<label class="form-label">Character Name</label>' +
-                '<input type="text" id="tag-final-name" class="form-input" value="' + _safeEscapeHTML(_tag.name) + '"/>' +
-              '</div>' +
-              '<div class="form-group">' +
-                '<label class="form-label">Gender</label>' +
-                '<div class="gender-seg" id="tag-final-gender-row">' +
-                  '<div class="gender-opt ' + (_tag.gender === "Female" ? "sel" : "") + '" onclick="tagFinalGender(\'Female\',this)">Female</div>' +
-                  '<div class="gender-opt ' + (_tag.gender === "Male" ? "sel" : "") + '" onclick="tagFinalGender(\'Male\',this)">Male</div>' +
-                  '<div class="gender-opt ' + (_tag.gender === "Other" ? "sel" : "") + '" onclick="tagFinalGender(\'Other\',this)">Other</div>' +
-                '</div>' +
-              '</div>' +
-              '<div class="form-group">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-                  '<label class="form-label" style="margin-bottom:0">Physical Appearance</label>' +
-                  '<button class="btn-mini-gen" id="btn-gen-appearance-tag" onclick="genDetailedAppearance(\'tag\')" title="Generate appearance"><i class="bi bi-stars"></i> Regenerate</button>' +
-                '</div>' +
-                '<textarea id="tag-final-appearance" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'tag-final-appearance\', \'btn-gen-appearance-tag\')">' + _safeEscapeHTML(_tag.appearance || "") + '</textarea>' +
-              '</div>' +
-              '<div class="form-group">' +
-                '<label class="form-label">Personality / Background</label>' +
-                '<textarea id="tag-final-desc" class="form-textarea" style="min-height:68px">' + _safeEscapeHTML(_tag.desc || "") + '</textarea>' +
-              '</div>' +
-              '<div class="form-group">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-                  '<label class="form-label" style="margin-bottom:0">Opening Message</label>' +
-                  '<button class="btn-mini-gen" id="btn-gen-first-msg-tag" onclick="regenEditorFirstMsg(\'tag\')" title="Regenerate with AI"><i class="bi bi-stars"></i> Regenerate</button>' +
-                '</div>' +
-                '<textarea id="tag-final-firstmsg" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'tag-final-firstmsg\', \'btn-gen-first-msg-tag\')">' + _safeEscapeHTML(_tag.firstMsg || "") + '</textarea>' +
-              '</div>' +
+          if (!_tag.reviewTab) _tag.reviewTab = "General";
+
+          var tabListHtml = 
+            '<div class="modal-tabs" style="margin-bottom: 20px;">' +
+              '<div class="modal-tab ' + (_tag.reviewTab === "General" ? "active" : "") + '" onclick="switchTagReviewTab(\'General\')">General</div>' +
+              '<div class="modal-tab ' + (_tag.reviewTab === "AI Persona" ? "active" : "") + '" onclick="switchTagReviewTab(\'AI Persona\')">AI Persona</div>' +
+              '<div class="modal-tab ' + (_tag.reviewTab === "Lorebook" ? "active" : "") + '" onclick="switchTagReviewTab(\'Lorebook\')">Lorebook</div>' +
+              '<div class="modal-tab ' + (_tag.reviewTab === "Import" ? "active" : "") + '" onclick="switchTagReviewTab(\'Import\')">Import</div>' +
             '</div>';
+
+          var activeTabContent = "";
+
+          if (_tag.reviewTab === "General") {
+            activeTabContent = 
+              '<p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Your character has been successfully generated! Review and fine-tune their details before creation.</p>' +
+              '<div style="display:flex;flex-direction:column;gap:14px;width:100%">' +
+                '<div class="form-group">' +
+                  '<label class="form-label">Character Name</label>' +
+                  '<input type="text" id="tag-final-name" class="form-input" value="' + _safeEscapeHTML(_tag.name) + '"/>' +
+                '</div>' +
+                '<div class="form-group">' +
+                  '<label class="form-label">Gender</label>' +
+                  '<div class="gender-seg" id="tag-final-gender-row">' +
+                    '<div class="gender-opt ' + (_tag.gender === "Female" ? "sel" : "") + '" onclick="tagFinalGender(\'Female\',this)">Female</div>' +
+                    '<div class="gender-opt ' + (_tag.gender === "Male" ? "sel" : "") + '" onclick="tagFinalGender(\'Male\',this)">Male</div>' +
+                    '<div class="gender-opt ' + (_tag.gender === "Nonbinary" ? "sel" : "") + '" onclick="tagFinalGender(\'Nonbinary\',this)">Nonbinary</div>' +
+                    '<div class="gender-opt opt-other ' + (_tag.gender === "Other" ? "sel" : "") + '" onclick="tagFinalGender(\'Other\',this)">Other</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="form-group">' +
+                  '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+                    '<label class="form-label" style="margin-bottom:0">Physical Appearance</label>' +
+                    '<button class="btn-mini-gen" id="btn-gen-appearance-tag" onclick="genDetailedAppearance(\'tag\')" title="Generate appearance"><i class="bi bi-stars"></i> Regenerate</button>' +
+                  '</div>' +
+                  '<textarea id="tag-final-appearance" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'tag-final-appearance\', \'btn-gen-appearance-tag\')">' + _safeEscapeHTML(_tag.appearance || "") + '</textarea>' +
+                '</div>' +
+                '<div class="form-group">' +
+                  '<label class="form-label">Personality / Background</label>' +
+                  '<textarea id="tag-final-desc" class="form-textarea" style="min-height:68px">' + _safeEscapeHTML(_tag.desc || "") + '</textarea>' +
+                '</div>' +
+                '<div class="form-group">' +
+                  '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+                    '<label class="form-label" style="margin-bottom:0">Opening Message</label>' +
+                    '<button class="btn-mini-gen" id="btn-gen-first-msg-tag" onclick="regenEditorFirstMsg(\'tag\')" title="Regenerate with AI"><i class="bi bi-stars"></i> Regenerate</button>' +
+                  '</div>' +
+                  '<textarea id="tag-final-firstmsg" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'tag-final-firstmsg\', \'btn-gen-first-msg-tag\')">' + _safeEscapeHTML(_tag.firstMsg || "") + '</textarea>' +
+                '</div>' +
+              '</div>';
+          } else if (_tag.reviewTab === "AI Persona") {
+            activeTabContent = 
+              '<div class="form-group">' +
+                '<label class="form-label">System Prompt</label>' +
+                '<textarea id="tag-final-sys" class="form-textarea" style="min-height:140px" placeholder="You are...">' + _safeEscapeHTML(_tag.sys || "") + '</textarea>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<label class="form-label">Core Reminder Instruction</label>' +
+                '<textarea id="tag-final-reminder" class="form-textarea" style="min-height:56px" placeholder="A brief reminder rule for the AI...">' + _safeEscapeHTML(_tag.reminder || "") + '</textarea>' +
+              '</div>';
+          } else if (_tag.reviewTab === "Lorebook") {
+            activeTabContent = 
+              '<div style="padding:28px 16px;text-align:center;background:var(--bg-2);border-radius:var(--r-md);border:1.5px dashed var(--border);color:var(--t2);line-height:1.5;margin-bottom:12px;">' +
+                '<i class="bi bi-journal-bookmark" style="color:var(--primary);margin-bottom:12px;font-size:28px;display:block;"></i>' +
+                '<div style="font-weight:700;font-size:14px;color:var(--t1);margin-bottom:6px;">Lorebook Feature</div>' +
+                '<div style="font-size:12.5px;max-width:320px;margin:0 auto;color:var(--t3);">You can easily add and manage custom lorebook entries, keys, and definitions after your character is created from the character settings.</div>' +
+              '</div>';
+          } else if (_tag.reviewTab === "Import") {
+            activeTabContent = 
+              '<div style="padding:28px 16px;text-align:center;background:var(--bg-2);border-radius:var(--r-md);border:1.5px dashed var(--border);color:var(--t2);line-height:1.5;margin-bottom:12px;">' +
+                '<i class="bi bi-cloud-arrow-up" style="color:var(--primary);margin-bottom:12px;font-size:28px;display:block;"></i>' +
+                '<div style="font-weight:700;font-size:14px;color:var(--t1);margin-bottom:6px;">JSON Import / Export</div>' +
+                '<div style="font-size:12.5px;max-width:320px;margin:0 auto;color:var(--t3);">Once created, you can export your character as a PNG Card or JSON file, or import existing files directly through the main characters dashboard.</div>' +
+              '</div>';
+          }
+
+          body.innerHTML = tabListHtml + activeTabContent;
 
           footer.innerHTML =
             '<button class="btn btn-secondary" onclick="tagBack()"><i class="bi bi-arrow-left"></i> Back</button>' +
@@ -15164,13 +15522,12 @@
             '<div class="form-group"><label class="form-label">Character Name *</label><input type="text" id="adv-name" class="form-input" placeholder="e.g. Elara, Detective Cole\u2026" value="' +
             _adv.name +
             '"/></div>' +
-            '<div class="form-group"><label class="form-label">Gender</label><div class="gender-seg" id="adv-gender-row"><div class="gender-opt ' +
-            (_adv.gender === "Female" ? "sel" : "") +
-            '" onclick="advGender(\'Female\',this)">Female</div><div class="gender-opt ' +
-            (_adv.gender === "Male" ? "sel" : "") +
-            '" onclick="advGender(\'Male\',this)">Male</div><div class="gender-opt ' +
-            (_adv.gender === "Other" ? "sel" : "") +
-            '" onclick="advGender(\'Other\',this)">Other</div></div></div>' +
+            '<div class="form-group"><label class="form-label">Gender</label><div class="gender-seg" id="adv-gender-row">' +
+              '<div class="gender-opt ' + (_adv.gender === "Female" ? "sel" : "") + '" onclick="advGender(\'Female\',this)">Female</div>' +
+              '<div class="gender-opt ' + (_adv.gender === "Male" ? "sel" : "") + '" onclick="advGender(\'Male\',this)">Male</div>' +
+              '<div class="gender-opt ' + (_adv.gender === "Nonbinary" ? "sel" : "") + '" onclick="advGender(\'Nonbinary\',this)">Nonbinary</div>' +
+              '<div class="gender-opt opt-other ' + (_adv.gender === "Other" ? "sel" : "") + '" onclick="advGender(\'Other\',this)">Other</div>' +
+            '</div></div>' +
             '<div class="form-group"><label class="form-label">Story Tones / Genre</label><div style="font-size:13px;color:var(--t2);margin:6px 0 12px;line-height:1.5">Choose one or more tones, or add a custom genre keyword.</div>' +
             _buildToneGrid(_adv.toneGenres) +
             '<div id="adv-tone-hint" style="font-size:11.5px;color:var(--t3);margin-top:7px;min-height:16px">' +
@@ -15211,7 +15568,7 @@
                 var suggs = showSuggestions
                   ? isStoryStart
                     ? '<div style="display:flex;align-items:center;gap:8px;margin:10px 0 8px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:.06em;white-space:nowrap;display:flex;align-items:center;gap:4px"><i class="bi bi-stars"></i>PICK AN OPENING SCENE</span><div style="flex:1;height:1px;background:var(--border)"></div></div>' +
-                      '<div style="display:grid;grid-template-columns:1fr;gap:6px;margin-top:2px;width:100%">' +
+                      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px;width:100%">' +
                       m.suggestions
                         .map(function (s) {
                           var handler = (
@@ -15304,50 +15661,114 @@
               : "") +
             '><i class="bi bi-stars"></i> Generate Character</button>';
         } else if (_adv.step === 3) {
-          var avInner = _adv.av
-            ? '<img src="' +
-              _adv.av +
-              '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'
-            : "<span>" + (_adv.name.charAt(0) || "?") + "</span>";
-          body.innerHTML =
-            '<div style="display:flex;align-items:center;gap:13px;margin-bottom:18px;padding:13px;background:var(--bg-2);border-radius:var(--r-md);border:1px solid var(--border)"><div class="adv-av-ring" id="adv-av-circle" onclick="advAvEdit()">' +
-            avInner +
-            '</div><div><button class="change-av-btn" onclick="advAvEdit()"><i class="bi bi-camera"></i> Change Avatar</button><div style="font-size:11px;margin-top:4px;color:' +
-            (_adv.av ? "var(--green)" : "var(--t3)") +
-            '">' +
-            (_adv.av
-              ? "\u2713 Avatar loaded"
-              : "No avatar \u2014 will use initial") +
-            "</div></div></div>" +
-            '<div class="form-group"><label class="form-label">Name</label><input type="text" id="adv-final-name" class="form-input" value="' +
-            _adv.name +
-            '"/></div>' +
-            '<div class="form-group"><label class="form-label">Gender</label><div class="gender-seg" id="adv-final-gender-row"><div class="gender-opt ' +
-            (_adv.gender === "Female" ? "sel" : "") +
-            '" onclick="advFinalGender(\'Female\',this)">Female</div><div class="gender-opt ' +
-            (_adv.gender === "Male" ? "sel" : "") +
-            '" onclick="advFinalGender(\'Male\',this)">Male</div><div class="gender-opt ' +
-            (_adv.gender === "Other" ? "sel" : "") +
-            '" onclick="advFinalGender(\'Other\',this)">Other</div></div></div>' +
-            '<div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label class="form-label" style="margin-bottom:0">Physical Appearance</label><button class="btn-mini-gen" id="btn-gen-appearance-adv" onclick="genDetailedAppearance(\'adv\')" title="Generate appearance"><i class="bi bi-stars"></i> ' +
-            ((_adv.appearance || "").trim() ? "Regenerate" : "Generate") +
-            '</button></div><textarea id="adv-final-appearance" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'adv-final-appearance\', \'btn-gen-appearance-adv\')">' +
-            (_adv.appearance || "") +
-            "</textarea></div>" +
-            '<div class="form-group"><label class="form-label">Personality / Background</label><textarea id="adv-final-desc" class="form-textarea" style="min-height:68px">' +
-            _adv.desc +
-            "</textarea></div>" +
-            '<div class="form-group">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label class="form-label" style="margin-bottom:0">Opening Message</label><button class="btn-mini-gen" id="btn-gen-first-msg-adv" onclick="regenEditorFirstMsg(\'adv\')" title="Regenerate with AI"><i class="bi bi-stars"></i> ' +
-            ((_adv.firstMsg || "").trim() ? "Regenerate" : "Generate") +
-            "</button></div>" +
-            '<textarea id="adv-final-firstmsg" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'adv-final-firstmsg\', \'btn-gen-first-msg-adv\')">' +
-            _adv.firstMsg +
-            "</textarea></div>";
+          if (!_adv.reviewTab) _adv.reviewTab = "General";
+
+          var tabListHtml = 
+            '<div class="modal-tabs" style="margin-bottom: 20px;">' +
+              '<div class="modal-tab ' + (_adv.reviewTab === "General" ? "active" : "") + '" onclick="switchAdvReviewTab(\'General\')">General</div>' +
+              '<div class="modal-tab ' + (_adv.reviewTab === "AI Persona" ? "active" : "") + '" onclick="switchAdvReviewTab(\'AI Persona\')">AI Persona</div>' +
+              '<div class="modal-tab ' + (_adv.reviewTab === "Lorebook" ? "active" : "") + '" onclick="switchAdvReviewTab(\'Lorebook\')">Lorebook</div>' +
+              '<div class="modal-tab ' + (_adv.reviewTab === "Import" ? "active" : "") + '" onclick="switchAdvReviewTab(\'Import\')">Import</div>' +
+            '</div>';
+
+          var activeTabContent = "";
+
+          if (_adv.reviewTab === "General") {
+            var avInner = _adv.av
+              ? '<img src="' +
+                _adv.av +
+                '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'
+              : "<span>" + (_adv.name.charAt(0) || "?") + "</span>";
+
+            activeTabContent =
+              '<div style="display:flex;align-items:center;gap:13px;margin-bottom:18px;padding:13px;background:var(--bg-2);border-radius:var(--r-md);border:1px solid var(--border)"><div class="adv-av-ring" id="adv-av-circle" onclick="advAvEdit()">' +
+              avInner +
+              '</div><div><button class="change-av-btn" onclick="advAvEdit()"><i class="bi bi-camera"></i> Change Avatar</button><div style="font-size:11px;margin-top:4px;color:' +
+              (_adv.av ? "var(--green)" : "var(--t3)") +
+              '">' +
+              (_adv.av
+                ? "\u2713 Avatar loaded"
+                : "No avatar \u2014 will use initial") +
+              "</div></div></div>" +
+              '<div class="form-group"><label class="form-label">Name</label><input type="text" id="adv-final-name" class="form-input" value="' +
+              _adv.name +
+              '"/></div>' +
+              '<div class="form-group"><label class="form-label">Gender</label><div class="gender-seg" id="adv-final-gender-row">' +
+                '<div class="gender-opt ' + (_adv.gender === "Female" ? "sel" : "") + '" onclick="advFinalGender(\'Female\',this)">Female</div>' +
+                '<div class="gender-opt ' + (_adv.gender === "Male" ? "sel" : "") + '" onclick="advFinalGender(\'Male\',this)">Male</div>' +
+                '<div class="gender-opt ' + (_adv.gender === "Nonbinary" ? "sel" : "") + '" onclick="advFinalGender(\'Nonbinary\',this)">Nonbinary</div>' +
+                '<div class="gender-opt opt-other ' + (_adv.gender === "Other" ? "sel" : "") + '" onclick="advFinalGender(\'Other\',this)">Other</div>' +
+              '</div></div>' +
+              '<div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label class="form-label" style="margin-bottom:0">Physical Appearance</label><button class="btn-mini-gen" id="btn-gen-appearance-adv" onclick="genDetailedAppearance(\'adv\')" title="Generate appearance"><i class="bi bi-stars"></i> ' +
+              ((_adv.appearance || "").trim() ? "Regenerate" : "Generate") +
+              '</button></div><textarea id="adv-final-appearance" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'adv-final-appearance\', \'btn-gen-appearance-adv\')">' +
+              (_adv.appearance || "") +
+              "</textarea></div>" +
+              '<div class="form-group"><label class="form-label">Personality / Background</label><textarea id="adv-final-desc" class="form-textarea" style="min-height:68px">' +
+              _adv.desc +
+              "</textarea></div>" +
+              '<div class="form-group">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label class="form-label" style="margin-bottom:0">Opening Message</label><button class="btn-mini-gen" id="btn-gen-first-msg-adv" onclick="regenEditorFirstMsg(\'adv\')" title="Regenerate with AI"><i class="bi bi-stars"></i> ' +
+              ((_adv.firstMsg || "").trim() ? "Regenerate" : "Generate") +
+              "</button></div>" +
+              '<textarea id="adv-final-firstmsg" class="form-textarea" style="min-height:68px" oninput="updateGenBtnText(\'adv-final-firstmsg\', \'btn-gen-first-msg-adv\')">' +
+              _adv.firstMsg +
+              "</textarea></div>";
+          } else if (_adv.reviewTab === "AI Persona") {
+            activeTabContent = 
+              '<div class="form-group">' +
+                '<label class="form-label">System Prompt</label>' +
+                '<textarea id="adv-final-sys" class="form-textarea" style="min-height:140px" placeholder="You are...">' + _safeEscapeHTML(_adv.sys || "") + '</textarea>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<label class="form-label">Core Reminder Instruction</label>' +
+                '<textarea id="adv-final-reminder" class="form-textarea" style="min-height:56px" placeholder="A brief reminder rule for the AI...">' + _safeEscapeHTML(_adv.reminder || "") + '</textarea>' +
+              '</div>';
+          } else if (_adv.reviewTab === "Lorebook") {
+            activeTabContent = 
+              '<div style="padding:28px 16px;text-align:center;background:var(--bg-2);border-radius:var(--r-md);border:1.5px dashed var(--border);color:var(--t2);line-height:1.5;margin-bottom:12px;">' +
+                '<i class="bi bi-journal-bookmark" style="color:var(--primary);margin-bottom:12px;font-size:28px;display:block;"></i>' +
+                '<div style="font-weight:700;font-size:14px;color:var(--t1);margin-bottom:6px;">Lorebook Feature</div>' +
+                '<div style="font-size:12.5px;max-width:320px;margin:0 auto;color:var(--t3);">You can easily add and manage custom lorebook entries, keys, and definitions after your character is created from the character settings.</div>' +
+              '</div>';
+          } else if (_adv.reviewTab === "Import") {
+            activeTabContent = 
+              '<div style="padding:28px 16px;text-align:center;background:var(--bg-2);border-radius:var(--r-md);border:1.5px dashed var(--border);color:var(--t2);line-height:1.5;margin-bottom:12px;">' +
+                '<i class="bi bi-cloud-arrow-up" style="color:var(--primary);margin-bottom:12px;font-size:28px;display:block;"></i>' +
+                '<div style="font-weight:700;font-size:14px;color:var(--t1);margin-bottom:6px;">JSON Import / Export</div>' +
+                '<div style="font-size:12.5px;max-width:320px;margin:0 auto;color:var(--t3);">Once created, you can export your character as a PNG Card or JSON file, or import existing files directly through the main characters dashboard.</div>' +
+              '</div>';
+          }
+
+          body.innerHTML = tabListHtml + activeTabContent;
           ft.innerHTML =
             '<button class="btn btn-secondary" onclick="advBack()"><i class="bi bi-arrow-left"></i> Back</button><button class="btn btn-primary" onclick="advSave()"><i class="bi bi-check-lg"></i> Create Character</button>';
         }
       }
+
+      function syncAdvReviewInputsToMemory() {
+        if (_adv.step === 3) {
+          var afn = document.getElementById("adv-final-name");
+          var afa = document.getElementById("adv-final-appearance");
+          var afd = document.getElementById("adv-final-desc");
+          var affm = document.getElementById("adv-final-firstmsg");
+          var afsys = document.getElementById("adv-final-sys");
+          var afrem = document.getElementById("adv-final-reminder");
+
+          if (afn) _adv.name = afn.value.trim();
+          if (afa) _adv.appearance = afa.value.trim();
+          if (afd) _adv.desc = afd.value.trim();
+          if (affm) _adv.firstMsg = affm.value.trim();
+          if (afsys) _adv.sys = afsys.value.trim();
+          if (afrem) _adv.reminder = afrem.value.trim();
+        }
+      }
+
+      window.switchAdvReviewTab = function (tabName) {
+        syncAdvReviewInputsToMemory();
+        _adv.reviewTab = tabName;
+        _renderAdv();
+      };
 
       window.advGender = function (val, el) {
         _adv.gender = val;
@@ -15484,8 +15905,45 @@
           ).trim();
           _adv.firstMsg = (parsed.firstMessage || "").trim();
           _adv.reminder = (parsed.reminder || "").trim();
-          _adv.step = 3;
-          _renderAdv();
+          
+          closeModal("modal-adv-wizard");
+          
+          // Pre-populate standard character general creator
+          editingCharId = null;
+          var mt = document.querySelector("#modal-char-create .modal-title");
+          var sb = $id("save-char-btn");
+          if (mt) mt.textContent = "Create Character";
+          if (sb) sb.textContent = "Create";
+          
+          initAvZone();
+          
+          if ($id("char-name")) $id("char-name").value = _adv.name || "";
+          if ($id("char-appearance")) $id("char-appearance").value = _adv.appearance || "";
+          if ($id("char-description")) $id("char-description").value = _adv.desc || "";
+          if ($id("char-system-prompt")) $id("char-system-prompt").value = _adv.sys || "";
+          if ($id("char-first-message")) $id("char-first-message").value = _adv.firstMsg || "";
+          if ($id("char-reminder")) $id("char-reminder").value = _adv.reminder || "";
+          
+          // Populate extra details
+          if ($id("char-source-url")) $id("char-source-url").value = _adv.url || "";
+          if ($id("char-scenario")) $id("char-scenario").value = _adv.setting || "";
+          if ($id("char-user-role")) $id("char-user-role").value = _adv.userRole || "";
+          if ($id("char-scenario-tone")) $id("char-scenario-tone").value = _getAdvToneLabel() || "";
+          
+          selectedGender = _adv.gender || "Female";
+          syncGenderRow("#gender-row");
+          updateAllBasicGenButtons();
+          
+          if (_adv.av) {
+            pendingAvatar = _adv.av;
+            setAvPreviewExisting(_adv.av);
+          }
+          
+          tempLorebook = [];
+          renderLorebookEntriesUI();
+          switchCharTab("char-tab-general");
+          
+          openModal("modal-char-create");
         } catch (e) {
           showToast("Generation failed: " + e.message, "error");
           if (btn) {
@@ -15787,14 +16245,11 @@
       };
 
       function advSave() {
-        var afn = document.getElementById("adv-final-name");
-        var afa = document.getElementById("adv-final-appearance");
-        var afd = document.getElementById("adv-final-desc");
-        var affm = document.getElementById("adv-final-firstmsg");
-        var name = (afn ? afn.value : "").trim() || _adv.name;
-        var app = (afa ? afa.value : "").trim();
-        var desc = (afd ? afd.value : "").trim();
-        var firstMsg = (affm ? affm.value : "").trim();
+        syncAdvReviewInputsToMemory();
+        var name = _adv.name;
+        var app = _adv.appearance;
+        var desc = _adv.desc;
+        var firstMsg = _adv.firstMsg;
         if (!name) {
           showToast("Name is required", "warning");
           return;
@@ -18370,10 +18825,52 @@
 
         window.dualOpenRegenWithPrompt = function (msgId) {
           showQuickDialog({
-            title: "Regenerate with Custom Prompt",
-            content:
-              '<div class="qdialog-input-group"><label>Instructions</label>' +
-              '<textarea id="regen-input-dual" class="qdialog-input" placeholder="e.g. Write more emotionally\u2026" style="min-height:76px"></textarea>',
+            title: "Custom Regenerate",
+            maxWidth: "480px",
+            content: `
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="qdialog-input-group">
+                  <label class="form-label" style="font-size:12.5px;font-weight:600;color:var(--t2);margin-bottom:4px">Core Instruction / Focus</label>
+                  <textarea id="regen-instruction-dual" class="qdialog-input" placeholder="e.g. Focus more on the subtext under the table, make description more cinematic..." style="min-height:76px;width:100%;font-size:13px;"></textarea>
+                </div>
+                
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="qdialog-input-group">
+                    <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Tone &amp; Mood</label>
+                    <select id="regen-tone-dual" class="qdialog-input">
+                      <option value="default">— Same Tone —</option>
+                      <option value="Dramatic & Intense">Dramatic &amp; Intense</option>
+                      <option value="Playful & Sarcastic">Playful &amp; Sarcastic</option>
+                      <option value="Sweet & Warm">Sweet &amp; Warm</option>
+                      <option value="Cold & Distant">Cold &amp; Distant</option>
+                      <option value="Romantic & Tense">Romantic &amp; Tense</option>
+                      <option value="Action-packed">Action-packed</option>
+                      <option value="Melancholic & Reflective">Melancholic &amp; Reflective</option>
+                    </select>
+                  </div>
+                  <div class="qdialog-input-group">
+                    <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Emotion <span style="font-weight:normal;color:var(--t3)">(Optional)</span></label>
+                    <input type="text" id="regen-emotion-dual" class="qdialog-input" placeholder="e.g. anxious, breathless..." />
+                  </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
+                  <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:2px">Directives &amp; Emphasis</label>
+                  <label class="regen-chk-wrapper">
+                    <input type="checkbox" id="regen-sensory-dual" class="regen-chk" />
+                    <span class="regen-chk-label">Emphasize sensory details (scent, sound, touch)</span>
+                  </label>
+                  <label class="regen-chk-wrapper">
+                    <input type="checkbox" id="regen-thoughts-dual" class="regen-chk" />
+                    <span class="regen-chk-label">Include rich internal monologue &amp; thoughts</span>
+                  </label>
+                  <label class="regen-chk-wrapper">
+                    <input type="checkbox" id="regen-actions-dual" class="regen-chk" />
+                    <span class="regen-chk-label">Highlight somatic physical actions &amp; body language</span>
+                  </label>
+                </div>
+              </div>
+            `,
             actions: [
               {
                 text: "Cancel",
@@ -18386,11 +18883,37 @@
                 text: "Regenerate",
                 type: "primary",
                 onClick: async function () {
-                  var el = document.getElementById("regen-input-dual");
-                  var instr = el ? el.value.trim() : "";
-                  if (!instr) return false;
+                  var elIns = document.getElementById("regen-instruction-dual");
+                  var elTone = document.getElementById("regen-tone-dual");
+                  var elEmo = document.getElementById("regen-emotion-dual");
+                  var elSensory = document.getElementById("regen-sensory-dual");
+                  var elThoughts = document.getElementById("regen-thoughts-dual");
+                  var elShowAction = document.getElementById("regen-actions-dual");
+
+                  var parts = [];
+                  var primaryIns = elIns ? elIns.value.trim() : "";
+                  if (primaryIns) {
+                    parts.push("Main Focus: " + primaryIns);
+                  }
+                  if (elTone && elTone.value && elTone.value !== "default") {
+                    parts.push("Tone/Mood: " + elTone.value);
+                  }
+                  if (elEmo && elEmo.value.trim()) {
+                    parts.push("Character Emotion/State: " + elEmo.value.trim());
+                  }
+                  if (elSensory && elSensory.checked) {
+                    parts.push("Detail Directive: Emphasize vivid sensory details (sounds, scent, touch, spatial ambient details).");
+                  }
+                  if (elThoughts && elThoughts.checked) {
+                    parts.push("Detail Directive: Include rich internal monologue and character thoughts.");
+                  }
+                  if (elShowAction && elShowAction.checked) {
+                    parts.push("Detail Directive: Put heavy focus on physical actions, pacing, and somatic reactions.");
+                  }
+
+                  var finalInstruction = parts.join("\n");
                   closeModal("modal-quick-dialog");
-                  await dualRegen(msgId, instr);
+                  await dualRegen(msgId, finalInstruction || "Regenerate typical alternative");
                   return true;
                 },
               },
@@ -19328,13 +19851,8 @@
             dots.forEach(function (dot, i) {
               var isActive = i === newIdx;
               dot.classList.toggle("active", isActive);
-              if (isActive && color) {
-                dot.style.background = color;
-                dot.style.boxShadow = "0 0 6px " + color + "80";
-              } else {
-                dot.style.background = "";
-                dot.style.boxShadow = "";
-              }
+              dot.style.background = "";
+              dot.style.boxShadow = "";
             });
           }
           if (typeof saveState === "function") saveState();
@@ -19423,7 +19941,51 @@
           window.openRegenWithPrompt = function (id) {
             showQuickDialog({
               title: "Custom Regenerate",
-              content: `<div class="qdialog-input-group"><label>Instructions</label><textarea id="regen-input" class="qdialog-input" placeholder="e.g. More descriptive..." style="min-height:80px"></textarea></div>`,
+              maxWidth: "480px",
+              content: `
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div class="qdialog-input-group">
+                    <label class="form-label" style="font-size:12.5px;font-weight:600;color:var(--t2);margin-bottom:4px">Core Instruction / Focus</label>
+                    <textarea id="regen-instruction" class="qdialog-input" placeholder="e.g. Focus more on the subtext under the table, make description more cinematic..." style="min-height:76px;width:100%;font-size:13px;"></textarea>
+                  </div>
+                  
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="qdialog-input-group">
+                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Tone &amp; Mood</label>
+                      <select id="regen-tone" class="qdialog-input">
+                        <option value="default">— Same Tone —</option>
+                        <option value="Dramatic & Intense">Dramatic &amp; Intense</option>
+                        <option value="Playful & Sarcastic">Playful &amp; Sarcastic</option>
+                        <option value="Sweet & Warm">Sweet &amp; Warm</option>
+                        <option value="Cold & Distant">Cold &amp; Distant</option>
+                        <option value="Romantic & Tense">Romantic &amp; Tense</option>
+                        <option value="Action-packed">Action-packed</option>
+                        <option value="Melancholic & Reflective">Melancholic &amp; Reflective</option>
+                      </select>
+                    </div>
+                    <div class="qdialog-input-group">
+                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Emotion <span style="font-weight:normal;color:var(--t3)">(Optional)</span></label>
+                      <input type="text" id="regen-emotion" class="qdialog-input" placeholder="e.g. anxious, breathless..." />
+                    </div>
+                  </div>
+
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
+                    <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:2px">Directives &amp; Emphasis</label>
+                    <label class="regen-chk-wrapper">
+                      <input type="checkbox" id="regen-sensory" class="regen-chk" />
+                      <span class="regen-chk-label">Emphasize sensory details (scent, sound, touch)</span>
+                    </label>
+                    <label class="regen-chk-wrapper">
+                      <input type="checkbox" id="regen-thoughts" class="regen-chk" />
+                      <span class="regen-chk-label">Include rich internal monologue &amp; thoughts</span>
+                    </label>
+                    <label class="regen-chk-wrapper">
+                      <input type="checkbox" id="regen-actions" class="regen-chk" />
+                      <span class="regen-chk-label">Highlight somatic physical actions &amp; body language</span>
+                    </label>
+                  </div>
+                </div>
+              `,
               actions: [
                 {
                   text: "Cancel",
@@ -19436,11 +19998,37 @@
                   text: "Regenerate",
                   type: "primary",
                   onClick: async function () {
-                    var el = document.getElementById("regen-input");
-                    var instr = el ? el.value.trim() : "";
-                    if (!instr) return false;
+                    var elIns = document.getElementById("regen-instruction");
+                    var elTone = document.getElementById("regen-tone");
+                    var elEmo = document.getElementById("regen-emotion");
+                    var elSensory = document.getElementById("regen-sensory");
+                    var elThoughts = document.getElementById("regen-thoughts");
+                    var elShowAction = document.getElementById("regen-actions");
+
+                    var parts = [];
+                    var primaryIns = elIns ? elIns.value.trim() : "";
+                    if (primaryIns) {
+                      parts.push("Main Focus: " + primaryIns);
+                    }
+                    if (elTone && elTone.value && elTone.value !== "default") {
+                      parts.push("Tone/Mood: " + elTone.value);
+                    }
+                    if (elEmo && elEmo.value.trim()) {
+                      parts.push("Character Emotion/State: " + elEmo.value.trim());
+                    }
+                    if (elSensory && elSensory.checked) {
+                      parts.push("Detail Directive: Emphasize vivid sensory details (sounds, scent, touch, spatial ambient details).");
+                    }
+                    if (elThoughts && elThoughts.checked) {
+                      parts.push("Detail Directive: Include rich internal monologue and character thoughts.");
+                    }
+                    if (elShowAction && elShowAction.checked) {
+                      parts.push("Detail Directive: Put heavy focus on physical actions, pacing, and somatic reactions.");
+                    }
+
+                    var finalInstruction = parts.join("\n");
                     closeModal("modal-quick-dialog");
-                    await runRegen(id, instr);
+                    await runRegen(id, finalInstruction || "Regenerate typical alternative");
                     return false;
                   },
                 },
@@ -19650,9 +20238,56 @@
           window.openUserRegenWithPrompt = function (id) {
             showQuickDialog({
               title: "Generate Options with Custom Prompt",
-              content:
-                '<div class="qdialog-input-group"><label>Instructions</label>' +
-                '<textarea id="user-regen-input" class="qdialog-input" placeholder="e.g. Make my responses more aggressive or flirty..." style="min-height:76px"></textarea>',
+              maxWidth: "480px",
+              content: `
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div class="qdialog-input-group">
+                    <label class="form-label" style="font-size:12.5px;font-weight:600;color:var(--t2);margin-bottom:4px">Core Instruction / Focus</label>
+                    <textarea id="user-regen-instruction" class="qdialog-input" placeholder="e.g. Make my responses more aggressive or passionate..." style="min-height:76px;width:100%;font-size:13px;"></textarea>
+                  </div>
+                  
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="qdialog-input-group">
+                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Role Tone</label>
+                      <select id="user-regen-tone" class="qdialog-input">
+                        <option value="default">— Same Tone —</option>
+                        <option value="Sarcastic & Witty">Sarcastic &amp; Witty</option>
+                        <option value="Aggressive & Bold">Aggressive &amp; Bold</option>
+                        <option value="Gentle & Empathetic">Gentle &amp; Empathetic</option>
+                        <option value="Cold & Subdued">Cold &amp; Subdued</option>
+                        <option value="Flirtatious & Teasing">Flirtatious &amp; Teasing</option>
+                        <option value="Suspicious & Cautious">Suspicious &amp; Cautious</option>
+                      </select>
+                    </div>
+                    <div class="qdialog-input-group">
+                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Option Style</label>
+                      <select id="user-regen-style" class="qdialog-input">
+                        <option value="default">— Default Style —</option>
+                        <option value="Short responses or choices">Short / Snappy Choice</option>
+                        <option value="Long, descriptive actions/narratives">Action and Dialogue rich</option>
+                        <option value="Inner monologues combined with speech">Speech + Inner thoughts</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="qdialog-input-group">
+                    <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Emotion <span style="font-weight:normal;color:var(--t3)">(Optional)</span></label>
+                    <input type="text" id="user-regen-emotion" class="qdialog-input" placeholder="e.g. nervous, confident, holding back anger..." />
+                  </div>
+
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
+                    <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:2px">Directives &amp; Emphasis</label>
+                    <label class="regen-chk-wrapper">
+                      <input type="checkbox" id="user-regen-sensory" class="regen-chk" />
+                      <span class="regen-chk-label">Emphasize physical interactions &amp; sensory responses</span>
+                    </label>
+                    <label class="regen-chk-wrapper">
+                      <input type="checkbox" id="user-regen-thoughts" class="regen-chk" />
+                      <span class="regen-chk-label">Include rich internal thoughts or doubts</span>
+                    </label>
+                  </div>
+                </div>
+              `,
               actions: [
                 {
                   text: "Cancel",
@@ -19665,11 +20300,37 @@
                   text: "Generate",
                   type: "primary",
                   onClick: async function () {
-                    var el = document.getElementById("user-regen-input");
-                    var instr = el ? el.value.trim() : "";
-                    if (!instr) return false;
+                    var elIns = document.getElementById("user-regen-instruction");
+                    var elTone = document.getElementById("user-regen-tone");
+                    var elStyle = document.getElementById("user-regen-style");
+                    var elEmo = document.getElementById("user-regen-emotion");
+                    var elSensory = document.getElementById("user-regen-sensory");
+                    var elThoughts = document.getElementById("user-regen-thoughts");
+
+                    var parts = [];
+                    var primaryIns = elIns ? elIns.value.trim() : "";
+                    if (primaryIns) {
+                      parts.push("Main Focus: " + primaryIns);
+                    }
+                    if (elTone && elTone.value && elTone.value !== "default") {
+                      parts.push("Tone/Mood: " + elTone.value);
+                    }
+                    if (elStyle && elStyle.value && elStyle.value !== "default") {
+                      parts.push("Format Style: " + elStyle.value);
+                    }
+                    if (elEmo && elEmo.value.trim()) {
+                      parts.push("User Emotion/State: " + elEmo.value.trim());
+                    }
+                    if (elSensory && elSensory.checked) {
+                      parts.push("Emphasis: Emphasize somatic reactions, touch, physical items, and sensory details.");
+                    }
+                    if (elThoughts && elThoughts.checked) {
+                      parts.push("Emphasis: Include deep personal monologue/thoughts in the choices.");
+                    }
+
+                    var finalInstruction = parts.join("\n");
                     closeModal("modal-quick-dialog");
-                    await window.regenUserMsg(id, instr);
+                    await window.regenUserMsg(id, finalInstruction || "Regenerate alternative options");
                     return false;
                   },
                 },
