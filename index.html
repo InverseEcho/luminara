@@ -3654,6 +3654,10 @@
         font-size: 13px;
         color: var(--t2);
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
         transition:
           color 0.22s ease,
           transform var(--trans-spring);
@@ -3678,6 +3682,9 @@
         opacity: 0.9;
         padding-left: 8px;
         padding-right: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       /* ── Avatar Upload Zone ── */
@@ -7290,6 +7297,89 @@
                 <span id="char-color-status" style="font-size:12px;color:var(--t3);user-select:none">Default (None)</span>
               </div>
             </div>
+
+            <div class="form-group">
+              <div class="settings-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+                <label class="form-label" style="margin-bottom:0">Response Length</label>
+                <span id="char-toggle-length-mode-btn" onclick="toggleCharAdvLengthMode()" style="color:var(--primary);cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;padding:4px;margin-right:-4px">Advanced</span>
+              </div>
+              
+              <div id="char-basic-length-settings" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                <div class="basic-len-btn char-len-btn" data-val="200" onclick="setCharBasicLength(200)">
+                  <div class="b-title">Short</div>
+                  <div class="b-sub">~1 paragraph</div>
+                </div>
+                <div class="basic-len-btn char-len-btn" data-val="500" onclick="setCharBasicLength(500)">
+                  <div class="b-title">Medium</div>
+                  <div class="b-sub">1-2 paragraphs</div>
+                </div>
+                <div class="basic-len-btn char-len-btn" data-val="1000" onclick="setCharBasicLength(1000)">
+                  <div class="b-title">Long</div>
+                  <div class="b-sub">3+ paragraphs</div>
+                </div>
+                <div class="basic-len-btn char-len-btn active" data-val="0" onclick="setCharBasicLength(0)">
+                  <div class="b-title">Infinite</div>
+                  <div class="b-sub">Full natural length</div>
+                </div>
+              </div>
+
+              <div class="token-card" id="char-adv-length-settings" style="display:none; margin-bottom:0;">
+                <div class="token-hd">
+                  <span class="token-title" style="font-size:12.5px;font-weight:600">Max Length</span
+                  ><span class="token-badge unlimited" id="char-token-value-badge"
+                    >Unlimited</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  id="char-token-limit-slider"
+                  min="0"
+                  max="9"
+                  step="1"
+                  value="0"
+                  style="width: 100%; margin-bottom: 8px"
+                  oninput="updateCharTokenPreview()"
+                />
+                <div class="token-marks">
+                  <span class="token-mark">Unlimited</span
+                  ><span class="token-mark">~50</span
+                  ><span class="token-mark">~500</span
+                  ><span class="token-mark">~1000</span
+                  ><span class="token-mark">~2500</span>
+                </div>
+                <div class="token-manual-row">
+                  <label>Custom chars:</label
+                  ><input
+                    type="number"
+                    id="char-token-manual-input"
+                    placeholder="e.g. 800"
+                    min="0"
+                    max="10000"
+                    oninput="updateCharTokenPreview()"
+                  /><button
+                    class="btn btn-secondary"
+                    onclick="document.getElementById('char-token-manual-input').value=''; updateCharTokenPreview();"
+                    style="padding: 4px 10px; min-height: 32px; font-size: 12px"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div class="token-preview">
+                  <div class="token-preview-label">Live Preview</div>
+                  <div class="token-preview-text" id="char-token-preview-text" style="font-size:13px;line-height:1.5"></div>
+                  <div class="token-preview-fade" id="char-token-preview-fade"></div>
+                  <div class="token-preview-chars" id="char-token-preview-chars"></div>
+                  <div
+                    class="token-unlimited-note"
+                    id="char-token-unlimited-note"
+                    style="display: none; font-size:12px;"
+                  >
+                    AI will respond at full natural length.
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <div class="form-group">
               <div
                 style="
@@ -7699,83 +7789,6 @@
         <div class="modal-body">
           <div class="settings-label">Response Style</div>
           <div class="style-grid" id="rs-grid"></div>
-          <div class="settings-label" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Response Length</span>
-            <span id="toggle-length-mode-btn" onclick="toggleAdvLengthMode()" style="color:var(--primary);cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;padding:4px;margin-right:-4px">Advanced</span>
-          </div>
-          
-          <div id="basic-length-settings" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px;">
-            <div class="basic-len-btn" data-val="200" onclick="setBasicLength(200)">
-              <div class="b-title">Short</div>
-              <div class="b-sub">~1 paragraph</div>
-            </div>
-            <div class="basic-len-btn" data-val="500" onclick="setBasicLength(500)">
-              <div class="b-title">Medium</div>
-              <div class="b-sub">1-2 paragraphs</div>
-            </div>
-            <div class="basic-len-btn" data-val="1000" onclick="setBasicLength(1000)">
-              <div class="b-title">Long</div>
-              <div class="b-sub">3+ paragraphs</div>
-            </div>
-            <div class="basic-len-btn active" data-val="0" onclick="setBasicLength(0)">
-              <div class="b-title">Infinite</div>
-              <div class="b-sub">Full natural length</div>
-            </div>
-          </div>
-
-          <div class="token-card" id="adv-length-settings" style="display:none;">
-            <div class="token-hd">
-              <span class="token-title">Max Length</span
-              ><span class="token-badge unlimited" id="token-value-badge"
-                >Unlimited</span
-              >
-            </div>
-            <input
-              type="range"
-              id="token-limit-slider"
-              min="0"
-              max="9"
-              step="1"
-              value="0"
-              style="width: 100%; margin-bottom: 8px"
-            />
-            <div class="token-marks">
-              <span class="token-mark">Unlimited</span
-              ><span class="token-mark">~50</span
-              ><span class="token-mark">~500</span
-              ><span class="token-mark">~1000</span
-              ><span class="token-mark">~2500</span>
-            </div>
-            <div class="token-manual-row">
-              <label>Custom chars:</label
-              ><input
-                type="number"
-                id="token-manual-input"
-                placeholder="e.g. 800"
-                min="0"
-                max="10000"
-              /><button
-                class="btn btn-secondary"
-                onclick="clearManualToken()"
-                style="padding: 4px 10px; min-height: 32px; font-size: 12px"
-              >
-                Clear
-              </button>
-            </div>
-            <div class="token-preview">
-              <div class="token-preview-label">Live Preview</div>
-              <div class="token-preview-text" id="token-preview-text"></div>
-              <div class="token-preview-fade" id="token-preview-fade"></div>
-              <div class="token-preview-chars" id="token-preview-chars"></div>
-              <div
-                class="token-unlimited-note"
-                id="token-unlimited-note"
-                style="display: none"
-              >
-                AI will respond at full natural length.
-              </div>
-            </div>
-          </div>
           <div class="settings-label">Behavior</div>
           <div class="settings-group">
             <div class="form-switch">
@@ -10077,6 +10090,11 @@
         return null;
       }
       function getMaxCharsLimit() {
+        var c = getActive();
+        if (c && c.customChars !== undefined && c.maxTokensIdx !== undefined) {
+           if (c.customChars !== null) return c.customChars;
+           return TOKEN_STEPS[c.maxTokensIdx] ? TOKEN_STEPS[c.maxTokensIdx].chars : null;
+        }
         var manual = getManualChars();
         if (manual !== null) return manual;
         if (aiSettings.customChars) return aiSettings.customChars;
@@ -10140,6 +10158,100 @@
         $id("basic-length-settings").style.display = isAdvLengthMode ? "none" : "grid";
         $id("adv-length-settings").style.display = isAdvLengthMode ? "block" : "none";
         $id("toggle-length-mode-btn").textContent = isAdvLengthMode ? "Standard" : "Advanced";
+      };
+
+      var isCharAdvLengthMode = false;
+      window.toggleCharAdvLengthMode = function() {
+        isCharAdvLengthMode = !isCharAdvLengthMode;
+        var bSet = $id("char-basic-length-settings");
+        var aSet = $id("char-adv-length-settings");
+        var btn = $id("char-toggle-length-mode-btn");
+        if(bSet) bSet.style.display = isCharAdvLengthMode ? "none" : "grid";
+        if(aSet) aSet.style.display = isCharAdvLengthMode ? "block" : "none";
+        if(btn) btn.textContent = isCharAdvLengthMode ? "Standard" : "Advanced";
+      };
+
+      window.setCharBasicLength = function(val) {
+        document.querySelectorAll(".char-len-btn").forEach(function(b) {
+          b.classList.remove("active");
+          if (parseInt(b.getAttribute("data-val")) === val) {
+            b.classList.add("active");
+          }
+        });
+        
+        var slider = $id("char-token-limit-slider");
+        var manual = $id("char-token-manual-input");
+        
+        if (val === 0) {
+          if (slider) slider.value = 0;
+          if (manual) manual.value = "";
+        } else {
+          if (manual) manual.value = val;
+        }
+        updateCharTokenPreview();
+      };
+
+      function updateCharBasicLengthSelection() {
+        var manualEl = $id("char-token-manual-input");
+        var manual = (manualEl && manualEl.value.trim()) ? parseInt(manualEl.value) : null;
+        if(manual !== null && (isNaN(manual) || manual <= 0)) manual = null;
+        
+        var sliderIdx = parseInt(($id("char-token-limit-slider") || {}).value) || 0;
+        var chars = manual !== null ? manual : (TOKEN_STEPS[sliderIdx] ? TOKEN_STEPS[sliderIdx].chars : null);
+        
+        var valToMatch = 0;
+        if (chars !== null) {
+          if (chars <= 250) valToMatch = 200;
+          else if (chars <= 750) valToMatch = 500;
+          else valToMatch = 1000;
+        }
+        
+        document.querySelectorAll(".char-len-btn").forEach(function(b) {
+          b.classList.remove("active");
+          if (parseInt(b.getAttribute("data-val")) === valToMatch) {
+            b.classList.add("active");
+          }
+        });
+      }
+
+      window.updateCharTokenPreview = function() {
+        updateCharBasicLengthSelection();
+        var manualEl = $id("char-token-manual-input");
+        var manual = (manualEl && manualEl.value.trim()) ? parseInt(manualEl.value) : null;
+        if(manual !== null && (isNaN(manual) || manual <= 0)) manual = null;
+        
+        var slider = $id("char-token-limit-slider");
+        var idx = parseInt(slider ? slider.value : 0) || 0;
+        var dc =
+          manual !== null
+            ? manual
+            : TOKEN_STEPS[idx]
+              ? TOKEN_STEPS[idx].chars
+              : null;
+        var badge = $id("char-token-value-badge");
+        var pt = $id("char-token-preview-text");
+        var pc = $id("char-token-preview-chars");
+        var pf = $id("char-token-preview-fade");
+        var un = $id("char-token-unlimited-note");
+        if (!badge) return;
+        if (!dc) {
+          badge.textContent = "Unlimited";
+          badge.className = "token-badge unlimited";
+          if (pt) pt.textContent = PREVIEW_SAMPLE;
+          if (pf) pf.style.display = "block";
+          if (pc) pc.textContent = "";
+          if (un) un.style.display = "block";
+        } else {
+          badge.textContent = dc + " chars";
+          badge.className = "token-badge";
+          if (pt)
+            pt.textContent =
+              PREVIEW_SAMPLE.slice(0, dc) +
+              (PREVIEW_SAMPLE.length > dc ? "\u2026" : "");
+          if (pf) pf.style.display = dc > 200 ? "block" : "none";
+          if (pc) pc.textContent = "\u2248" + dc + " characters";
+          if (un) un.style.display = "none";
+        }
       };
 
       // ── PINNED MESSAGE MEMORY SYSTEM ──
@@ -13489,6 +13601,15 @@
           if (el) el.value = "";
         });
         renderBasicGenreTags(); // Render empty basic genres
+        if(typeof updateCharTokenPreview === 'function'){
+          var slider = document.getElementById("char-token-limit-slider");
+          if(slider) slider.value = aiSettings.maxTokensIdx || 0;
+          var manual = document.getElementById("char-token-manual-input");
+          if(manual) manual.value = aiSettings.customChars || "";
+          updateCharTokenPreview();
+          isCharAdvLengthMode = false;
+          toggleCharAdvLengthMode(); toggleCharAdvLengthMode(); // reset state
+        }
         var uis = $id("url-import-section");
         if (uis) uis.style.display = "none";
         var ne = $id("char-name-error"),
@@ -13552,6 +13673,13 @@
         initAvZone();
         syncGenderRow("#gender-row");
         setAvPreviewExisting(c.av || "");
+        if(typeof updateCharTokenPreview === 'function'){
+          var slider = document.getElementById("char-token-limit-slider");
+          if(slider) slider.value = c.maxTokensIdx !== undefined ? c.maxTokensIdx : (aiSettings.maxTokensIdx || 0);
+          var manual = document.getElementById("char-token-manual-input");
+          if(manual) manual.value = c.customChars !== undefined ? (c.customChars || "") : (aiSettings.customChars || "");
+          updateCharTokenPreview();
+        }
         updateAllBasicGenButtons();
         customCharTextColor = c.customTextColor || null;
         if (customCharTextColor) {
@@ -13569,6 +13697,7 @@
           "char-tab-ai",
           "char-tab-lore",
           "char-tab-tools",
+          "char-tab-settings",
         ];
         qsa("#modal-char-create .tab-pane").forEach(function (p) {
           p.classList.remove("active");
@@ -13665,6 +13794,20 @@
         var cau = $id("char-avatar-url");
         var av = pendingAvatar || (cau ? cau.value.trim() : "");
         var originalName = "";
+        
+        var cMaxTokensIdx = 0;
+        var cCustomChars = null;
+        var manualEl = document.getElementById("char-token-manual-input");
+        var manualVal = (manualEl && manualEl.value.trim()) ? parseInt(manualEl.value) : null;
+        if(manualVal !== null && (isNaN(manualVal) || manualVal <= 0)) manualVal = null;
+        if (manualVal !== null) {
+          cCustomChars = manualVal;
+          cMaxTokensIdx = 0;
+        } else {
+          cCustomChars = null;
+          cMaxTokensIdx = parseInt((document.getElementById("char-token-limit-slider") || {}).value) || 0;
+        }
+
         if (editingCharId) {
           var originalChar = chars.find(function (ch) {
             return ch.id === editingCharId;
@@ -13690,6 +13833,8 @@
             c.scenario = scenario;
             c.userRole = userRole;
             c.scenarioTone = scenTone;
+            c.maxTokensIdx = cMaxTokensIdx;
+            c.customChars = cCustomChars;
             c.customTextColor = customCharTextColor;
             c.lorebook = JSON.parse(JSON.stringify(tempLorebook));
           }
@@ -13728,6 +13873,8 @@
             scenario,
             userRole,
             scenarioTone: scenTone,
+            maxTokensIdx: cMaxTokensIdx,
+            customChars: cCustomChars,
             customTextColor: customCharTextColor,
             msgs: [],
             color: "var(--primary-500)",
@@ -15961,16 +16108,14 @@
         try {
           var q = await generateText({
             instruction:
-              'You are designing how "' +
+              'You are designing the deep lore and personal dynamics of "' +
               _adv.name +
               '" (' +
               _adv.gender +
-              ") interacts with the user." +
+              ")." +
               (toneLabel ? " Tone: " + toneLabel + "." : "") +
               (_adv.extra ? " Notes: " + _adv.extra : "") +
-              "\n\nAsk the FIRST question about how " +
-              _adv.name +
-              ' behaves toward the user. Keep it 1-2 sentences and generate exactly 4 brief answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Return ONLY valid JSON with exactly these keys: {"question":"...","suggestions":["...","...","...","..."]}.',
+              "\n\nAsk the FIRST question to delve into this character's deeper background, hidden desires, specific secrets, or their complex relationship with the user. Keep it 1-2 sentences and generate exactly 4 brief answer suggestions in first-person voice from the user's perspective (refer to the character as he/she/they and the user as I/me). Return ONLY valid JSON with exactly these keys: {\"question\":\"...\",\"suggestions\":[\"...\",\"...\",\"...\",\"...\"]}.",
             maxTokens: 220,
           });
           var match = q.match(/\{[\s\S]*\}/),
@@ -16139,7 +16284,7 @@
               (_getAdvToneLabel() ? " Tone: " + _getAdvToneLabel() + "." : "") +
               "\nConversation:\n" +
               ctx +
-              '\n\nAsk the next uncovered interaction question in 1-2 sentences, focusing only on the character\'s behavior toward the user. Provide 4 answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
+              '\n\nAsk the next uncovered interaction question in 1-2 sentences, delving progressively deeper into the character\'s backgrounds, desires, specific secrets, or their unique dynamic/history with the user to build a rich, complex persona. Provide 4 answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available to write a rich profile, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
             maxTokens: 240,
           });
           var clean = result.trim();
@@ -16217,7 +16362,7 @@
                 'Designing how "' + _adv.name + '" interacts with user.' +
                 (toneLabel ? " Tone: " + toneLabel + "." : "") +
                 "\nConversation:\n" + ctx +
-                '\n\nAsk the next uncovered interaction question in 1-2 sentences, focusing only on the character\'s behavior toward the user. Provide 4 answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
+                '\n\nAsk the next uncovered interaction question in 1-2 sentences, delving progressively deeper into the character\'s backgrounds, desires, specific secrets, or their unique dynamic/history with the user to build a rich, complex persona. Provide 4 answer suggestions in first-person voice from the user\'s perspective (refer to the character as he/she/they and the user as I/me). Do not include questions in the suggested answers. Avoid power dynamics and explicit expressions of feelings. If enough information is available to write a rich profile, return DONE.\nReturn ONLY valid JSON or DONE: {"question":"...","suggestions":["...","...","...","..."]}.',
               maxTokens: 240,
             });
             var clean = result.trim();
@@ -16789,9 +16934,12 @@
           openModal("modal-image-gen");
         };
         qs("#back-btn").onclick = backToSidebar;
-        $id("search-contacts").oninput = function () {
-          refreshSidebar();
-        };
+        var sc = $id("search-contacts");
+        if(sc) {
+          sc.oninput = function () {
+            refreshSidebar();
+          };
+        }
 
         qs("#chat-search-btn").onclick = function () {
           var c = getActive();
@@ -16937,14 +17085,20 @@
             );
           };
         }
-        $id("token-limit-slider").oninput = function () {
-          var mi = $id("token-manual-input");
-          if (mi) mi.value = "";
-          updateTokenPreview();
-        };
-        $id("token-manual-input").oninput = function () {
-          updateTokenPreview();
-        };
+        var tls = $id("token-limit-slider");
+        if (tls) {
+          tls.oninput = function () {
+            var mi = $id("token-manual-input");
+            if (mi) mi.value = "";
+            updateTokenPreview();
+          };
+        }
+        var tmi = $id("token-manual-input");
+        if(tmi) {
+          tmi.oninput = function () {
+            updateTokenPreview();
+          };
+        }
         $id("unrestricted-toggle").onclick = function () {
           this.classList.toggle("on");
         };
@@ -16970,20 +17124,29 @@
           if (pwdCont) pwdCont.style.display = isEnc ? "block" : "none";
           saveState();
         };
-        $id("backup-master-password").oninput = function () {
-          aiSettings.backupMasterPassword = this.value;
-          saveState();
-        };
-        $id("ui-scale-slider").oninput = function () {
-          uiScale = parseInt(this.value);
-          applyScales();
-          saveState();
-        };
-        $id("font-scale-slider").oninput = function () {
-          fontScale = parseInt(this.value);
-          applyScales();
-          saveState();
-        };
+        var bmp = $id("backup-master-password");
+        if (bmp) {
+          bmp.oninput = function () {
+            aiSettings.backupMasterPassword = this.value;
+            saveState();
+          };
+        }
+        var uiss = $id("ui-scale-slider");
+        if (uiss) {
+          uiss.oninput = function () {
+            uiScale = parseInt(this.value);
+            applyScales();
+            saveState();
+          };
+        }
+        var fss = $id("font-scale-slider");
+        if (fss) {
+          fss.oninput = function () {
+            fontScale = parseInt(this.value);
+            applyScales();
+            saveState();
+          };
+        }
         var chips = document.querySelectorAll(".accent-chip");
         chips.forEach(function (chip) {
           chip.onclick = function () {
