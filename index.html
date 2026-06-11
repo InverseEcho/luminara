@@ -7846,6 +7846,108 @@
             </button>
           </div>
 
+          <!-- NARRATOR SETTINGS SECTION -->
+          <div class="settings-label" style="margin-top: 16px;">Narrator Settings</div>
+          <div class="settings-group" style="padding: 16px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--bg-2); display: flex; flex-direction: column; gap: 14px;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <label class="form-label" style="margin-bottom:0">Response Length</label>
+                <span id="narrator-toggle-length-mode-btn" onclick="toggleNarratorAdvLengthMode()" style="color:var(--primary);cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;padding:4px;margin-right:-4px;">Advanced</span>
+              </div>
+              <div id="narrator-basic-length-settings" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div class="basic-len-btn narrator-len-btn" data-val="short" onclick="setNarratorLength('short')">
+                  <div class="b-title" style="font-weight: 600; font-size: 13.5px; color: var(--t1);">Short</div>
+                  <div class="b-sub" style="font-size: 11px; color: var(--t2);">~1 paragraph</div>
+                </div>
+                <div class="basic-len-btn narrator-len-btn" data-val="medium" onclick="setNarratorLength('medium')">
+                  <div class="b-title" style="font-weight: 600; font-size: 13.5px; color: var(--t1);">Medium</div>
+                  <div class="b-sub" style="font-size: 11px; color: var(--t2);">1-2 paragraphs</div>
+                </div>
+                <div class="basic-len-btn narrator-len-btn" data-val="long" onclick="setNarratorLength('long')">
+                  <div class="b-title" style="font-weight: 600; font-size: 13.5px; color: var(--t1);">Long</div>
+                  <div class="b-sub" style="font-size: 11px; color: var(--t2);">3+ paragraphs</div>
+                </div>
+                <div class="basic-len-btn narrator-len-btn active" data-val="infinite" onclick="setNarratorLength('infinite')">
+                  <div class="b-title" style="font-weight: 600; font-size: 13.5px; color: var(--primary);">Infinite</div>
+                  <div class="b-sub" style="font-size: 11px; color: var(--t2);">Full natural length</div>
+                </div>
+              </div>
+              <div class="token-card" id="narrator-adv-length-settings" style="display:none; margin-bottom:0;">
+                <div class="token-hd">
+                  <span class="token-title" style="font-size:12.5px;font-weight:600">Max Length</span>
+                  <span class="token-badge unlimited" id="narrator-token-value-badge">Unlimited</span>
+                </div>
+                <input
+                  type="range"
+                  id="narrator-token-limit-slider"
+                  min="0"
+                  max="9"
+                  step="1"
+                  value="0"
+                  style="width: 100%; margin-bottom: 8px"
+                  oninput="updateNarratorTokenPreview()"
+                />
+                <div class="token-marks">
+                  <span class="token-mark">Unlimited</span>
+                  <span class="token-mark">~50</span>
+                  <span class="token-mark">~500</span>
+                  <span class="token-mark">~1000</span>
+                  <span class="token-mark">~2500</span>
+                </div>
+                <div class="token-manual-row">
+                  <label>Custom chars:</label>
+                  <input
+                    type="number"
+                    id="narrator-token-manual-input"
+                    placeholder="e.g. 800"
+                    min="0"
+                    max="10000"
+                    oninput="updateNarratorTokenPreview()"
+                  />
+                  <button
+                    class="btn btn-secondary"
+                    onclick="document.getElementById('narrator-token-manual-input').value=''; updateNarratorTokenPreview();"
+                    style="padding: 4px 10px; min-height: 32px; font-size: 12px"
+                    type="button"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div class="token-preview">
+                  <div class="token-preview-label">Live Preview</div>
+                  <div class="token-preview-text" id="narrator-token-preview-text" style="font-size:13px;line-height:1.5"></div>
+                  <div class="token-preview-fade" id="narrator-token-preview-fade"></div>
+                  <div class="token-preview-chars" id="narrator-token-preview-chars"></div>
+                  <div
+                    class="token-unlimited-note"
+                    id="narrator-token-unlimited-note"
+                    style="display: none; font-size:12px;"
+                  >
+                    Narrator will respond at full natural length.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Narrator Style & Tone</label>
+              <select id="narrator-tone-select" class="form-input" style="width: 100%; height: 38px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--r-md); color: var(--t1); padding: 0 10px;">
+                <option value="default">Default Vivid Omniscient Narrative</option>
+                <option value="cinematic">Cinematic & Highly Sensory</option>
+                <option value="moody">Moody & Psychological Tension</option>
+                <option value="fast">Fast-paced Action & Clear Descriptions</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Custom Instructions / Prompt</span>
+                <span style="font-size:11px; font-weight:normal; color:var(--t3); text-transform:none; letter-spacing:0;">Optional</span>
+              </label>
+              <textarea id="narrator-custom-prompt" class="form-textarea" placeholder="e.g. Write in a sarcastic, noir-style perspective, focus on scents, or be extremely descriptive." style="min-height: 56px; max-height: 120px; font-size: 13px; font-family: var(--sans);"></textarea>
+            </div>
+          </div>
+
           <div id="img-settings-section">
             <div class="settings-label" style="margin-top: 4px">
               Generated Image
@@ -9256,6 +9358,9 @@
           "Russian",
           "Chinese",
         ],
+        narratorLength: "infinite",
+        narratorTone: "default",
+        narratorPrompt: "",
       };
       var chatLimit = 100;
       var isPerfMode = false,
@@ -10189,6 +10294,72 @@
           if (manual) manual.value = val;
         }
         updateCharTokenPreview();
+      };
+
+      window.setNarratorLength = function (val) {
+        aiSettings.narratorLength = val;
+        document.querySelectorAll(".narrator-len-btn").forEach(function(b) {
+          b.classList.remove("active");
+          var bTitle = b.querySelector(".b-title");
+          if (b.getAttribute("data-val") === val) {
+            b.classList.add("active");
+            if (bTitle) bTitle.style.color = "var(--primary)";
+          } else {
+            if (bTitle) bTitle.style.color = "var(--t1)";
+          }
+        });
+      };
+
+      var isNarratorAdvLengthMode = false;
+      window.toggleNarratorAdvLengthMode = function() {
+        isNarratorAdvLengthMode = !isNarratorAdvLengthMode;
+        var bSet = $id("narrator-basic-length-settings");
+        var aSet = $id("narrator-adv-length-settings");
+        var btn = $id("narrator-toggle-length-mode-btn");
+        if(bSet) bSet.style.display = isNarratorAdvLengthMode ? "none" : "grid";
+        if(aSet) aSet.style.display = isNarratorAdvLengthMode ? "block" : "none";
+        if(btn) btn.textContent = isNarratorAdvLengthMode ? "Standard" : "Advanced";
+        if (isNarratorAdvLengthMode) {
+          aiSettings.narratorLength = "custom";
+        } else {
+          var actBtn = document.querySelector(".narrator-len-btn.active");
+          var lastVal = actBtn ? actBtn.getAttribute("data-val") : "infinite";
+          aiSettings.narratorLength = lastVal;
+        }
+      };
+
+      window.updateNarratorTokenPreview = function() {
+        var manualEl = $id("narrator-token-manual-input");
+        var manual = (manualEl && manualEl.value.trim()) ? parseInt(manualEl.value) : null;
+        if(manual !== null && (isNaN(manual) || manual <= 0)) manual = null;
+        
+        var slider = $id("narrator-token-limit-slider");
+        var idx = parseInt(slider ? slider.value : 0) || 0;
+        
+        var dc = manual !== null ? manual : (TOKEN_STEPS[idx] ? TOKEN_STEPS[idx].chars : null);
+        var badge = $id("narrator-token-value-badge");
+        var pt = $id("narrator-token-preview-text");
+        var pc = $id("narrator-token-preview-chars");
+        var pf = $id("narrator-token-preview-fade");
+        var un = $id("narrator-token-unlimited-note");
+
+        if (!badge) return;
+
+        if (!dc) {
+          badge.textContent = "Unlimited";
+          badge.className = "token-badge unlimited";
+          if (pt) pt.textContent = PREVIEW_SAMPLE;
+          if (pf) pf.style.display = "block";
+          if (pc) pc.textContent = "";
+          if (un) un.style.display = "block";
+        } else {
+          badge.textContent = dc + " chars";
+          badge.className = "token-badge";
+          if (pt) pt.textContent = PREVIEW_SAMPLE.slice(0, dc) + (PREVIEW_SAMPLE.length > dc ? "\u2026" : "");
+          if (pf) pf.style.display = dc > 200 ? "block" : "none";
+          if (pc) pc.textContent = "\u2248" + dc + " characters";
+          if (un) un.style.display = "none";
+        }
       };
 
       function updateCharBasicLengthSelection() {
@@ -11599,6 +11770,57 @@
           var sysPrompt = "";
           if (activeIsNar) {
             sysPrompt = NARRATOR_PROMPT;
+
+            // Integrate active style & tone selector if selected
+            var nTone = aiSettings.narratorTone || "default";
+            sysPrompt += "\n\n[Narrator Style: " + nTone.toUpperCase() + "]\n";
+            if (nTone === "cinematic") {
+              sysPrompt += "Write with a highly cinematic, sensory presentation. Focus heavily on vivid sensory triggers: sounds, tactile details, atmospheric lighting, and dramatic shifts in focus.";
+            } else if (nTone === "moody") {
+              sysPrompt += "Emphasize high personal and emotional tension, lingering pauses, psychological subtext, and heavy atmosphere in every description.";
+            } else if (nTone === "fast") {
+              sysPrompt += "Keep pacing brisk and actions direct. Write direct, compact descriptions of immediate body language and movement. Avoid long flowery descriptions.";
+            } else {
+              sysPrompt += "Maintain a vivid, rich, third-person omniscient voice.";
+            }
+
+            // Narration style based on active character themes (c.scenarioTone)
+            if (c.scenarioTone) {
+              sysPrompt += "\n\n[Active Theme Adaptation]\n";
+              sysPrompt += "The active story themes and genres are: " + c.scenarioTone + ".\n";
+              sysPrompt += "You MUST fully adapt your narrative tone, environmental detail, pacing, vocabulary, and descriptive imagery to blend perfectly with these themes/genres. E.g., match the vocabulary level, historical or futuristic flavor, and general mood (dark, suspenseful, romantic, comedic, gritty, SFW, or NSFW) as specified by these active themes.";
+            }
+
+            // Custom narrator prompt override
+            if (aiSettings.narratorPrompt) {
+              sysPrompt += "\n\n[Custom Narrator Instructions]\n" + aiSettings.narratorPrompt;
+            }
+
+            // Response Length option integration
+            var nLen = aiSettings.narratorLength || "infinite";
+            var maxNarratorChars = null;
+            if (nLen === "custom") {
+              if (aiSettings.narratorCustomChars !== null && aiSettings.narratorCustomChars !== undefined) {
+                maxNarratorChars = aiSettings.narratorCustomChars;
+              } else {
+                var nMaxIdx = aiSettings.narratorMaxTokensIdx || 0;
+                maxNarratorChars = TOKEN_STEPS[nMaxIdx] ? TOKEN_STEPS[nMaxIdx].chars : null;
+              }
+            }
+
+            sysPrompt += "\n\n[LENGTH LIMITS]\n";
+            if (nLen === "short") {
+              sysPrompt += "Limit response to exactly 1 short paragraph (under 300 characters). Stop immediately.";
+            } else if (nLen === "medium") {
+              sysPrompt += "Limit to 1 to 2 paragraphs (under 650 characters). Stop immediately.";
+            } else if (nLen === "long") {
+              sysPrompt += "Write a full scene description of 3+ paragraphs (under 1200 characters).";
+            } else if (nLen === "custom" && maxNarratorChars) {
+              sysPrompt += "Response MUST be under " + maxNarratorChars + " characters total. Stop immediately.";
+            } else {
+              sysPrompt += "Write in a natural, full unconstrained storytelling narrative length.";
+            }
+
             if (c.desc)
               sysPrompt +=
                 "\n\nCharacter: " + c.name + ". Appearance: " + c.desc;
@@ -14970,6 +15192,57 @@
         }
       };
 
+      function renderAiGenProgress(containerId, steps, activeIndex, percent, statusText) {
+        var container = $id(containerId);
+        if (!container) return;
+        
+        var stepsHtml = steps.map(function(step, idx) {
+          var isCompleted = idx < activeIndex;
+          var isActive = idx === activeIndex;
+          var opacity = idx > activeIndex ? "style='opacity: 0.4;'" : "";
+          
+          var icon = '<i class="bi bi-circle" style="color: var(--t3); font-size: 14px;"></i>';
+          var status = "Pending";
+          var statusStyle = "color: var(--t3);";
+          
+          if (isCompleted) {
+            icon = '<i class="bi bi-check-circle-fill" style="color: var(--success); font-size: 15px;"></i>';
+            status = "Complete";
+            statusStyle = "color: var(--success); font-weight: 600;";
+          } else if (isActive) {
+            icon = '<span class="loading-spinner-mini" style="border-left-color: var(--primary);"></span>';
+            status = "Generating...";
+            statusStyle = "color: var(--primary); font-weight: 600;";
+          }
+          
+          return (
+            '<div class="ai-gen-step" ' + opacity + ' style="display: flex; align-items: center; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.02);">' +
+              '<span class="step-label" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--t1); font-weight: ' + (isActive ? '600' : 'normal') + ';">' + icon + ' ' + step + '</span>' +
+              '<span class="step-status" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; ' + statusStyle + '">' + status + '</span>' +
+            '</div>'
+          );
+        }).join("");
+
+        container.innerHTML = 
+          '<div style="display: flex; flex-direction: column; gap: 16px; padding: 24px 16px; max-width: 520px; margin: 0 auto; min-height: 280px; justify-content: center;">' +
+            '<div style="display: flex; align-items: center; gap: 16px;">' +
+              '<div style="position: relative; width: 62px; height: 62px; border-radius: 50%; background: var(--bg-1); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); flex-shrink: 0;">' +
+                '<span>' + percent + '%</span>' +
+              '</div>' +
+              '<div style="flex: 1;">' +
+                '<h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: var(--t1);">Smart AI Builder</h3>' +
+                '<p style="margin: 0; font-size: 12.5px; color: var(--t3); line-height: 1.4;">' + statusText + '</p>' +
+              '</div>' +
+            '</div>' +
+            '<div style="width: 100%; height: 5px; background: var(--bg-2); border-radius: 10px; overflow: hidden; border: 1px solid var(--border);">' +
+              '<div style="width: ' + percent + '%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-600)); transition: width 0.3s ease;"></div>' +
+            '</div>' +
+            '<div style="background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px; display: flex; flex-direction: column; gap: 2px; margin-top: 6px;">' +
+              stepsHtml +
+            '</div>' +
+          '</div>';
+      }
+
       async function tagGenerate() {
         var nameInput = document.getElementById("tag-name");
         var name = (nameInput ? nameInput.value : "").trim();
@@ -14980,66 +15253,141 @@
           return;
         }
 
-        var btn = document.getElementById("tag-gen-btn");
-        if (btn) {
-          btn.disabled = true;
-          btn.innerHTML =
-            '<div style="display:inline-flex;gap:4px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s infinite ease-in-out"></span><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s .18s infinite ease-in-out"></span><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s .36s infinite ease-in-out"></span></div>&nbsp;Generating';
+        var tagsCtx = _tag.tags.join(", ");
+        var hasProvidedName = !!_tag.name;
+        
+        var steps = [];
+        if (!hasProvidedName) {
+          steps.push("Choose Character Name & Vibe");
         }
+        steps.push("Generate Physical Appearance");
+        steps.push("Generate Deep Personality & Story");
+        steps.push("Craft Roleplay AI System Prompt");
+        steps.push("Draft Evocative Opening Line");
+        steps.push("Formulate Core Advisor Reminder");
+
+        // Set loader UI in modal body
+        var footer = $id("tag-footer");
+        if (footer) footer.innerHTML = ""; // Disable actions
+        
+        var updateProgress = function(stepIndex, statusMsg) {
+          var pct = Math.round((stepIndex / steps.length) * 100);
+          renderAiGenProgress("tag-body", steps, stepIndex, pct, statusMsg);
+        };
 
         try {
-          var tagsCtx = _tag.tags.join(", ");
+          var stepIdx = 0;
           
-          var namePromptLine = _tag.name 
-            ? "Character Name: " + _tag.name + " (" + _tag.gender + ")\n"
-            : "Character Gender: " + _tag.gender + " (Please pick a creative name fitting for this gender and tags)\n";
+          // Step 1: Choose Name & Vibe (if not provided)
+          if (!hasProvidedName) {
+            updateProgress(stepIdx, "Analyzing " + _tag.tags.length + " tags to design a fitting name...");
+            var namePrompt = "You are a professional creative writer designing a character card style roleplay character of gender: " + _tag.gender + ".\n" +
+              "Based on these personality traits/tags: " + tagsCtx + ", please invent one extremely fitting, creative, and immersive name for this character.\n\n" +
+              "Respond with ONLY the name, nothing else. No explanation, no quotation marks, no punctuation, max 3 words.";
+            
+            var generatedName = await generateText({
+              instruction: namePrompt,
+              maxTokens: 50,
+              temperature: 0.8,
+            });
+            _tag.name = generatedName.trim().replace(/^["']|["']$/g, "");
+            stepIdx++;
+          }
+          
+          var nameText = _tag.name;
 
-          var jsonInst = _tag.name
-            ? "Return EXACTLY this JSON structure:\n" +
-              '{"appearance":"...","description":"...","systemPrompt":"...","firstMessage":"...","reminder":"..."}'
-            : "Return EXACTLY this JSON structure. Since no name was specified, you MUST choose a fitting, creative roleplay name for this character and return it in the 'name' field, and write the 'systemPrompt' starting with 'You are [Name]...':\n" +
-              '{"name":"(selected character name)","appearance":"...","description":"...","systemPrompt":"...","firstMessage":"...","reminder":"..."}';
-
-          var prompt =
-            "Create a high-quality AI roleplay character based on the traits tags below. Respond ONLY with valid JSON and include no additional fields or explanation.\n\n" +
-            namePromptLine +
-            "Traits / Tags: " +
-            tagsCtx +
-            "\n\nInstructions for JSON fields:\n" +
-            "- appearance: A highly detailed, physical description (50-100 words). Include build, hair, eyes, skin, and specific clothing style matching the tags.\n" +
-            "- description: Deep personality, background, motives, and speech patterns (100-200 words).\n" +
-            "- systemPrompt: Comprehensive roleplay instructions starting with 'You are " + (_tag.name || "[Chosen Name]") + "...'. Keep it concise and focused on role, tone, and behavior.\n" +
-            "- firstMessage: An evocative, in-character opening line.\n" +
-            "- reminder: A short (1 sentence) core instruction for the AI.\n\n" +
-            jsonInst;
-
-          var result = await generateText({
-            instruction: prompt,
-            maxTokens: 1400,
+          // Step 2: Generate Physical Appearance
+          updateProgress(stepIdx, "Generating distinct physical traits, outfit, and visual details for " + nameText + "...");
+          var appearancePrompt = "Generate a highly detailed, cinematic physical appearance description for the roleplay character name: " + nameText + " (" + _tag.gender + ").\n" +
+            "Traits / Theme: " + tagsCtx + "\n\n" +
+            "Requirements:\n" +
+            "1. Start with height/build and general visual presence.\n" +
+            "2. Describe distinct features: hair style/color, expressive eyes, skin details/tattoos.\n" +
+            "3. Mention their signature dress style or typical clothing fabric & colors conforming to the traits.\n" +
+            "4. Respond with exactly one detailed, densely packed paragraph of 3-5 sentences. No quotation marks.";
+            
+          _tag.appearance = (await generateText({
+            instruction: appearancePrompt,
+            maxTokens: 350,
             temperature: 0.7,
-          });
-          var match = result.match(/\{[\s\S]*\}/);
-          if (!match) throw new Error("No JSON found");
-          var parsed = JSON.parse(match[0]);
-          
-          if (!_tag.name && parsed.name) {
-            _tag.name = parsed.name.trim();
-          }
-          if (!_tag.name) {
-            _tag.name = "Character";
-          }
-          
-          _tag.appearance = (parsed.appearance || "").trim();
-          _tag.desc = (parsed.description || "").trim();
-          _tag.sys = (
-            parsed.systemPrompt || "You are " + _tag.name + "."
-          ).trim();
-          _tag.firstMsg = (parsed.firstMessage || "").trim();
-          _tag.reminder = (parsed.reminder || "").trim();
-          
+          })).trim();
+          stepIdx++;
+
+          // Step 3: Generate Deep Personality & Story
+          updateProgress(stepIdx, "Fleshing out psychological profile, motives, speech patterns, and lore...");
+          var descPrompt = "Generate a deep background, motive, speech quirk, and personality description for the roleplay character named: " + nameText + " (" + _tag.gender + ").\n" +
+            "Traits / Theme: " + tagsCtx + "\n" +
+            "Physical reference: " + _tag.appearance + "\n\n" +
+            "Requirements:\n" +
+            "1. Focus deeply on inner motives, fears, and key conversational mannerisms.\n" +
+            "2. Detail how they interact in roleplay under pressure.\n" +
+            "3. Respond with exactly one highly immersive paragraph of 4-6 sentences. No intro or explanation.";
+            
+          _tag.desc = (await generateText({
+            instruction: descPrompt,
+            maxTokens: 400,
+            temperature: 0.75,
+          })).trim();
+          stepIdx++;
+
+          // Step 4: Craft Roleplay AI System Prompt
+          updateProgress(stepIdx, "Structuring core system directives, behavioral instructions, and dialogue constraints...");
+          var sysPromptInstr = "Generate detailed roleplay system instructions directing an AI assistant on how to play the character " + nameText + ".\n" +
+            "Character Brief:\n" +
+            "- Name: " + nameText + " (" + _tag.gender + ")\n" +
+            "- Appearance: " + _tag.appearance + "\n" +
+            "- Description: " + _tag.desc + "\n\n" +
+            "Constraints for output:\n" +
+            "1. Start exactly with: 'You are " + nameText + ". [Introduce high-level identity in 1 sentence]'\n" +
+            "2. Supply a clean of bullet list of key roleplay instructions detailing vocabulary, emotional tone, and response constraints.\n" +
+            "3. Keep it practical, structured, and immersive.";
+            
+          _tag.sys = (await generateText({
+            instruction: sysPromptInstr,
+            maxTokens: 500,
+            temperature: 0.7,
+          })).trim();
+          stepIdx++;
+
+          // Step 5: Draft Evocative Opening Line
+          updateProgress(stepIdx, "Writing an immersive in-character starting line for roleplays...");
+          var firstMsgPrompt = "Write a natural, highly evocative opening start message for the roleplay character " + nameText + " (" + _tag.gender + ") to begin dialogue.\n" +
+            "Personality background:\n" + _tag.desc + "\n\n" +
+            "Requirements:\n" +
+            "1. Use active action described inside *asterisks* (e.g., *fidgets with their coat button, looking away nervously*).\n" +
+            "2. Include natural, in-character spoken dialogue.\n" +
+            "3. Provide ONLY the opening message. No intro/outro commentary, no surrounding double quotation marks around the entire message.";
+            
+          _tag.firstMsg = (await generateText({
+            instruction: firstMsgPrompt,
+            maxTokens: 350,
+            temperature: 0.8,
+          })).trim().replace(/^["']|["']$/g, "");
+          stepIdx++;
+
+          // Step 6: Formulate Core Advisor Reminder
+          updateProgress(stepIdx, "Wrapping up with a short behavioral lock anchor...");
+          var reminderPrompt = "Formulate a single crucial reminder instruction rule directing the AI roleplaying as " + nameText + ".\n" +
+            "Based on: " + _tag.desc + "\n\n" +
+            "Examples:\n" +
+            "- Maintain an undercurrent of sarcastic, brilliant detective intelligence.\n" +
+            "- Always keep a quiet, observant, slightly formal demeanor.\n\n" +
+            "Respond with exactly one short sentence. No quotes, no prefix.";
+            
+          _tag.reminder = (await generateText({
+            instruction: reminderPrompt,
+            maxTokens: 100,
+            temperature: 0.6,
+          })).trim().replace(/^["']|["']$/g, "");
+          stepIdx++;
+
+          // Complete! Show finished state
+          updateProgress(stepIdx, "Successfully assembled all components for " + nameText + "!");
+          await new Promise(function(r) { setTimeout(r, 600); });
+
+          // Transition to the standard character page
           closeModal("modal-tag-wizard");
           
-          // Pre-populate standard character general creator
           editingCharId = null;
           var mt = document.querySelector("#modal-char-create .modal-title");
           var sb = $id("save-char-btn");
@@ -15055,7 +15403,6 @@
           if ($id("char-first-message")) $id("char-first-message").value = _tag.firstMsg || "";
           if ($id("char-reminder")) $id("char-reminder").value = _tag.reminder || "";
           
-          // Clear optional fields
           if ($id("char-source-url")) $id("char-source-url").value = "";
           if ($id("char-scenario")) $id("char-scenario").value = "";
           if ($id("char-user-role")) $id("char-user-role").value = "";
@@ -15072,10 +15419,7 @@
           openModal("modal-char-create");
         } catch (e) {
           showToast("Generation failed: " + e.message, "error");
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-stars"></i> Generate Character';
-          }
+          _renderTag(); // Restore tab view
         }
       }
 
@@ -15963,15 +16307,26 @@
       }
 
       async function advGenerate() {
-        var btn = document.getElementById("adv-gen-btn");
-        if (btn) {
-          btn.disabled = true;
-          btn.innerHTML =
-            '<div style="display:inline-flex;gap:4px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s infinite ease-in-out"></span><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s .18s infinite ease-in-out"></span><span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:dotPop 1.4s .36s infinite ease-in-out"></span></div>&nbsp;Generating';
-        }
+        var steps = [
+          "Generate Physical Appearance",
+          "Generate Deep Personality",
+          "Craft Roleplay System Prompt",
+          "Draft Evocative Opening Message",
+          "Formulate Core AI Reminder Cue"
+        ];
+
+        var footer = $id("adv-footer");
+        if (footer) footer.innerHTML = ""; // Disable actions
+
+        var updateProgress = function(stepIndex, statusMsg) {
+          var pct = Math.round((stepIndex / steps.length) * 100);
+          renderAiGenProgress("adv-body", steps, stepIndex, pct, statusMsg);
+        };
+
         try {
           var fetchedContext = "";
           if (_adv.url) {
+            updateProgress(0, "Fetching external context from webpage reference...");
             try {
               var html = await superFetch(_adv.url).then(function (r) {
                 return r.text();
@@ -16004,58 +16359,110 @@
               console.warn("Fetch context failed:", e);
             }
           }
+
           var qaCtx = _adv.qaHistory
             .map(function (m) {
               return (m.role === "ai" ? "AI" : "User") + ": " + m.text;
             })
             .join("\n");
 
-          var prompt =
-            "Create a high-quality AI roleplay character based on the information below. Respond ONLY with valid JSON and include no additional fields or explanation.\n\n" +
-            "Character Name: " +
-            _adv.name +
-            " (" +
-            _adv.gender +
-            ")\n" +
-            (_getAdvToneLabel()
-              ? "Tone/Genre: " + _getAdvToneLabel() + "\n"
-              : "") +
+          var advCtx = "Character Name: " + _adv.name + "\n" +
+            "Gender: " + _adv.gender + "\n" +
+            (_getAdvToneLabel() ? "Tone/Genre: " + _getAdvToneLabel() + "\n" : "") +
             (_adv.extra ? "User Notes: " + _adv.extra + "\n" : "") +
-            (fetchedContext
-              ? "\nReference Content from URL:\n" + fetchedContext + "\n"
-              : "") +
-            "\nInterview Discussion Details:\n" +
-            qaCtx +
-            "\n\nInstructions for JSON fields:\n" +
-            "- appearance: A highly detailed, cinematic physical description (50-100 words). Include build, facial features, hair, eyes, skin, and specific clothing style.\n" +
-            "- description: Deep dive into personality, background, motives, and speech patterns.\n" +
-            "- systemPrompt: Comprehensive roleplay instructions starting with 'You are " +
-            _adv.name +
-            "...'. Keep it concise and focused on role, tone, and behavior.\n" +
-            "- firstMessage: An evocative, in-character opening line.\n" +
-            "- reminder: A short (1 sentence) core instruction for the AI.\n\n" +
-            "Return EXACTLY this JSON structure:\n" +
-            '{"appearance":"...","description":"...","systemPrompt":"...","firstMessage":"...","reminder":"..."}';
+            (fetchedContext ? "Reference Content: " + fetchedContext + "\n" : "") +
+            "Interview Details:\n" + qaCtx;
 
-          var result = await generateText({
-            instruction: prompt,
-            maxTokens: 1400,
+          var stepIdx = 0;
+          var nameText = _adv.name;
+
+          // Step 1: Physical Appearance
+          updateProgress(stepIdx, "Generating distinct physical traits, signature attire, and gaze specifications for " + nameText + "...");
+          var appearancePrompt = "Generate a highly detailed, cinematic physical appearance description for the roleplay character: " + nameText + " (" + _adv.gender + ").\n" +
+            "Context Background:\n" + advCtx + "\n\n" +
+            "Requirements:\n" +
+            "1. Describe body scale, posture, hair flow, expressive facial details, and eye coloring.\n" +
+            "2. Outline signature attire fabric, color accents, and overall presence.\n" +
+            "3. Respond with exactly one tightly integrated, single paragraph (3-5 sentences). No quotation marks.";
+            
+          _adv.appearance = (await generateText({
+            instruction: appearancePrompt,
+            maxTokens: 350,
             temperature: 0.7,
-          });
-          var match = result.match(/\{[\s\S]*\}/);
-          if (!match) throw new Error("No JSON found");
-          var parsed = JSON.parse(match[0]);
-          _adv.appearance = (parsed.appearance || "").trim();
-          _adv.desc = (parsed.description || "").trim();
-          _adv.sys = (
-            parsed.systemPrompt || "You are " + _adv.name + "."
-          ).trim();
-          _adv.firstMsg = (parsed.firstMessage || "").trim();
-          _adv.reminder = (parsed.reminder || "").trim();
-          
+          })).trim();
+          stepIdx++;
+
+          // Step 2: Personality & Background
+          updateProgress(stepIdx, "Composing deep psychological makeup, behavioral motives, background highlights, and speech quirks...");
+          var descPrompt = "Generate a deep backstory, motivations, behavioral quirks, and deep personality description for the character: " + nameText + ".\n" +
+            "Context Background:\n" + advCtx + "\n" +
+            "Visual Info: " + _adv.appearance + "\n\n" +
+            "Requirements:\n" +
+            "1. Deeply explore their inner motives, fears, speech cadences, or special habits.\n" +
+            "2. Frame how they interact during typical dialogues.\n" +
+            "3. Respond with exactly one highly immersive, cohesive paragraph (4-6 sentences).";
+            
+          _adv.desc = (await generateText({
+            instruction: descPrompt,
+            maxTokens: 400,
+            temperature: 0.75,
+          })).trim();
+          stepIdx++;
+
+          // Step 3: Craft Roleplay System Prompt
+          updateProgress(stepIdx, "Constructing comprehensive system guide rule block, tone standards, and vocabulary constraints...");
+          var sysPromptInstr = "Generate comprehensive system prompt instructions directing an AI roleplay editor on how to play the character: " + nameText + ".\n" +
+            "Character context details:\n" +
+            "- Name: " + nameText + " (" + _adv.gender + ")\n" +
+            "- Appearance: " + _adv.appearance + "\n" +
+            "- Backstory: " + _adv.desc + "\n\n" +
+            "Requirements:\n" +
+            "1. Start exactly with: 'You are " + nameText + ". [Describe core persona style in 1 sentence]'\n" +
+            "2. Lay out 3-4 structural bullet instructions specifying vocabulary tone, behavior under conditions, and dialogue styles.\n" +
+            "3. Format cleanly, keep it practical and high contrast.";
+            
+          _adv.sys = (await generateText({
+            instruction: sysPromptInstr,
+            maxTokens: 500,
+            temperature: 0.7,
+          })).trim();
+          stepIdx++;
+
+          // Step 4: Opening Message
+          updateProgress(stepIdx, "Drafting descriptive first message complete with action beats and interactive prompts...");
+          var firstMsgPrompt = "Write a natural, highly evocative opening start message for the roleplay character " + nameText + " to kick off its dialogue.\n" +
+            "Context & Personality:\n" + _adv.desc + "\n\n" +
+            "Requirements:\n" +
+            "1. Describe physical surrounding action beats using *asterisks*.\n" +
+            "2. Deliver typical character speech and dialog lines.\n" +
+            "3. Provide ONLY the final message with no surrounding commentary or overall quotes.";
+            
+          _adv.firstMsg = (await generateText({
+            instruction: firstMsgPrompt,
+            maxTokens: 350,
+            temperature: 0.8,
+          })).trim().replace(/^["']|["']$/g, "");
+          stepIdx++;
+
+          // Step 5: Core AI Advisor Reminder
+          updateProgress(stepIdx, "Concluding build process with customized short advisor constraint rule...");
+          var reminderPrompt = "Generate a single critical rule reminder constraint sentence for playing the role of " + nameText + ".\n" +
+            "Based on:\n" + _adv.desc + "\n\n" +
+            "Write exactly one short sentence. No wrappers, no quotation marks.";
+            
+          _adv.reminder = (await generateText({
+            instruction: reminderPrompt,
+            maxTokens: 100,
+            temperature: 0.6,
+          })).trim().replace(/^["']|["']$/g, "");
+          stepIdx++;
+
+          // Complete! Show finished state
+          updateProgress(stepIdx, "Successfully assembled all components for " + nameText + "!");
+          await new Promise(function(r) { setTimeout(r, 600); });
+
           closeModal("modal-adv-wizard");
           
-          // Pre-populate standard character general creator
           editingCharId = null;
           var mt = document.querySelector("#modal-char-create .modal-title");
           var sb = $id("save-char-btn");
@@ -16093,10 +16500,7 @@
           openModal("modal-char-create");
         } catch (e) {
           showToast("Generation failed: " + e.message, "error");
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = "Generate Character";
-          }
+          _renderAdv(); // Restore tab view
         }
       }
 
@@ -16568,6 +16972,31 @@
           var mi = $id("token-manual-input");
           if (mi) mi.value = aiSettings.customChars || "";
           updateTokenPreview();
+          var nLen = aiSettings.narratorLength || "infinite";
+          if (nLen === "custom") {
+            isNarratorAdvLengthMode = true;
+          } else {
+            isNarratorAdvLengthMode = false;
+            window.setNarratorLength(nLen);
+          }
+          var nSlider = $id("narrator-token-limit-slider");
+          if (nSlider) nSlider.value = aiSettings.narratorMaxTokensIdx || 0;
+          var nManual = $id("narrator-token-manual-input");
+          if (nManual) nManual.value = aiSettings.narratorCustomChars || "";
+          
+          var bSet = $id("narrator-basic-length-settings");
+          var aSet = $id("narrator-adv-length-settings");
+          var btn = $id("narrator-toggle-length-mode-btn");
+          if(bSet) bSet.style.display = isNarratorAdvLengthMode ? "none" : "grid";
+          if(aSet) aSet.style.display = isNarratorAdvLengthMode ? "block" : "none";
+          if(btn) btn.textContent = isNarratorAdvLengthMode ? "Standard" : "Advanced";
+          
+          window.updateNarratorTokenPreview();
+
+          var nTone = $id("narrator-tone-select");
+          if (nTone) nTone.value = aiSettings.narratorTone || "default";
+          var nPrompt = $id("narrator-custom-prompt");
+          if (nPrompt) nPrompt.value = aiSettings.narratorPrompt || "";
           openModal("modal-ai-settings");
         };
         qs("#menu-settings").onclick = function () {
@@ -17317,6 +17746,31 @@
             aiSettings.maxTokensIdx =
               parseInt(($id("token-limit-slider") || {}).value) || 0;
           }
+
+          // Save Narrator settings
+          var nToneSelect = $id("narrator-tone-select");
+          if (nToneSelect) aiSettings.narratorTone = nToneSelect.value;
+          var nPromptTextarea = $id("narrator-custom-prompt");
+          if (nPromptTextarea) aiSettings.narratorPrompt = nPromptTextarea.value.trim();
+
+          if (isNarratorAdvLengthMode) {
+            aiSettings.narratorLength = "custom";
+            var nManualEl = $id("narrator-token-manual-input");
+            var nManualVal = (nManualEl && nManualEl.value.trim()) ? parseInt(nManualEl.value) : null;
+            if(nManualVal !== null && (isNaN(nManualVal) || nManualVal <= 0)) nManualVal = null;
+            
+            if (nManualVal !== null) {
+              aiSettings.narratorCustomChars = nManualVal;
+              aiSettings.narratorMaxTokensIdx = 0;
+            } else {
+              aiSettings.narratorCustomChars = null;
+              var nTls = $id("narrator-token-limit-slider");
+              aiSettings.narratorMaxTokensIdx = parseInt(nTls ? nTls.value : 0) || 0;
+            }
+          } else {
+            // Keep as currently selected basic narrator length (Short, Medium, Long, Infinite)
+          }
+
           saveState();
           closeModal("modal-ai-settings");
           updateUIChatState();
