@@ -1937,8 +1937,8 @@
       .msg-bubble.show-actions {
         z-index: 60 !important;
       }
-      .msg-bubble:hover,
-      .msg-bubble.show-actions {
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble:hover,
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble.show-actions {
         filter: url(#crisp-outline);
       }
       .msg-bubble:active {
@@ -2148,8 +2148,8 @@
         box-shadow: inherit;
         pointer-events: none;
       }
-      #chat-messages:not(.actions-floating) .msg-bubble:hover::after,
-      #chat-messages:not(.actions-floating) .msg-bubble.show-actions::after {
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble:hover::after,
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble.show-actions::after {
         bottom: -16px;
       }
 
@@ -2170,15 +2170,15 @@
         padding: 0 3px;
         z-index: 10;
       }
-      #chat-messages:not(.actions-floating) .msg-bubble:hover .bubble-actions,
-      #chat-messages:not(.actions-floating) .msg-bubble.show-actions .bubble-actions {
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble:hover .bubble-actions,
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble.show-actions .bubble-actions {
         bottom: -10px;
         opacity: 1;
         pointer-events: auto;
       }
       /* Keep meta text out of the way when bottom actions appear */
-      #chat-messages:not(.actions-floating) .msg-bubble:hover .msg-meta,
-      #chat-messages:not(.actions-floating) .msg-bubble.show-actions .msg-meta {
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble:hover .msg-meta,
+      #chat-messages:not(.actions-floating):not(.actions-bottom-fixed) .msg-bubble.show-actions .msg-meta {
         transform: translateY(16px);
       }
 
@@ -2188,24 +2188,67 @@
          (never covers message content).
       ══════════════════════════════════════════════════ */
 
-      /* ── Floating pill: give the bubble a top margin so the pill
+      /* ── Floating pill: give the bubble a bottom margin so the pill
             has a "slot" to appear in without overlapping content.
-            Also relax `contain` so the pill (top: -32px) can visually
-            escape above the bubble bounds. ── */
+            Also relax `contain` so the pill (bottom: -32px) can visually
+            escape below the bubble bounds. ── */
       #chat-messages.actions-floating .msg-bubble {
-        margin-top: 34px;
+        margin-bottom: 34px;
         contain: style;    /* drop `layout` so absolute children can overflow */
         overflow: visible;
       }
 
-      #chat-messages.actions-floating .bubble-actions {
-        /* Reset default bottom placement */
+      /* ── Bottom (Fixed) Placement (Inline Expand Pushing Messages) ── */
+      #chat-messages.actions-bottom-fixed .msg-bubble {
+        transition: padding 0.16s var(--ease-out);
+      }
+
+      #chat-messages.actions-bottom-fixed .bubble-actions {
+        position: relative;
         bottom: auto;
         left: auto;
+        opacity: 0;
+        pointer-events: none;
+        max-height: 0;
+        overflow: hidden;
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 1px solid transparent;
+        transition:
+          max-height 0.16s var(--ease-out),
+          opacity 0.16s var(--ease-out),
+          margin-top 0.16s var(--ease-out),
+          padding-top 0.16s var(--ease-out),
+          border-color 0.16s var(--ease-out);
+        z-index: 10;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 1px;
+        padding-left: 2px;
+        padding-right: 2px;
+      }
 
-        /* Anchor above the bubble top edge */
+      /* Expanded State - pushes subsequent messages layout naturally */
+      #chat-messages.actions-bottom-fixed .msg-bubble:hover .bubble-actions,
+      #chat-messages.actions-bottom-fixed .msg-bubble.show-actions .bubble-actions {
+        max-height: 34px;
+        opacity: 1;
+        pointer-events: auto;
+        margin-top: 6px;
+        padding-top: 5px;
+        border-top: 1px solid var(--border);
+      }
+
+      #chat-messages.actions-floating .bubble-actions {
+        /* Reset default placements and top anchor */
+        top: auto;
+        left: auto;
+
+        /* Anchor below the bubble bottom edge */
         position: absolute;
-        top: -32px;       /* sits neatly in the margin-top gap */
+        bottom: -32px;       /* sits neatly in the margin-bottom gap */
         height: 28px;     /* single fixed row — never taller */
 
         /* Pill chrome */
@@ -2226,7 +2269,7 @@
         /* Hidden → animate in */
         opacity: 0;
         pointer-events: none;
-        transform: translateY(5px) scale(0.94);
+        transform: translateY(-5px) scale(0.94);
         transition:
           opacity var(--trans-hover),
           transform var(--trans-hover);
@@ -7886,19 +7929,22 @@
                 margin-bottom: 9px;
               "
             >
-              Bubble Actions Position
+              Bubble Action Options
             </div>
             <div class="custom-select" id="custom-actions-pos">
               <div class="select-trigger">
-                <span id="actions-pos-label">Bottom (Default)</span
+                <span id="actions-pos-label">Slide-Out (Bottom Overlay)</span
                 ><i class="bi bi-chevron-down"></i>
               </div>
               <div class="select-dropdown">
                 <div class="select-item sel" data-value="bottom">
-                  Bottom (Default)
+                  Slide-Out (Bottom Overlay)
                 </div>
                 <div class="select-item" data-value="floating">
-                  Floating (Top Corner)
+                  Floating Pill (Below Bubble)
+                </div>
+                <div class="select-item" data-value="bottom-fixed">
+                  Inline (Pushes Messages Down)
                 </div>
               </div>
             </div>
@@ -9014,11 +9060,10 @@
       // ── ACTION PLACEMENT ──
       function applyActionPlacement() {
         var msgs = $id("chat-messages");
-        if (msgs)
-          msgs.classList.toggle(
-            "actions-floating",
-            actionPlacement === "floating",
-          );
+        if (msgs) {
+          msgs.classList.toggle("actions-floating", actionPlacement === "floating");
+          msgs.classList.toggle("actions-bottom-fixed", actionPlacement === "bottom-fixed");
+        }
       }
 
       // ── STATE ──
