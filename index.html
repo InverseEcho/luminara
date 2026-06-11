@@ -1617,7 +1617,7 @@
         backdrop-filter: blur(20px) saturate(150%);
         border-bottom: 1px solid var(--border);
         flex-shrink: 0;
-        z-index: 5;
+        z-index: 50; /* Raised to prevent msg-actions overlapping bulk header */
         position: relative;
       }
 
@@ -1738,7 +1738,7 @@
         overflow-x: auto;
         scrollbar-width: none;
         flex-shrink: 0;
-        z-index: 20;
+        z-index: 50;
         max-width: calc(100% - 28px);
       }
       #chat-toolbar::-webkit-scrollbar {
@@ -6544,6 +6544,10 @@
           border-color 180ms var(--ease-out);
       }
 
+      .msg-row.bulk-mode .bubble-actions {
+        display: none !important;
+      }
+
       .msg-row.bulk-mode:hover {
         background: color-mix(in srgb, var(--primary) 4%, transparent);
       }
@@ -8170,18 +8174,18 @@
             </div>
             <div class="custom-select" id="custom-actions-pos">
               <div class="select-trigger">
-                <span id="actions-pos-label">Slide-Out (Bottom Overlay)</span
+                <span id="actions-pos-label">Bottom Overlay</span
                 ><i class="bi bi-chevron-down"></i>
               </div>
               <div class="select-dropdown">
                 <div class="select-item sel" data-value="bottom">
-                  Slide-Out (Bottom Overlay)
+                  Bottom Overlay
                 </div>
                 <div class="select-item" data-value="floating">
-                  Floating Pill (Below Bubble)
+                  Floating Bubble
                 </div>
                 <div class="select-item" data-value="bottom-fixed">
-                  Inline (Pushes Messages Down)
+                  Fixed Bottom
                 </div>
               </div>
             </div>
@@ -11008,6 +11012,17 @@
 
       // ── SELECT CHAT ──
       async function selectChat(id) {
+        if (isBulkMode) {
+          isBulkMode = false;
+          selectedMsgIds = [];
+          $id("bulk-action-bar").style.display = "none";
+          $id("chat-input-area").style.display = "";
+          var toolbar = $id("chat-toolbar");
+          if (toolbar) toolbar.style.display = "";
+          applyToolbarPin();
+          var bulkBtn = qs("#chat-bulk-btn");
+          if (bulkBtn) bulkBtn.classList.remove("active");
+        }
         chatLimit = 100;
         activeId = id;
         var c = getActive();
@@ -15283,14 +15298,22 @@
             updateProgress(stepIdx, "Analyzing " + _tag.tags.length + " tags to design a fitting name...");
             var namePrompt = "You are a professional creative writer designing a character card style roleplay character of gender: " + _tag.gender + ".\n" +
               "Based on these personality traits/tags: " + tagsCtx + ", please invent one extremely fitting, creative, and immersive name for this character.\n\n" +
-              "Respond with ONLY the name, nothing else. No explanation, no quotation marks, no punctuation, max 3 words.";
+              "CRITICAL REQUIREMENTS:\n" +
+              "1. Respond with ONLY the actual proper name itself (e.g. 'Nyxara', 'Eldrin', or 'Asher').\n" +
+              "2. DO NOT include any titles, epithets, descriptors, or suffixes (e.g. DO NOT say 'Nyxara the Teasing', 'Eldrin of the Shadows', or 'Asher the Bold'). Return ONLY the simple name.\n" +
+              "3. No explanations, no quotation marks, no punctuation, max 1-2 words.";
             
             var generatedName = await generateText({
               instruction: namePrompt,
               maxTokens: 50,
               temperature: 0.8,
             });
-            _tag.name = generatedName.trim().replace(/^["']|["']$/g, "");
+            var cleanName = generatedName.trim().replace(/^["']|["']$/g, "");
+            var theIdx = cleanName.toLowerCase().indexOf(" the ");
+            if (theIdx !== -1) {
+              cleanName = cleanName.substring(0, theIdx).trim();
+            }
+            _tag.name = cleanName;
             stepIdx++;
           }
           
@@ -17032,7 +17055,7 @@
           $id("main-menu").classList.remove("open");
           var input = document.createElement("input");
           input.type = "file";
-          input.accept = ".json,.enc";
+          input.accept = ".json,.enc,*/*"; // fixed for mobile
           input.onchange = function (e) {
             if (typeof handleFileImport === "function") {
               handleFileImport(e.target.files[0]);
@@ -17609,14 +17632,18 @@
             selectedMsgIds = [];
             var bar = $id("bulk-action-bar");
             var inputArea = $id("chat-input-area");
+            var toolbar = $id("chat-toolbar");
             if (isBulkMode) {
               if (bar) bar.style.display = "flex";
               if (inputArea) inputArea.style.display = "none";
+              if (toolbar) toolbar.style.display = "none";
               bulkBtn.classList.add("active");
               updateBulkBar();
             } else {
               if (bar) bar.style.display = "none";
               if (inputArea) inputArea.style.display = "";
+              if (toolbar) toolbar.style.display = "";
+              applyToolbarPin();
               bulkBtn.classList.remove("active");
             }
             renderMsgs();
@@ -17664,6 +17691,9 @@
             if (bar) bar.style.display = "none";
             var inputArea = $id("chat-input-area");
             if (inputArea) inputArea.style.display = "";
+            var toolbar = $id("chat-toolbar");
+            if (toolbar) toolbar.style.display = "";
+            applyToolbarPin();
             if (bulkBtn) bulkBtn.classList.remove("active");
             renderMsgs();
           };
@@ -17885,6 +17915,17 @@
                 type: "danger",
                 onClick: function () {
                   c.msgs = [];
+                  if (isBulkMode) {
+                    isBulkMode = false;
+                    selectedMsgIds = [];
+                    $id("bulk-action-bar").style.display = "none";
+                    $id("chat-input-area").style.display = "";
+                    var toolbar = $id("chat-toolbar");
+                    if (toolbar) toolbar.style.display = "";
+                    applyToolbarPin();
+                    var bulkBtn = qs("#chat-bulk-btn");
+                    if (bulkBtn) bulkBtn.classList.remove("active");
+                  }
                   saveState();
                   renderMsgs();
                   showToast("Chat cleared", "success");
@@ -21669,6 +21710,9 @@
                 isBulkMode = false;
                 $id("bulk-action-bar").style.display = "none";
                 $id("chat-input-area").style.display = "";
+                var toolbar = $id("chat-toolbar");
+                if (toolbar) toolbar.style.display = "";
+                applyToolbarPin();
                 var bulkBtn = qs("#chat-bulk-btn");
                 if (bulkBtn) bulkBtn.classList.remove("active");
                 saveState();
