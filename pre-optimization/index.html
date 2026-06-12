@@ -4635,15 +4635,18 @@
 
       /* Char info hero */
       #char-info-hero {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
-        aspect-ratio: 1/1;
-        max-height: 260px;
+        height: 100%;
+        z-index: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 100px;
+        font-size: 140px;
         font-weight: 800;
-        color: #fff;
+        color: rgba(255, 255, 255, 0.15);
         overflow: hidden;
         background: linear-gradient(
           135deg,
@@ -4656,6 +4659,33 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center 20%;
+        filter: saturate(0.8) brightness(0.9);
+      }
+      .char-info-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.1) 0%,
+          rgba(0, 0, 0, 0.4) 40%,
+          rgba(0, 0, 0, 0.85) 100%
+        );
+        pointer-events: none;
+      }
+      .char-info-glass-card {
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 20px;
+        width: 100%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       }
 
       /* ═══════════════════════════════
@@ -6618,6 +6648,271 @@
           font-size: 16px !important;
         }
       }
+
+      /* ── GENERATIONAL CONTEXT INSPECTOR ── */
+      .context-inspector {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        text-align: left;
+        color: var(--t1);
+        height: 100%;
+      }
+      .context-snapshot-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--r-md);
+        padding: 12px 16px;
+        gap: 12px;
+      }
+      .context-snapshot-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .context-snapshot-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--t1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .context-snapshot-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 11px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+      }
+      .context-snapshot-badge.warning {
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        background: rgba(245, 158, 11, 0.06);
+        color: #f59e0b;
+      }
+      .context-snapshot-badge.success {
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        background: rgba(16, 185, 129, 0.06);
+        color: #10b981;
+      }
+      .context-header-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--r-md);
+        padding: 16px;
+      }
+      .context-stat-card {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+      }
+      .context-stat-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--t1);
+      }
+      .context-stat-subtitle {
+        font-size: 11.5px;
+        color: var(--t3);
+      }
+      .context-stat-value {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--t1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .context-stat-progress-bar {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-top: 6px;
+        width: 100%;
+        display: flex;
+        gap: 3px;
+      }
+      .context-stat-progress-segment {
+        height: 100%;
+        border-radius: 9999px;
+        flex-shrink: 1;
+        min-width: 0;
+        transition: width var(--trans-hover);
+      }
+      .context-legend-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        align-items: center;
+        margin-top: 10px;
+        font-size: 11.5px;
+        color: var(--t3);
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        padding-top: 10px;
+      }
+      .context-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .context-legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .context-tabs-nav {
+        display: flex;
+        background: var(--bg-2);
+        padding: 4px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--border);
+        position: relative;
+        gap: 4px;
+        z-index: 1;
+      }
+      .context-tab-highlight {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        height: calc(100% - 8px);
+        background: var(--primary);
+        border-radius: var(--r-sm);
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: -1;
+      }
+      .context-tab-btn {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        font-weight: 700;
+        color: var(--t3);
+        border-radius: var(--r-sm);
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        text-align: center;
+        white-space: nowrap;
+        position: relative;
+        z-index: 2;
+      }
+      .context-tab-btn:hover {
+        color: var(--t1);
+      }
+      .context-tab-btn.active {
+        color: #fff;
+      }
+      .context-tab-content-wrap {
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--bg-item);
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 300px;
+        max-height: 440px;
+      }
+      .context-tab-content {
+        padding: 14px 16px;
+        overflow-y: auto;
+        font-family: var(--font-mono), monospace;
+        font-size: 11.5px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        color: var(--t2);
+        word-break: break-all;
+        flex: 1;
+      }
+      .context-tab-content::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .context-tab-content::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.01);
+      }
+      .context-tab-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 9999px;
+      }
+      .context-tab-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .context-tab-content h3 {
+        font-family: var(--font), sans-serif;
+        color: var(--t1);
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 13.5px;
+        font-weight: 700;
+      }
+      .context-action-bar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-top: 1px solid var(--border);
+        background: var(--bg-2);
+      }
+      .context-btn-copy {
+        background: var(--bg-app);
+        color: var(--t2);
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        padding: 6px 12.5px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all var(--trans-hover);
+      }
+      .context-btn-copy:hover {
+        background: var(--border);
+        color: var(--t1);
+      }
+      .context-pills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .context-pill {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        color: var(--t3);
+      }
+      .context-pill.success {
+        background: rgba(16, 185, 129, 0.08);
+        border-color: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+      }
+      .context-pill.warning {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+      }
     </style>
   </head>
   <body>
@@ -7689,96 +7984,110 @@
 
     <!-- CHARACTER INFO MODAL -->
     <div class="overlay" id="modal-char-info">
-      <div class="modal" style="max-width: 440px">
-        <div class="modal-hd">
-          <span class="modal-title">Character Info</span
-          ><button class="modal-close" data-close="modal-char-info">
+      <div class="modal" style="max-width: 440px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+        <div class="modal-hd" style="border: none; background: transparent; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; padding: 15px 20px;">
+          <span class="modal-title" style="color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); font-weight: 700;">Character Info</span>
+          <button class="modal-close" data-close="modal-char-info" style="color: #fff; background: rgba(0,0,0,0.2); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
             <i class="bi bi-x" style="font-size: 24px"></i>
           </button>
         </div>
         <div
           class="modal-body"
-          style="padding: 0; display: flex; flex-direction: column"
+          style="padding: 0; display: flex; flex-direction: column; position: relative; overflow: hidden; min-height: 580px; border-radius: var(--r-lg);"
         >
           <div id="char-info-hero">?</div>
+          <div class="char-info-overlay"></div>
+          
           <div
             style="
-              padding: 15px;
+              position: relative;
+              z-index: 2;
+              margin-top: auto;
+              padding: 20px;
               display: flex;
               flex-direction: column;
-              gap: 12px;
+              gap: 15px;
             "
           >
-            <div>
-              <h3
-                id="char-info-name"
-                style="
-                  font-size: 20px;
-                  font-weight: 700;
-                  letter-spacing: -0.3px;
-                  color: var(--t0);
-                "
-              >
-                Name
-              </h3>
-              <p
-                id="char-info-app"
-                style="
-                  margin: 8px 0 0;
-                  font-size: 13px;
-                  color: var(--t2);
-                  line-height: 1.5;
-                  font-style: italic;
-                  border-left: 2px solid var(--border);
-                  padding-left: 10px;
-                "
-              ></p>
-              <p
-                id="char-info-desc"
-                style="
-                  margin: 8px 0 0;
-                  font-size: 13.5px;
-                  color: var(--t1);
-                  line-height: 1.6;
-                "
-              ></p>
-            </div>
-            <button
-              class="btn btn-secondary"
-              id="char-info-summary-btn"
-              style="width: 100%; justify-content: center; font-size: 12.5px"
-            >
-              <i class="bi bi-stars"></i>Generate Summary
-            </button>
-            <div
-              id="char-info-summary"
-              style="
-                background: var(--bg-2);
-                border: 1px solid var(--border);
-                border-radius: var(--r-sm);
-                padding: 11px 13px;
-                font-size: 13px;
-                color: var(--t1);
-                line-height: 1.6;
-                display: none;
-              "
-            >
-              <div
-                style="
-                  font-size: 9.5px;
-                  font-weight: 700;
-                  text-transform: uppercase;
-                  letter-spacing: 0.9px;
-                  color: var(--t3);
-                  margin-bottom: 5px;
-                "
-              >
-                Chat Summary
+            <div class="char-info-glass-card">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <h3
+                  id="char-info-name"
+                  style="
+                    font-size: 28px;
+                    font-weight: 800;
+                    letter-spacing: -1px;
+                    color: #fff;
+                    line-height: 1.1;
+                    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                    margin: 0;
+                  "
+                >
+                  Name
+                </h3>
+                <button
+                  id="char-info-app-btn"
+                  title="View Appearance"
+                  style="border: none; background: rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background 0.2s;"
+                  onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+                  onmouseout="this.style.background='rgba(255,255,255,0.15)'"
+                  onclick="var appEl = document.getElementById('char-info-app'); var descEl = document.getElementById('char-info-desc'); if(appEl.style.display === 'none') { appEl.style.display = 'block'; descEl.style.display = 'none'; this.querySelector('i').className = 'bi bi-card-text'; this.title = 'View Description'; } else { appEl.style.display = 'none'; descEl.style.display = 'block'; this.querySelector('i').className = 'bi bi-person'; this.title = 'View Appearance'; }"
+                >
+                  <i class="bi bi-person" style="font-size: 14px;"></i>
+                </button>
               </div>
-              <p
-                id="char-info-summary-text"
-                style="margin: 0; white-space: pre-wrap"
-              ></p>
+              
+              <div style="max-height: 220px; overflow-y: auto; overflow-x: hidden; padding-right: 8px; margin-right: -4px;">
+                <div
+                  id="char-info-app"
+                  style="
+                    display: none;
+                    font-size: 13.5px;
+                    color: rgba(255, 255, 255, 0.85);
+                    line-height: 1.6;
+                    font-style: italic;
+                    padding-left: 10px;
+                    border-left: 2px solid var(--primary);
+                  "
+                ></div>
+                <div
+                  id="char-info-desc"
+                  style="
+                    font-size: 15px;
+                    color: rgba(255, 255, 255, 0.95);
+                    line-height: 1.6;
+                  "
+                ></div>
+              </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button
+                class="btn btn-secondary"
+                id="char-info-summary-btn"
+                style="width: 100%; justify-content: center; font-size: 12.5px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(8px);"
+              >
+                <i class="bi bi-stars"></i>Generate Summary
+              </button>
+              <div
+                id="char-info-summary"
+                style="
+                  background: rgba(0,0,0,0.5);
+                  backdrop-filter: blur(8px);
+                  border: 1px solid rgba(255,255,255,0.1);
+                  border-radius: 12px;
+                  padding: 14px;
+                  font-size: 13.5px;
+                  color: rgba(255,255,255,0.9);
+                  line-height: 1.6;
+                  display: none;
+                  max-height: 150px;
+                  overflow-y: auto;
+                "
+              >
+                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: rgba(255,255,255,0.5); margin-bottom: 5px;">Chat Summary</div>
+                <p id="char-info-summary-text" style="margin: 0; white-space: pre-wrap;"></p>
+              </div>
             </div>
           </div>
         </div>
@@ -11236,13 +11545,13 @@
         } else if (m.role === "user") {
           // Group 2 — user edit actions
           acts += '<button class="bact" title="Regenerate" onclick="regenUserMsg(\'' + id + '\')"><i class="bi bi-arrow-clockwise"></i></button>';
-          acts += '<button class="bact" title="Custom Regen" onclick="openUserRegen(\'' + id + '\')"><i class="bi bi-stars"></i></button>';
+          acts += '<button class="bact" title="Other" onclick="openUserRegen(\'' + id + '\')"><i class="bi bi-three-dots"></i></button>';
           acts += '<button class="bact" title="Copy" onclick="copyMsg(\'' + id + '\',this)"><i class="bi bi-copy"></i></button>';
           acts += '<button class="bact" title="Edit" onclick="openEdit(\'' + id + '\')"><i class="bi bi-pencil-square"></i></button>';
         } else {
           // Group 2 — AI edit actions
           acts += '<button class="bact" title="Regenerate" onclick="regenMsg(\'' + id + '\')"><i class="bi bi-arrow-clockwise"></i></button>';
-          acts += '<button class="bact" title="Custom Regen" onclick="openRegen(\'' + id + '\')"><i class="bi bi-stars"></i></button>';
+          acts += '<button class="bact" title="Other" onclick="openRegen(\'' + id + '\')"><i class="bi bi-three-dots"></i></button>';
           acts += '<button class="bact" title="Copy" onclick="copyMsg(\'' + id + '\',this)"><i class="bi bi-copy"></i></button>';
           acts += '<button class="bact" title="Edit" onclick="openEdit(\'' + id + '\')"><i class="bi bi-pencil-square"></i></button>';
         }
@@ -12071,6 +12380,14 @@
             text: fullText,
             time: ts(),
             epoch: tsEpoch(),
+            prompt: fullPrompt,
+            contextPrompt: {
+              system: sysPrompt,
+              lore: loreBlock,
+              summary: summaryBlock,
+              history: histText,
+              extra: extra || ""
+            }
           };
           c.msgs.forEach(function (m) {
             if (m.isRegenerating) delete m.isRegenerating;
@@ -12722,6 +13039,372 @@
           "Continue previous response naturally, adding more detail.",
         );
       };
+      window.estimateLlamaTokens = function (text) {
+        if (!text) return 0;
+        try {
+          // Splitting contractions, alphanumeric blocks, spaces, and punctuation to match Llama tokenizer structures
+          var tokens = text.match(/'s|'t|'re|'ve|'m|'ll|'d|[a-zA-Z]+|[0-9]+|[\s]+|[^\s0-9a-zA-Z]+/g);
+          if (!tokens) return 0;
+          var total = 0;
+          for (var i = 0; i < tokens.length; i++) {
+            var tok = tokens[i];
+            if (tok.length <= 4) {
+              total += 1;
+            } else {
+              total += Math.ceil(tok.length / 3.8); // standard Llama 3 character chunk size for long vocabulary segments
+            }
+          }
+          return total;
+        } catch (e) {
+          return Math.ceil(text.length / 4.1);
+        }
+      };
+
+      window.getMsgAvatarHtml = function (c, m) {
+        if (m.role === "user") {
+          if (typeof userProfile !== "undefined" && userProfile && userProfile.av) {
+            return '<div class="ctx-avatar user" style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,0.1);"><img src="' + userProfile.av + '" style="width:100%;height:100%;object-fit:cover;"/></div>';
+          }
+          var prefix = (typeof userProfile !== "undefined" && userProfile && userProfile.name) ? userProfile.name.charAt(0).toUpperCase() : "U";
+          return '<div class="ctx-avatar user" style="background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;width:28px;height:28px;border-radius:50%;font-size:13px;flex-shrink:0;">' + prefix + '</div>';
+        }
+        
+        if (m.role === "narrator") {
+          return '<div class="ctx-avatar narrator" style="background:#1e293b;color:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:700;width:28px;height:28px;border-radius:50%;font-size:13px;border:1px solid #475569;flex-shrink:0;"><i class="bi bi-journal-text" style="font-size:13px"></i></div>';
+        }
+        
+        var speaker = c;
+        if (m.dualCharName && c.dualMode && c.characters) {
+          var found = c.characters.find(function (ch) {
+            return ch && ch.name === m.dualCharName;
+          });
+          if (found) {
+            speaker = found;
+          }
+        } else if (typeof m.dualChar !== "undefined" && c.dualMode && c.characters && c.characters[m.dualChar]) {
+          speaker = c.characters[m.dualChar];
+        }
+        
+        var colors = getColors(speaker);
+        if (speaker.av) {
+          return '<div class="ctx-avatar ai" style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,0.1);"><img src="' + speaker.av + '" style="width:100%;height:100%;object-fit:cover;"/></div>';
+        } else {
+          var charInit = speaker.name ? speaker.name.charAt(0).toUpperCase() : "AI";
+          var bg = "linear-gradient(135deg," + colors.c1 + "," + colors.c2 + ")";
+          return '<div class="ctx-avatar ai" style="background:' + bg + ';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;width:28px;height:28px;border-radius:50%;font-size:13px;flex-shrink:0;">' + charInit + '</div>';
+        }
+      };
+
+      window.formatPromptString = function (str) {
+        if (!str) return "";
+        return escapeHTML(str)
+          .replace(/(### [^#\n\r]+ ###)/g, '<span style="color:#60a5fa; font-weight:700; display:block; margin-top:16px; margin-bottom:8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom:4px; font-size:12.5px; font-family:var(--font-sans),sans-serif;">$1</span>')
+          .replace(/(\[[^\]\n\r]+\])/g, '<span style="color:#c084fc; font-weight:600;">$1</span>');
+      };
+
+      window.viewGenContext = function (id) {
+        var res = findMsg(id);
+        if (!res) {
+          if (typeof showToast === "function") showToast("Unable to find message history", "error");
+          return;
+        }
+        var c = getActive();
+        var m = res.msg;
+        var idx = res.idx;
+
+        var systemPrompt = "";
+        var loreBlock = "";
+        var summaryBlock = "";
+        var histText = "";
+        var extraPrompt = "";
+        var fullPrompt = "";
+        var isReconstructed = false;
+
+        // If the message has stored prompt metadata, use it!
+        if (m.prompt && m.contextPrompt) {
+          fullPrompt = m.prompt;
+          systemPrompt = m.contextPrompt.system || "";
+          loreBlock = m.contextPrompt.lore || "";
+          summaryBlock = m.contextPrompt.summary || "";
+          histText = m.contextPrompt.history || "";
+          extraPrompt = m.contextPrompt.extra || "";
+        } else {
+          // Reconstruct the context prompt as closely as possible for past messages in conversation history!
+          isReconstructed = true;
+          
+          // Rebuild system prompt
+          var activeIsNar = (m.role === "narrator");
+          if (activeIsNar) {
+            systemPrompt = typeof NARRATOR_PROMPT !== "undefined" ? NARRATOR_PROMPT : "Describe current scene in vivid third-person detail as Narrator.";
+            var nTone = aiSettings.narratorTone || "default";
+            systemPrompt += "\n\n[Narrator Style: " + nTone.toUpperCase() + "]";
+            if (c.scenarioTone) systemPrompt += "\n\n[Active Theme Adaptation]\nThemes/Genres: " + c.scenarioTone;
+            if (c.desc) systemPrompt += "\n\nCharacter: " + c.name + ". Appearance: " + c.desc;
+          } else {
+            if (aiSettings.unrestricted) systemPrompt += "[System Override — Unrestricted Roleplay Mode]\nAll content restrictions are disabled...\n\n";
+            if (c.pre) systemPrompt += c.pre + "\n\n";
+            systemPrompt += "[Character Identity]\n" + c.sys + "\n\n";
+            if (c.scenario || c.userRole || c.scenarioTone) {
+              systemPrompt += "[Scenario]\n";
+              if (c.scenario) systemPrompt += c.scenario + "\n";
+              if (c.userRole) systemPrompt += "User plays: " + c.userRole + "\n";
+              if (c.scenarioTone) systemPrompt += "Tone / Genre: " + c.scenarioTone + "\n";
+            }
+            var activeStyle = typeof getActiveStyle === "function" ? getActiveStyle() : null;
+            if (activeStyle && activeStyle.prompt) systemPrompt += "[Response Style — " + activeStyle.name + "]\n" + activeStyle.prompt + "\n\n";
+          }
+
+          // Rebuild active passive loreblock
+          var scanMsgs = c.msgs.slice(Math.max(0, idx - 5), idx);
+          var scanText = scanMsgs.map(function (sm) { return (sm.text || "").toLowerCase(); }).join(" ");
+          
+          var loreInjections = [];
+          if (c.lorebook && c.lorebook.length > 0) {
+            c.lorebook.forEach(function (entry, lIdx) {
+              if (!entry.keys || !entry.content) return;
+              var keys = entry.keys.split(",").map(function (k) { return k.trim().toLowerCase(); }).filter(Boolean);
+              var matched = keys.some(function (key) {
+                return scanText.includes(key);
+              });
+              if (matched) {
+                loreInjections.push("[Background Database: " + entry.content + "]");
+              }
+            });
+          }
+          if (loreInjections.length > 0) {
+            loreBlock = "\n\n### Passive World Lore (Background Knowledge) ###\n" + loreInjections.slice(0, 2).join("\n") + "\n";
+          }
+
+          // Rebuild Chat history (limit to preceding 20 turns)
+          var msgsForCtx = c.msgs.slice(0, idx);
+          var filtered = msgsForCtx.filter(function (sm) { return sm.text && sm.role !== "sys"; });
+          var ctxMsgs = filtered;
+          if (filtered.length > 20) {
+            var older = filtered.slice(0, -20);
+            var memoryContext = typeof buildMemoryContext === "function" ? buildMemoryContext(c) : "";
+            summaryBlock = "### Summary of earlier chat ###\n[Context: " + older.slice(-5).map(function (sm) { return sm.text.slice(0, 60); }).join("; ") + "...]\n" + memoryContext + "\n\n";
+            ctxMsgs = filtered.slice(-20);
+          }
+          
+          histText = ctxMsgs.map(function (sm) {
+            if (sm.role === "narrator") return "Narrator: " + sm.text;
+            var senderName = sm.role === "user" ? userProfile.name : (sm.dualCharName || c.name);
+            return senderName + ": " + sm.text;
+          }).join("\n\n");
+
+          fullPrompt = "### System ###\n" + systemPrompt + loreBlock + "\n\n### Context ###\nCharacter: " + c.name + "\nUser: " + userProfile.name + "\n" + (c.desc ? "Appearance: " + c.desc + "\n" : "") + "\n\n### Chat ###\n" + summaryBlock + histText + "\n\n### Respond as " + (activeIsNar ? "the Narrator" : c.name) + " ###";
+        }
+
+        var systemTokens = window.estimateLlamaTokens(systemPrompt);
+        var loreTokens = window.estimateLlamaTokens(loreBlock);
+        var summaryTokens = window.estimateLlamaTokens(summaryBlock);
+        var historyTokens = window.estimateLlamaTokens(histText);
+
+        var totalTokens = systemTokens + loreTokens + summaryTokens + historyTokens;
+        var pct = Math.min(100, Math.round((totalTokens / 6000) * 100));
+        var progressColor = totalTokens > 6000 ? "#ef4444" : totalTokens > 4500 ? "#f59e0b" : "var(--primary)";
+
+        var senderName = (m.role === "user" ? userProfile.name : (m.role === "narrator" ? "Narrator" : (m.dualCharName || c.name || "AI")));
+        var roleLabel = m.role || "ai";
+        var sequenceTurn = idx + 1;
+
+        var systemWidth = (systemTokens / 6000) * 100;
+        var loreWidth = (loreTokens / 6000) * 100;
+        var historyWidth = (historyTokens / 6000) * 100;
+        var summaryWidth = (summaryTokens / 6000) * 100;
+
+        var segmentsHtml = "";
+        if (totalTokens > 0) {
+          if (systemTokens > 0) {
+            var w = Math.max(1.5, systemWidth);
+            segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#3b82f6;" title="System Prompt: ~${systemTokens}t"></div>`;
+          }
+          if (loreTokens > 0) {
+            var w = Math.max(1.5, loreWidth);
+            segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#a855f7;" title="Lorebook Rules: ~${loreTokens}t"></div>`;
+          }
+          if (historyTokens > 0) {
+            var w = Math.max(1.5, historyWidth);
+            segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#06b6d4;" title="Rolling History: ~${historyTokens}t"></div>`;
+          }
+        } else {
+          segmentsHtml = `<div class="context-stat-progress-segment" style="width:0%; background:var(--primary);"></div>`;
+        }
+
+        var contentHtml = `
+          <div class="context-inspector">
+            <!-- Distinctive Snapshot Accent Bar -->
+            <div class="context-snapshot-bar">
+              <div class="context-snapshot-info" style="flex-direction: row; align-items: center; gap: 10px;">
+                ${window.getMsgAvatarHtml(c, m)}
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                  <div class="context-snapshot-title">
+                    ${senderName}'s Turn Snapshot
+                  </div>
+                  <div style="font-size: 11px; color: var(--t3); font-weight: 500; opacity: 0.95;">
+                    Sequence Turn: #${sequenceTurn} &bull; Raw Role: ${roleLabel}
+                  </div>
+                </div>
+              </div>
+              <div>
+                ${isReconstructed 
+                  ? `<span class="context-snapshot-badge warning"><i class="bi bi-lightning-charge"></i> Realtime Reconstructed</span>`
+                  : `<span class="context-snapshot-badge success"><i class="bi bi-check-circle"></i> Verified Saved</span>`
+                }
+              </div>
+            </div>
+
+            <!-- Header Stats Card -->
+            <div class="context-header-stats">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%;">
+                <div class="context-stat-card">
+                  <span class="context-stat-title">AI Prompt Memory Weight</span>
+                  <span class="context-stat-subtitle">Calculated context fill rate for current generation turn</span>
+                </div>
+                <div style="text-align: right; flex-shrink: 0;">
+                  <span style="font-size: 16px; font-weight: 700; color: #3b82f6;">~${totalTokens.toLocaleString()} / 6,000</span>
+                  <span style="font-size: 12px; color: var(--t3); font-weight: 500; margin-left: 1px;">tokens</span>
+                  <div style="font-size: 11px; color: var(--t3); font-weight: 600; margin-top: 1px;">Est. load: ${pct}%</div>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="context-stat-progress-bar">
+                ${segmentsHtml}
+              </div>
+
+              <!-- Metrics Breakdown Legend -->
+              <div class="context-legend-row">
+                <span class="context-legend-item">
+                  <span class="context-legend-dot" style="background:#3b82f6"></span>
+                  System Prompt: <strong style="color:var(--t1)">~${systemTokens}t</strong>
+                </span>
+                <span class="context-legend-item">
+                  <span class="context-legend-dot" style="background:#a855f7"></span>
+                  Lorebook Rules: <strong style="color:var(--t1)">~${loreTokens}t</strong>
+                </span>
+                <span class="context-legend-item">
+                  <span class="context-legend-dot" style="background:#06b6d4"></span>
+                  Rolling History: <strong style="color:var(--t1)">~${historyTokens}t</strong>
+                </span>
+              </div>
+            </div>
+
+            <div class="context-tabs-nav">
+              <div id="tab-highlight" class="context-tab-highlight"></div>
+              <button class="context-tab-btn active" onclick="window.switchInspectorTab('full-prompt', this)" data-tab="full-prompt">Full AI Prompt</button>
+              <button class="context-tab-btn" onclick="window.switchInspectorTab('system-prompt', this)" data-tab="system-prompt">System &amp; Identity</button>
+              <button class="context-tab-btn" onclick="window.switchInspectorTab('lorebook', this)" data-tab="lorebook">Matched Lorebook</button>
+              <button class="context-tab-btn" onclick="window.switchInspectorTab('chat-history', this)" data-tab="chat-history">Conversation History</button>
+            </div>
+
+            <div class="context-tab-content-wrap">
+              <!-- Premium Terminal Window Accent -->
+              <div style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono), monospace; font-size: 11px; color: var(--t3);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="color: var(--t2); font-weight: 600; opacity: 0.85;"><i class="bi bi-cpu" style="color: var(--primary); margin-right:4px;"></i> PROMPT_EXECUTION_CONTEXT</span>
+                </div>
+                <div style="font-size: 10px; opacity: 0.5;">
+                  UTF-8 &bull; Read-Only
+                </div>
+              </div>
+
+              <div id="inspector-full-prompt" class="context-tab-content" style="display:block;">${window.formatPromptString(fullPrompt)}</div>
+              <div id="inspector-system-prompt" class="context-tab-content" style="display:none;">${window.formatPromptString(systemPrompt)}</div>
+              <div id="inspector-lorebook" class="context-tab-content" style="display:none;">${loreBlock ? window.formatPromptString(loreBlock) : '<span style="color:var(--t3);font-style:italic;">(No passive world lore matches were injected for this turn.)</span>'}</div>
+              <div id="inspector-chat-history" class="context-tab-content" style="display:none;">${summaryBlock ? '<strong style="color:var(--primary);font-size:12px;margin-bottom:6px;display:inline-block;"><i class="bi bi-card-text"></i> Earlier Summary:</strong>\n' + window.formatPromptString(summaryBlock) + '\n\n' : ''}<strong style="color:var(--primary);font-size:12px;margin-bottom:6px;display:inline-block;"><i class="bi bi-clock-history"></i> History Context Window:</strong>\n${window.formatPromptString(histText)}</div>
+
+              <div class="context-action-bar">
+                <span id="copy-status" style="font-size:11.5px;color:var(--primary);font-weight:600;margin-right:auto;display:none;"><i class="bi bi-check-circle-fill"></i> Copied to clipboard!</span>
+                <button class="context-btn-copy" onclick="window.copyInspectorCurrentTab()"><i class="bi bi-clipboard"></i> Copy Current Tab</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        showQuickDialog({
+          titleHTML: `<i class="bi bi-cpu" style="font-size:16px;color:var(--primary);margin-right:6px"></i> AI Gen–Context & Token Breakdown`,
+          maxWidth: "760px",
+          content: contentHtml,
+          actions: [
+            {
+              text: "Close Auditor",
+              type: "secondary",
+              onClick: function () {
+                return true;
+              }
+            }
+          ]
+        });
+
+        // Initialize sliding tab position once modal content renders
+        setTimeout(function() {
+          var activeTab = document.querySelector('.context-tab-btn.active');
+          if (activeTab) window.switchInspectorTab('full-prompt', activeTab);
+        }, 80);
+      };
+
+      // Helper to easily switch tabs in the context inspector
+      window.switchInspectorTab = function (tabId, element) {
+        var wrap = element.closest('.context-inspector');
+        if (!wrap) return;
+        
+        // Update highlight position
+        var highlight = document.getElementById('tab-highlight');
+        if (highlight) {
+          highlight.style.width = element.offsetWidth + 'px';
+          highlight.style.left = element.offsetLeft + 'px';
+        }
+
+        // Update tab buttons class
+        wrap.querySelectorAll('.context-tab-btn').forEach(function (btn) {
+          btn.classList.remove('active');
+        });
+        element.classList.add('active');
+
+        // Update tab contents
+        wrap.querySelectorAll('.context-tab-content').forEach(function (content) {
+          content.style.display = 'none';
+        });
+        var targetContent = document.getElementById('inspector-' + tabId);
+        if (targetContent) {
+          targetContent.style.display = 'block';
+        }
+      };
+
+      // Helper to copy content of the active tab in inspector
+      window.copyInspectorCurrentTab = function () {
+        var activeBtn = document.querySelector('.context-tab-btn.active');
+        if (!activeBtn) return;
+        var tabId = activeBtn.getAttribute('data-tab');
+        var textNode = document.getElementById('inspector-' + tabId);
+        if (!textNode) return;
+        
+        var text = textNode.innerText || textNode.textContent;
+        navigator.clipboard.writeText(text).then(function () {
+          var statusEl = document.getElementById('copy-status');
+          if (statusEl) {
+            statusEl.style.display = 'inline';
+            setTimeout(function () {
+              statusEl.style.display = 'none';
+            }, 2500);
+          }
+        }).catch(function () {
+          if (typeof showToast === "function") showToast("Failed to copy text", "error");
+        });
+      };
+
+      // Helper simple escape HTML to render HTML safely inside inspector textblocks
+      function escapeHTML(str) {
+        if (!str) return "";
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
       window.continueMsg = async function (id) {
         if (isGen || !activeId) return;
         var res = findMsg(id);
@@ -12744,7 +13427,7 @@
       };
       window.openRegen = function (id) {
         showQuickDialog({
-          title: "Message Tools",
+          title: "Other Options",
           content:
             '<div class="qdialog-list">' +
             "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');openRegenWithPrompt('" +
@@ -12752,7 +13435,10 @@
             '\')"><i class="bi bi-stars"></i>Regenerate with custom prompt\u2026</div>' +
             "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');continueMsg('" +
             id +
-            '\')"><i class="bi bi-chevron-double-right"></i>Continue\u2026</div></div>',
+            '\')"><i class="bi bi-chevron-double-right"></i>Continue\u2026</div>' +
+            "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');window.viewGenContext('" +
+            id +
+            '\')"><i class="bi bi-braces"></i>View Generational Context\u2026</div></div>',
         });
       };
       window.openRegenWithPrompt = function (id) {
@@ -14765,7 +15451,11 @@
         if (innerModal) {
           innerModal.style.maxWidth = opts.maxWidth || "400px";
         }
-        titleEl.textContent = opts.title || "Action";
+        if (opts.titleHTML) {
+          titleEl.innerHTML = opts.titleHTML;
+        } else {
+          titleEl.textContent = opts.title || "Action";
+        }
         bodyEl.innerHTML = opts.content || "";
         if (opts.actions && opts.actions.length) {
           footerEl.style.display = "flex";
@@ -15274,7 +15964,7 @@
         var stepsHtml = steps.map(function(step, idx) {
           var isCompleted = idx < activeIndex;
           var isActive = idx === activeIndex;
-          var opacity = idx > activeIndex ? "style='opacity: 0.4;'" : "";
+          var opacity = idx > activeIndex ? 0.4 : 1;
           
           var icon = '<i class="bi bi-circle" style="color: var(--t3); font-size: 14px;"></i>';
           var status = "Pending";
@@ -15291,28 +15981,41 @@
           }
           
           return (
-            '<div class="ai-gen-step" ' + opacity + ' style="display: flex; align-items: center; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.02);">' +
+            '<div class="ai-gen-step" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.02); opacity: ' + opacity + ';">' +
               '<span class="step-label" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--t1); font-weight: ' + (isActive ? '600' : 'normal') + ';">' + icon + ' ' + step + '</span>' +
               '<span class="step-status" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; ' + statusStyle + '">' + status + '</span>' +
             '</div>'
           );
         }).join("");
 
+        // Check if we already have the structural layout to enable CSS transitions
+        var existingBar = container.querySelector(".ai-builder-bar-fill");
+        if (existingBar) {
+          existingBar.style.width = percent + "%";
+          var pLabel = container.querySelector(".ai-builder-pct");
+          if (pLabel) pLabel.textContent = percent + "%";
+          var sLabel = container.querySelector(".ai-builder-status");
+          if (sLabel) sLabel.textContent = statusText;
+          var sCont = container.querySelector(".ai-builder-steps");
+          if (sCont) sCont.innerHTML = stepsHtml;
+          return;
+        }
+
         container.innerHTML = 
           '<div style="display: flex; flex-direction: column; gap: 16px; padding: 24px 16px; max-width: 520px; margin: 0 auto; min-height: 280px; justify-content: center;">' +
             '<div style="display: flex; align-items: center; gap: 16px;">' +
               '<div style="position: relative; width: 62px; height: 62px; border-radius: 50%; background: var(--bg-1); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); flex-shrink: 0;">' +
-                '<span>' + percent + '%</span>' +
+                '<span class="ai-builder-pct">' + percent + '%</span>' +
               '</div>' +
               '<div style="flex: 1;">' +
                 '<h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: var(--t1);">Smart AI Builder</h3>' +
-                '<p style="margin: 0; font-size: 12.5px; color: var(--t3); line-height: 1.4;">' + statusText + '</p>' +
+                '<p class="ai-builder-status" style="margin: 0; font-size: 12.5px; color: var(--t3); line-height: 1.4;">' + statusText + '</p>' +
               '</div>' +
             '</div>' +
             '<div style="width: 100%; height: 5px; background: var(--bg-2); border-radius: 10px; overflow: hidden; border: 1px solid var(--border);">' +
-              '<div style="width: ' + percent + '%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-600)); transition: width 0.3s ease;"></div>' +
+              '<div class="ai-builder-bar-fill" style="width: ' + percent + '%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-600)); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>' +
             '</div>' +
-            '<div style="background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px; display: flex; flex-direction: column; gap: 2px; margin-top: 6px;">' +
+            '<div class="ai-builder-steps" style="background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px; display: flex; flex-direction: column; gap: 2px; margin-top: 6px;">' +
               stepsHtml +
             '</div>' +
           '</div>';
@@ -15587,8 +16290,8 @@
           });
 
           var suggestions = [
-             "Sarcastic", "Tsundere", "Gentle", "Cold", "Sweet", "Arrogant", "Mysterious", "Hacker", 
-             "Vampire", "Detective", "Cyborg", "Demon", "Mercenary", "Haughty", "Protective", 
+             "Sarcastic", "Tsundere", "Gentle", "Cold", "Sweet", "Arrogant", "Mysterious", 
+             "Vampire", "Detective", "Demon", "Mercenary", "Haughty", "Protective", 
              "Yandere", "Shy", "Flirtatious", "Noble", "Rebel", "Royalty", "Villain", "Playful"
           ];
 
@@ -17531,7 +18234,29 @@
               "linear-gradient(135deg," + colors.c1 + "," + colors.c2 + ")";
           }
           $id("char-info-name").textContent = c.name;
-          $id("char-info-desc").textContent = c.desc || "No description.";
+          var appRaw = c.appearance || "";
+          var app = appRaw.replace(/^Physical Appearance:\s*/i, "");
+          $id("char-info-app").textContent = app;
+          var appBtn = $id("char-info-app-btn");
+          if (appBtn) {
+            appBtn.style.display = app ? "flex" : "none";
+            appBtn.title = "View Appearance";
+            var btnIcon = appBtn.querySelector("i");
+            if (btnIcon) btnIcon.className = "bi bi-person";
+          }
+          var devEl = $id("char-info-app");
+          if(devEl) devEl.style.display = "none";
+          var desc = c.desc || "No description.";
+          if (appRaw && desc.startsWith(appRaw)) {
+              desc = desc.substring(appRaw.length).trim();
+          } else if (app && desc.startsWith(app)) {
+              desc = desc.substring(app.length).trim();
+          }
+          var descEl = $id("char-info-desc");
+          if (descEl) {
+              descEl.textContent = desc;
+              descEl.style.display = "block";
+          }
           var sum = $id("char-info-summary");
           if (sum) sum.style.display = "none";
           openModal("modal-char-info");
@@ -19210,6 +19935,14 @@
             text: fullText,
             time: typeof ts === "function" ? ts() : now(),
             epoch: typeof tsEpoch === "function" ? tsEpoch() : Date.now(),
+            prompt: fullPrompt,
+            contextPrompt: {
+              system: sys,
+              lore: "",
+              summary: "",
+              history: hist,
+              extra: instruction || ""
+            }
           };
 
           c.msgs.forEach(function (m) {
@@ -20756,7 +21489,7 @@
 
           window.openRegen = function (id) {
             showQuickDialog({
-              title: "Message Tools",
+              title: "Other Options",
               content: `
                     <div class="qdialog-list">
                       <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.openRegenWithPrompt('${id}')">
@@ -20767,6 +21500,9 @@
                       </div>
                       <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');if(typeof window.openTimeskipModal === 'function') window.openTimeskipModal()">
                         <i class="bi bi-hourglass-split"></i>Time Skip...
+                      </div>
+                      <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.viewGenContext('${id}')">
+                        <i class="bi bi-braces"></i>View Generational Context...
                       </div>
                     </div>`,
             });
@@ -20945,11 +21681,14 @@
 
           window.openUserRegen = function (id) {
             showQuickDialog({
-              title: "User Generation Options",
+              title: "Other Options",
               content: `
                 <div class="qdialog-list">
                   <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.openUserRegenWithPrompt('${id}')">
                     <i class="bi bi-stars"></i>Regenerate options with custom prompt...
+                  </div>
+                  <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.viewGenContext('${id}')">
+                    <i class="bi bi-braces"></i>View Generational Context...
                   </div>
                 </div>`,
             });
