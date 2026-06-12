@@ -11897,7 +11897,10 @@
               })
               .join(" ");
 
-            c.lorebook.forEach(function (entry) {
+            if (!c.lorebookState) c.lorebookState = {};
+            var currentMsgIdx = c.msgs.length;
+
+            c.lorebook.forEach(function (entry, idx) {
               if (!entry.keys || !entry.content) return;
               var keys = entry.keys
                 .split(",")
@@ -11921,16 +11924,35 @@
               });
 
               if (matched) {
-                loreInjections.push(entry.content);
+                var lastInj = c.lorebookState[idx] || -999;
+                if (currentMsgIdx - lastInj >= 5) {
+                  loreInjections.push({ idx: idx, content: entry.content });
+                }
               }
+            });
+
+            // Limit to max 2 injections per turn to prevent token spiking & fixation
+            // Prioritize those with the longest time since last injection
+            loreInjections.sort(function(a, b) {
+              var lastA = c.lorebookState[a.idx] || -999;
+              var lastB = c.lorebookState[b.idx] || -999;
+              return lastA - lastB; 
+            });
+
+            loreInjections = loreInjections.slice(0, 2);
+            loreInjections.forEach(function(inj) {
+              c.lorebookState[inj.idx] = currentMsgIdx;
             });
           }
 
           var loreBlock = "";
           if (loreInjections.length > 0) {
+            var injectionStrings = loreInjections.map(function(inj) {
+              return "[Background Database: " + inj.content + "]";
+            });
             loreBlock =
-              "\n\n### World Lore / Memory Context ###\n" +
-              loreInjections.join("\n") +
+              "\n\n### Passive World Lore (Background Knowledge) ###\n" +
+              injectionStrings.join("\n") +
               "\n";
           }
 
