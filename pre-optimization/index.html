@@ -1953,7 +1953,7 @@
           0 1px 4px rgba(0, 0, 0, 0.12),
           inset 0 1px 0 rgba(255, 255, 255, 0.04);
         position: relative;
-        min-width: 245px;
+        min-width: 255px;
       }
       [data-theme="light"] .msg-bubble.ai {
         box-shadow:
@@ -1975,12 +1975,12 @@
       .msg-bubble.user {
         background: var(--out-bg);
         color: var(--out-t);
-        border-radius: var(--r-lg) 2px var(--r-lg) var(--r-lg);
+        border-radius: var(--r-lg) 0px var(--r-lg) var(--r-lg);
         box-shadow:
           0 1px 4px rgba(0, 0, 0, 0.15),
           inset 0 1px 0 rgba(255, 255, 255, 0.06);
         position: relative;
-        min-width: 245px;
+        min-width: 255px;
       }
       .msg-group.user .msg-row:first-child .msg-bubble.user::before {
         content: "";
@@ -2019,8 +2019,8 @@
         color: var(--text-800);
         font-style: italic;
         text-align: left;
-        padding: 10px 18px;
-        min-width: 245px;
+        padding: 9px 13px 6px;
+        min-width: 255px;
       }
       /* Prevent italics inheritance on timestamps, actions, and nav options */
       .msg-meta, .msg-time, .variant-nav, .variant-counter, .variant-dots, .variant-dot, .bubble-actions, .bact {
@@ -2102,6 +2102,7 @@
         gap: 3px;
         float: right;
         margin-left: 18px;
+        margin-right: -5px;
         margin-top: 3px;
         margin-bottom: -2px;
         min-height: 16px;
@@ -2110,6 +2111,9 @@
         position: relative;
         z-index: 2;
         font-style: normal;
+      }
+      .msg-bubble.user .msg-meta {
+        margin-right: -9px; /* Offset to compensate for the tick mark */
       }
       .msg-time {
         font-size: 10px;
@@ -13253,20 +13257,37 @@
           return ch.id === id;
         });
         if (!c) return;
+        var jsonStr = JSON.stringify(Object.assign({}, c, { msgs: [] }), null, 2);
+        
+        if (aiSettings.backupEncryptionEnabled) {
+          var pwd = aiSettings.backupMasterPassword || "";
+          if (!pwd) {
+            showToast("Encrypted Backups enabled but no password set! Pls set one in Settings first.", "warning");
+            return;
+          }
+          try {
+            jsonStr = encryptBackup(jsonStr, pwd);
+          } catch (e) {
+            console.error(e);
+            showToast("Encryption failed", "error");
+            return;
+          }
+        }
+
         var blob = new Blob(
-          [JSON.stringify(Object.assign({}, c, { msgs: [] }), null, 2)],
-          { type: "application/json" },
+          [jsonStr],
+          { type: aiSettings.backupEncryptionEnabled ? "text/plain" : "application/json" },
         );
         var url = URL.createObjectURL(blob),
           a = document.createElement("a");
         a.href = url;
         a.download =
-          "character-" + c.name.replace(/[^a-z0-9]/gi, "_") + ".json";
+          "character-" + c.name.replace(/[^a-z0-9]/gi, "_") + (aiSettings.backupEncryptionEnabled ? ".enc" : ".json");
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast("Character exported!", "success");
+        showToast(aiSettings.backupEncryptionEnabled ? "Character exported securely!" : "Character exported!", "success");
       }
 
       // Export character data AND the full chat history together as a single
@@ -13286,20 +13307,37 @@
         };
         // remove the undefined key cleanly
         delete bundle.character.msgs;
+        var jsonStr = JSON.stringify(bundle, null, 2);
+
+        if (aiSettings.backupEncryptionEnabled) {
+          var pwd = aiSettings.backupMasterPassword || "";
+          if (!pwd) {
+            showToast("Encrypted Backups enabled but no password set! Pls set one in Settings first.", "warning");
+            return;
+          }
+          try {
+            jsonStr = encryptBackup(jsonStr, pwd);
+          } catch (e) {
+            console.error(e);
+            showToast("Encryption failed", "error");
+            return;
+          }
+        }
+
         var blob = new Blob(
-          [JSON.stringify(bundle, null, 2)],
-          { type: "application/json" }
+          [jsonStr],
+          { type: aiSettings.backupEncryptionEnabled ? "text/plain" : "application/json" }
         );
         var url = URL.createObjectURL(blob),
           a = document.createElement("a");
         a.href = url;
         a.download = "chat-" + c.name.replace(/[^a-z0-9]/gi, "_") + "-" +
-          new Date().toISOString().slice(0, 10) + ".json";
+          new Date().toISOString().slice(0, 10) + (aiSettings.backupEncryptionEnabled ? ".enc" : ".json");
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast("Chat exported!", "success");
+        showToast(aiSettings.backupEncryptionEnabled ? "Chat exported securely!" : "Chat exported!", "success");
       }
 
       // ── AVATAR ZONE ──
@@ -20761,24 +20799,22 @@
             `;
 
             try {
-              var hist = c.msgs.slice(0, idx)
+              var histMsgs = c.msgs.slice(Math.max(0, idx - 10), idx); // last 10 messages for context
+              var hist = histMsgs
                 .map(function (msg) {
-                  return msg.role + ": " + (msg.text || "");
+                  var pName = msg.role === "user" ? userProfile.name : (msg.role === "ai" ? c.name : "Narrator");
+                  return pName + ": " + (msg.text || "");
                 })
-                .join("\n");
+                .join("\n\n");
               
               var uPrompt =
-                "You are " +
-                userProfile.name +
-                " in this roleplay with " +
-                c.name +
-                "." +
-                (userProfile.persona
-                  ? " Persona: " + userProfile.persona + "."
-                  : "") +
-                " Generate exactly 3 short, natural reply options for what you might say or do next (1-2 sentences each). Output ONLY a single valid JSON array of 3 strings. Do not include markdown, numbering, labels, or extra explanation.\n\nChat:\n" +
-                hist;
-              if (instruction) uPrompt += "\n\nInstruction: " + instruction;
+                "Below is the recent chat history between " + userProfile.name + " (the User) and " + c.name + " (the Character).\n" +
+                "Your task is to generate options for the USER's next turn.\n" +
+                "CRITICAL: You are acting EXCLUSIVELY as the User (" + userProfile.name + "). DO NOT generate responses or actions for " + c.name + ".\n" +
+                (userProfile.persona ? "User Persona: " + userProfile.persona + "\n" : "") +
+                "Generate exactly 3 different, short reply options for the User's next message (actions/speech). Output ONLY a valid JSON array of 3 strings. Do not include markdown, numbering, labels, or any surrounding brackets within the strings themselves.\n\nRecent Chat:\n" + hist;
+              
+              if (instruction) uPrompt += "\n\nSpecific Instruction for User Options: " + instruction;
 
               var uText = await generateText({
                 instruction: uPrompt,
@@ -20794,11 +20830,15 @@
                 options = uText
                   .split("\n")
                   .filter(function (l) { return l.trim(); })
-                  .map(function (l) { return l.replace(/^[\d\-\*\.]+\s*/, ""); })
-                  .slice(0, 3);
+                  .map(function (l) { return l.replace(/^[\d\-\*\.]+\s*/, ""); });
               }
 
-              if (!Array.isArray(options) || !options.length) {
+              if (!Array.isArray(options)) options = [options];
+              options = options.slice(0, 3).map(function(opt) {
+                return (opt || "").toString().replace(/^\[\s*|\s*\]$/g, "").trim();
+              }).filter(function(v) { return !!v; });
+
+              if (!options.length) {
                 throw new Error("Invalid options generated");
               }
 
