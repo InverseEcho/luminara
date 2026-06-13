@@ -7453,7 +7453,7 @@
       </div>
       <div class="ctx-item" id="ctx-edit-char">
         <i class="bi bi-pencil-square"></i>
-        Edit Character
+        Edit Instance
       </div>
       <div class="ctx-divider"></div>
       <div class="ctx-item" id="ctx-clear-chat">
@@ -13316,7 +13316,6 @@
 
               <div class="context-action-bar">
                 <span id="copy-status" style="font-size:11.5px;color:var(--primary);font-weight:600;margin-right:auto;display:none;"><i class="bi bi-check-circle-fill"></i> Copied to clipboard!</span>
-                <button class="context-btn-copy" onclick="window.copyInspectorCurrentTab()"><i class="bi bi-clipboard"></i> Copy Current Tab</button>
               </div>
             </div>
           </div>
@@ -13326,15 +13325,7 @@
           titleHTML: `<i class="bi bi-cpu" style="font-size:16px;color:var(--primary);margin-right:6px"></i> AI Gen–Context & Token Breakdown`,
           maxWidth: "760px",
           content: contentHtml,
-          actions: [
-            {
-              text: "Close Auditor",
-              type: "secondary",
-              onClick: function () {
-                return true;
-              }
-            }
-          ]
+          actions: []
         });
 
         // Initialize sliding tab position once modal content renders
@@ -13543,9 +13534,7 @@
         showQuickDialog({
           title: "Pinned Messages (" + count + ")",
           content: contentHtml,
-          actions: [
-            { text: "Close", type: "secondary", onClick: function() { return true; } }
-          ]
+          actions: []
         });
 
         var resEl = document.getElementById("pinned-messages-results");
@@ -13589,9 +13578,7 @@
         showQuickDialog({
           title: "Search Messages",
           content: contentHtml,
-          actions: [
-            { text: "Close", type: "secondary", onClick: function() { return true; } }
-          ]
+          actions: []
         });
 
         // Initialize empty search
@@ -14612,7 +14599,7 @@
 
       // FIX: openEditChar always falls back to "Female" if no gender is stored,
       // and always syncs the gender row buttons correctly.
-      function openEditChar(id) {
+      function openEditChar(id, title = "Edit Character") {
         editingCharId = id;
         var c = chars.find(function (ch) {
           return ch.id === id;
@@ -14620,7 +14607,7 @@
         if (!c) return;
         var mt = $id("char-modal-title"),
           sb = $id("save-char-btn");
-        if (mt) mt.textContent = "Edit Character";
+        if (mt) mt.textContent = title;
         if (sb && mt)
           sb.textContent = mt.textContent.includes("Edit") ? "Save" : "Create";
         [
@@ -18264,7 +18251,7 @@
 
         qs("#chat-avatar-btn").onclick = function () {
           var c = getActive();
-          if (c) openEditChar(c.id);
+          if (c) openEditChar(c.id, "Edit Instance");
         };
         qs("#attach-btn").onclick = function () {
           var input = $id("chat-file-input");
@@ -18678,7 +18665,7 @@
         $id("ctx-edit-char").onclick = function () {
           $id("chat-ctx-menu").classList.remove("show");
           var c = getActive();
-          if (c) openEditChar(c.id);
+          if (c) openEditChar(c.id, "Edit Instance");
         };
         $id("ctx-clear-chat").onclick = function () {
           $id("chat-ctx-menu").classList.remove("show");
