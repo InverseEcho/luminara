@@ -6988,8 +6988,8 @@
               <i class="bi bi-person-circle" style="font-size: 20px"></i>
             </div>
             <div>
-              <div class="menu-user-name" id="menu-user-name">My Account</div>
-              <div class="menu-user-sub">Edit profile</div>
+              <div class="menu-user-name" id="menu-user-name">User</div>
+              <div class="menu-user-sub">Manage your personas</div>
             </div>
           </div>
           <div class="menu-list">
@@ -7592,18 +7592,6 @@
                 </div>
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Message Text Color <span style="font-size:11px;font-weight:normal;color:var(--t3)">(Optional)</span></label>
-              <div style="display:flex;align-items:center;gap:16px">
-                <div id="char-color-default-btn" class="hover:scale-105 active:scale-95 transition-all duration-200" style="width:38px; height:38px; border-radius:50%; border:2.5px solid var(--border2); cursor:pointer; background: var(--t0); box-shadow: var(--shadow-sm); flex-shrink:0;" title="Default Color: White in Dark Mode, Black in Light Mode" onclick="clearCharTextColor()"></div>
-                <div id="char-color-palette-btn" class="hover:scale-105 active:scale-95 transition-all duration-200" style="position:relative; width:38px; height:38px; border-radius:50%; border:2.5px solid var(--border2); overflow:hidden; cursor:pointer; background: var(--bg-raised); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); flex-shrink:0;" title="Choose Custom Text Color">
-                  <div id="char-color-overlay" style="position:absolute; inset:0; z-index:1; cursor:pointer;" onclick="if(!customCharTextColor) { selectCharTextColor(document.getElementById('char-text-color').value); this.style.display='none'; }"></div>
-                  <input type="color" id="char-text-color" style="opacity:0; position:absolute; width:100%; height:100%; cursor:pointer;" value="#3396ff" />
-                  <i class="bi bi-palette" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; pointer-events:none; font-size: 16px; color: var(--t1);"></i>
-                </div>
-                <span id="char-color-status" style="font-size:12px;color:var(--t3);user-select:none">Default (None)</span>
-              </div>
-            </div>
 
             <div class="form-group">
               <div class="settings-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
@@ -7757,6 +7745,19 @@
                 placeholder="Opening line when chat begins…"
                 style="min-height: 56px"
               ></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Message Text Color <span style="font-size:11px;font-weight:normal;color:var(--t3)">(Optional)</span></label>
+              <div style="display:flex;align-items:center;gap:16px">
+                <div id="char-color-default-btn" class="hover:scale-105 active:scale-95 transition-all duration-200" style="width:38px; height:38px; border-radius:50%; border:2.5px solid var(--border2); cursor:pointer; background: var(--t0); box-shadow: var(--shadow-sm); flex-shrink:0;" title="Default Color: White in Dark Mode, Black in Light Mode" onclick="clearCharTextColor()"></div>
+                <div id="char-color-palette-btn" class="hover:scale-105 active:scale-95 transition-all duration-200" style="position:relative; width:38px; height:38px; border-radius:50%; border:2.5px solid var(--border2); overflow:hidden; cursor:pointer; background: var(--bg-raised); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); flex-shrink:0;" title="Choose Custom Text Color">
+                  <div id="char-color-overlay" style="position:absolute; inset:0; z-index:1; cursor:pointer;" onclick="if(!customCharTextColor) { selectCharTextColor(document.getElementById('char-text-color').value); this.style.display='none'; }"></div>
+                  <input type="color" id="char-text-color" style="opacity:0; position:absolute; width:100%; height:100%; cursor:pointer;" value="#3396ff" />
+                  <i class="bi bi-palette" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; pointer-events:none; font-size: 16px; color: var(--t1);"></i>
+                </div>
+                <span id="char-color-status" style="font-size:12px;color:var(--t3);user-select:none">Default (None)</span>
+              </div>
             </div>
           </div>
           <!-- AI Persona -->
@@ -8668,7 +8669,7 @@
             </label>
             <label class="qr-export-item">
               <input type="checkbox" id="qr-export-profile" checked />
-              <span>User Profile</span>
+              <span>User Personas</span>
             </label>
             <label class="qr-export-item">
               <input type="checkbox" id="qr-export-ai" checked />
@@ -8703,12 +8704,28 @@
     <div class="overlay" id="modal-profile">
       <div class="modal">
         <div class="modal-hd">
-          <span class="modal-title">My Profile</span
+          <span class="modal-title">User Personas</span
           ><button class="modal-close" data-close="modal-profile">
             <i class="bi bi-x" style="font-size: 24px"></i>
           </button>
         </div>
         <div class="modal-body">
+          <div class="form-group" style="padding-bottom: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border);">
+            <label class="form-label">Active Persona</label>
+            <div style="display:flex; gap:8px;">
+              <div class="custom-select" id="profile-selector-wrap" style="flex:1;">
+                <div class="select-trigger" id="profile-selector-trigger">
+                  <span id="profile-selector-label">User</span>
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="select-dropdown" id="profile-selector-dropdown" style="max-height: 200px; overflow-y: auto;">
+                  <!-- populated by JS -->
+                </div>
+              </div>
+              <button class="btn btn-secondary" id="new-persona-btn" onclick="window.createNewUserPersona()" style="padding: 0 14px;" title="Create New Persona"><i class="bi bi-plus-lg"></i></button>
+              <button class="btn btn-secondary" id="delete-persona-btn" onclick="window.deleteUserPersona()" style="padding: 0 14px; color: var(--error);" title="Delete Persona"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
           <div class="profile-av-section">
             <div class="profile-av" id="profile-av-edit"></div>
             <button class="change-av-btn" id="profile-av-upload-btn">
@@ -8727,7 +8744,7 @@
           </div>
           <div class="form-group" style="padding-top: 4px;">
             <label class="form-label"
-              >Personal Persona
+              >Persona Background
               <span
                 style="
                   color: var(--t3);
@@ -8740,7 +8757,7 @@
             ><textarea
               id="profile-persona"
               class="form-textarea"
-              placeholder="Brief description of your character for the AI…"
+              placeholder="Brief description of your persona or background for the AI…"
             ></textarea>
           </div>
           <button
@@ -9657,6 +9674,7 @@
         pendingAvatar = "";
       var replyingTo = null;
       var userProfile = { name: "User", av: "" };
+      var userPersonas = [];
       var aiSettings = {
         responseStyle: "unspecified",
         userStyles: [],
@@ -9782,6 +9800,7 @@
             isDark,
             isNar,
             userProfile,
+            userPersonas,
             aiSettings,
             isPerfMode,
             actionPlacement,
@@ -9826,6 +9845,7 @@
             isDark = ss.isDark !== undefined ? ss.isDark : true;
             isNar = ss.isNar || false;
             userProfile = ss.userProfile || { name: "User", av: "" };
+            userPersonas = ss.userPersonas || [userProfile];
             isPerfMode = ss.isPerfMode !== undefined ? ss.isPerfMode : false;
             actionPlacement = ss.actionPlacement || "bottom";
             toolbarPinned =
@@ -12599,24 +12619,38 @@
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                       <div class="qdialog-input-group">
                         <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Role Tone</label>
-                        <select id="user-regen-tone-first" class="qdialog-input">
-                          <option value="default">— Same Tone —</option>
-                          <option value="Sarcastic & Witty">Sarcastic &amp; Witty</option>
-                          <option value="Aggressive & Bold">Aggressive &amp; Bold</option>
-                          <option value="Gentle & Empathetic">Gentle &amp; Empathetic</option>
-                          <option value="Cold & Subdued">Cold &amp; Subdued</option>
-                          <option value="Flirtatious & Teasing">Flirtatious &amp; Teasing</option>
-                          <option value="Suspicious & Cautious">Suspicious &amp; Cautious</option>
-                        </select>
+                        <input type="hidden" id="user-regen-tone-first" value="default" />
+                        <div class="custom-select" id="custom-user-regen-tone-first">
+                          <div class="select-trigger">
+                            <span id="user-regen-tone-first-label">— Same Tone —</span>
+                            <i class="bi bi-chevron-down"></i>
+                          </div>
+                          <div class="select-dropdown">
+                            <div class="select-item sel" data-value="default">— Same Tone —</div>
+                            <div class="select-item" data-value="Sarcastic & Witty">Sarcastic &amp; Witty</div>
+                            <div class="select-item" data-value="Aggressive & Bold">Aggressive &amp; Bold</div>
+                            <div class="select-item" data-value="Gentle & Empathetic">Gentle &amp; Empathetic</div>
+                            <div class="select-item" data-value="Cold & Subdued">Cold &amp; Subdued</div>
+                            <div class="select-item" data-value="Flirtatious & Teasing">Flirtatious &amp; Teasing</div>
+                            <div class="select-item" data-value="Suspicious & Cautious">Suspicious &amp; Cautious</div>
+                          </div>
+                        </div>
                       </div>
                       <div class="qdialog-input-group">
                         <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Option Style</label>
-                        <select id="user-regen-style-first" class="qdialog-input">
-                          <option value="default">— Default Style —</option>
-                          <option value="Short responses or choices">Short / Snappy Choice</option>
-                          <option value="Long, descriptive actions/narratives">Action and Dialogue rich</option>
-                          <option value="Inner monologues combined with speech">Speech + Inner thoughts</option>
-                        </select>
+                        <input type="hidden" id="user-regen-style-first" value="default" />
+                        <div class="custom-select" id="custom-user-regen-style-first">
+                          <div class="select-trigger">
+                            <span id="user-regen-style-first-label">— Default Style —</span>
+                            <i class="bi bi-chevron-down"></i>
+                          </div>
+                          <div class="select-dropdown">
+                            <div class="select-item sel" data-value="default">— Default Style —</div>
+                            <div class="select-item" data-value="Short responses or choices">Short / Snappy Choice</div>
+                            <div class="select-item" data-value="Long, descriptive actions/narratives">Action and Dialogue rich</div>
+                            <div class="select-item" data-value="Inner monologues combined with speech">Speech + Inner thoughts</div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -12686,6 +12720,14 @@
                     },
                   },
                 ],
+              });
+              initCustomSelect("custom-user-regen-tone-first", function(val) {
+                var input = document.getElementById("user-regen-tone-first");
+                if (input) input.value = val;
+              });
+              initCustomSelect("custom-user-regen-style-first", function(val) {
+                var input = document.getElementById("user-regen-style-first");
+                if (input) input.value = val;
               });
             };
 
@@ -15396,6 +15438,98 @@
         }
       }
 
+      function refreshPersonaSelector() {
+        var dropdown = document.getElementById("profile-selector-dropdown");
+        var label = document.getElementById("profile-selector-label");
+        if (!dropdown || !label) return;
+        dropdown.innerHTML = "";
+        userPersonas.forEach(function(p, idx) {
+          var item = document.createElement("div");
+          item.className = "select-item";
+          var nameSpan = document.createElement("div");
+          nameSpan.textContent = p.name || "User";
+          nameSpan.style.fontWeight = "600";
+          item.appendChild(nameSpan);
+          if (p.persona) {
+            var pSpan = document.createElement("div");
+            pSpan.textContent = p.persona.substring(0,40) + (p.persona.length > 40 ? "..." : "");
+            pSpan.style.fontSize = "11px";
+            pSpan.style.color = "var(--t3)";
+            pSpan.style.marginTop = "2px";
+            item.appendChild(pSpan);
+          }
+          item.onclick = function(e) {
+            e.stopPropagation();
+            var container = document.getElementById("profile-selector-wrap");
+            if (container) container.classList.remove("open");
+            window.switchUserPersona(idx);
+          };
+          if (p === userProfile) {
+            item.classList.add("sel");
+            label.textContent = p.name || "User";
+          }
+          dropdown.appendChild(item);
+        });
+      }
+
+      window.switchUserPersona = function(idx) {
+        idx = parseInt(idx, 10);
+        if (isNaN(idx) || idx < 0 || idx >= userPersonas.length) return;
+        userProfile = userPersonas[idx];
+        var pn = $id("profile-name"),
+          pp = $id("profile-persona");
+        if (pn) pn.value = userProfile.name || "";
+        if (pp) pp.value = userProfile.persona || "";
+        refreshUserAvatar();
+        refreshPersonaSelector();
+        saveState();
+        showToast("Switched persona to " + userProfile.name, "success");
+      };
+
+      window.createNewUserPersona = function() {
+        var newPersona = { name: "New Persona", av: "", persona: "" };
+        userPersonas.push(newPersona);
+        userProfile = newPersona;
+        var pn = $id("profile-name"),
+          pp = $id("profile-persona");
+        if (pn) pn.value = userProfile.name;
+        if (pp) pp.value = userProfile.persona;
+        refreshUserAvatar();
+        refreshPersonaSelector();
+        saveState();
+        showToast("Created new persona", "success");
+      };
+
+      window.deleteUserPersona = function() {
+        if (userPersonas.length <= 1) {
+          showToast("You must have at least one persona", "error");
+          return;
+        }
+        showQuickDialog({
+          title: "Delete Persona",
+          content: "Are you sure you want to delete the persona '" + userProfile.name + "'?",
+          actions: [
+            { text: "Cancel", type: "secondary", onClick: function(){ return true; } },
+            { text: "Delete", type: "danger", onClick: function() {
+                var idx = userPersonas.indexOf(userProfile);
+                if (idx !== -1) {
+                  userPersonas.splice(idx, 1);
+                }
+                userProfile = userPersonas[0];
+                var pn = $id("profile-name"),
+                  pp = $id("profile-persona");
+                if (pn) pn.value = userProfile.name || "";
+                if (pp) pp.value = userProfile.persona || "";
+                refreshUserAvatar();
+                refreshPersonaSelector();
+                saveState();
+                showToast("Persona deleted", "success");
+                return true;
+            } }
+          ]
+        });
+      };
+
       function openProfileModal() {
         var mm = $id("main-menu");
         if (mm) mm.classList.remove("open");
@@ -15404,6 +15538,7 @@
         if (pn) pn.value = userProfile.name || "";
         if (pp) pp.value = userProfile.persona || "";
         refreshUserAvatar();
+        refreshPersonaSelector();
         openModal("modal-profile");
       }
 
@@ -15755,6 +15890,25 @@
         });
         document.addEventListener("click", function () {
           container.classList.remove("open");
+        });
+      }
+
+      function initProfileSelector() {
+        var container = document.getElementById("profile-selector-wrap");
+        if (!container) return;
+        var trigger = document.getElementById("profile-selector-trigger");
+        if (trigger) {
+          trigger.onclick = function (e) {
+            e.stopPropagation();
+            var isOpen = container.classList.contains("open");
+            qsa(".custom-select").forEach(function (c) {
+              c.classList.remove("open");
+            });
+            if (!isOpen) container.classList.add("open");
+          };
+        }
+        document.addEventListener("click", function () {
+          if (container) container.classList.remove("open");
         });
       }
 
@@ -17911,7 +18065,12 @@
 
               if (data.userProfile) {
                 userProfile = Object.assign(userProfile, data.userProfile);
-                showToast("User Profile imported", "info");
+                if (data.userPersonas && Array.isArray(data.userPersonas)) {
+                  userPersonas = data.userPersonas;
+                } else if (!userPersonas.includes(userProfile)) {
+                  userPersonas.push(userProfile);
+                }
+                showToast("User Personas imported", "info");
               }
               if (data.aiSettings) {
                 aiSettings = Object.assign(aiSettings, data.aiSettings);
@@ -18089,6 +18248,8 @@
             if ($id("qr-export-profile")?.checked) {
               dataToExport.userProfile =
                 typeof userProfile !== "undefined" ? userProfile : null;
+              dataToExport.userPersonas =
+                typeof userPersonas !== "undefined" ? userPersonas : [userProfile];
             }
             if ($id("qr-export-ai")?.checked) {
               dataToExport.aiSettings =
@@ -18671,6 +18832,7 @@
                   ];
                   activeId = null;
                   userProfile = { name: "User", av: "" };
+                  userPersonas = [userProfile];
                   aiSettings = {
                     responseStyle: "unspecified",
                     userStyles: [],
@@ -19427,6 +19589,7 @@
           saveState();
         });
         initImgSourceSelect();
+        initProfileSelector();
         if (actionPlacement) {
           var item = qs(
             '#custom-actions-pos .select-item[data-value="' +
@@ -21445,21 +21608,45 @@
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                     <div class="qdialog-input-group">
                       <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Tone &amp; Mood</label>
-                      <select id="regen-tone" class="qdialog-input">
-                        <option value="default">— Same Tone —</option>
-                        <option value="Dramatic & Intense">Dramatic &amp; Intense</option>
-                        <option value="Playful & Sarcastic">Playful &amp; Sarcastic</option>
-                        <option value="Sweet & Warm">Sweet &amp; Warm</option>
-                        <option value="Cold & Distant">Cold &amp; Distant</option>
-                        <option value="Romantic & Tense">Romantic &amp; Tense</option>
-                        <option value="Action-packed">Action-packed</option>
-                        <option value="Melancholic & Reflective">Melancholic &amp; Reflective</option>
-                      </select>
+                      <input type="hidden" id="regen-tone" value="default" />
+                      <div class="custom-select" id="custom-regen-tone">
+                        <div class="select-trigger">
+                          <span id="regen-tone-label">— Same Tone —</span>
+                          <i class="bi bi-chevron-down"></i>
+                        </div>
+                        <div class="select-dropdown">
+                          <div class="select-item sel" data-value="default">— Same Tone —</div>
+                          <div class="select-item" data-value="Dramatic & Intense">Dramatic &amp; Intense</div>
+                          <div class="select-item" data-value="Playful & Sarcastic">Playful &amp; Sarcastic</div>
+                          <div class="select-item" data-value="Sweet & Warm">Sweet &amp; Warm</div>
+                          <div class="select-item" data-value="Cold & Distant">Cold &amp; Distant</div>
+                          <div class="select-item" data-value="Romantic & Tense">Romantic &amp; Tense</div>
+                          <div class="select-item" data-value="Action-packed">Action-packed</div>
+                          <div class="select-item" data-value="Melancholic & Reflective">Melancholic &amp; Reflective</div>
+                        </div>
+                      </div>
                     </div>
                     <div class="qdialog-input-group">
-                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Emotion <span style="font-weight:normal;color:var(--t3)">(Optional)</span></label>
-                      <input type="text" id="regen-emotion" class="qdialog-input" placeholder="e.g. anxious, breathless..." />
+                      <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Response Format</label>
+                      <input type="hidden" id="regen-style" value="default" />
+                      <div class="custom-select" id="custom-regen-style">
+                        <div class="select-trigger">
+                          <span id="regen-style-label">— Default Style —</span>
+                          <i class="bi bi-chevron-down"></i>
+                        </div>
+                        <div class="select-dropdown">
+                          <div class="select-item sel" data-value="default">— Default Style —</div>
+                          <div class="select-item" data-value="Short responses or choices">Short / Snappy Choice</div>
+                          <div class="select-item" data-value="Long, descriptive actions/narratives">Action and Dialogue rich</div>
+                          <div class="select-item" data-value="Inner monologues combined with speech">Speech + Inner thoughts</div>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+
+                  <div class="qdialog-input-group">
+                    <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">Emotion <span style="font-weight:normal;color:var(--t3)">(Optional)</span></label>
+                    <input type="text" id="regen-emotion" class="qdialog-input" placeholder="e.g. anxious, breathless..." />
                   </div>
 
                   <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
@@ -21493,6 +21680,7 @@
                   onClick: async function () {
                     var elIns = document.getElementById("regen-instruction");
                     var elTone = document.getElementById("regen-tone");
+                    var elStyle = document.getElementById("regen-style");
                     var elEmo = document.getElementById("regen-emotion");
                     var elSensory = document.getElementById("regen-sensory");
                     var elThoughts = document.getElementById("regen-thoughts");
@@ -21505,6 +21693,9 @@
                     }
                     if (elTone && elTone.value && elTone.value !== "default") {
                       parts.push("Tone/Mood: " + elTone.value);
+                    }
+                    if (elStyle && elStyle.value && elStyle.value !== "default") {
+                      parts.push("Format Style: " + elStyle.value);
                     }
                     if (elEmo && elEmo.value.trim()) {
                       parts.push("Character Emotion/State: " + elEmo.value.trim());
@@ -21526,6 +21717,14 @@
                   },
                 },
               ],
+            });
+            initCustomSelect("custom-regen-tone", function(val) {
+              var input = document.getElementById("regen-tone");
+              if (input) input.value = val;
+            });
+            initCustomSelect("custom-regen-style", function(val) {
+              var input = document.getElementById("regen-style");
+              if (input) input.value = val;
             });
           };
 
@@ -21752,24 +21951,38 @@
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                     <div class="qdialog-input-group">
                       <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Role Tone</label>
-                      <select id="user-regen-tone" class="qdialog-input">
-                        <option value="default">— Same Tone —</option>
-                        <option value="Sarcastic & Witty">Sarcastic &amp; Witty</option>
-                        <option value="Aggressive & Bold">Aggressive &amp; Bold</option>
-                        <option value="Gentle & Empathetic">Gentle &amp; Empathetic</option>
-                        <option value="Cold & Subdued">Cold &amp; Subdued</option>
-                        <option value="Flirtatious & Teasing">Flirtatious &amp; Teasing</option>
-                        <option value="Suspicious & Cautious">Suspicious &amp; Cautious</option>
-                      </select>
+                      <input type="hidden" id="user-regen-tone" value="default" />
+                      <div class="custom-select" id="custom-user-regen-tone">
+                        <div class="select-trigger">
+                          <span id="user-regen-tone-label">— Same Tone —</span>
+                          <i class="bi bi-chevron-down"></i>
+                        </div>
+                        <div class="select-dropdown">
+                          <div class="select-item sel" data-value="default">— Same Tone —</div>
+                          <div class="select-item" data-value="Sarcastic & Witty">Sarcastic &amp; Witty</div>
+                          <div class="select-item" data-value="Aggressive & Bold">Aggressive &amp; Bold</div>
+                          <div class="select-item" data-value="Gentle & Empathetic">Gentle &amp; Empathetic</div>
+                          <div class="select-item" data-value="Cold & Subdued">Cold &amp; Subdued</div>
+                          <div class="select-item" data-value="Flirtatious & Teasing">Flirtatious &amp; Teasing</div>
+                          <div class="select-item" data-value="Suspicious & Cautious">Suspicious &amp; Cautious</div>
+                        </div>
+                      </div>
                     </div>
                     <div class="qdialog-input-group">
                       <label class="form-label" style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:4px">User Option Style</label>
-                      <select id="user-regen-style" class="qdialog-input">
-                        <option value="default">— Default Style —</option>
-                        <option value="Short responses or choices">Short / Snappy Choice</option>
-                        <option value="Long, descriptive actions/narratives">Action and Dialogue rich</option>
-                        <option value="Inner monologues combined with speech">Speech + Inner thoughts</option>
-                      </select>
+                      <input type="hidden" id="user-regen-style" value="default" />
+                      <div class="custom-select" id="custom-user-regen-style">
+                        <div class="select-trigger">
+                          <span id="user-regen-style-label">— Default Style —</span>
+                          <i class="bi bi-chevron-down"></i>
+                        </div>
+                        <div class="select-dropdown">
+                          <div class="select-item sel" data-value="default">— Default Style —</div>
+                          <div class="select-item" data-value="Short responses or choices">Short / Snappy Choice</div>
+                          <div class="select-item" data-value="Long, descriptive actions/narratives">Action and Dialogue rich</div>
+                          <div class="select-item" data-value="Inner monologues combined with speech">Speech + Inner thoughts</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -21838,6 +22051,14 @@
                   },
                 },
               ],
+            });
+            initCustomSelect("custom-user-regen-tone", function(val) {
+              var input = document.getElementById("user-regen-tone");
+              if (input) input.value = val;
+            });
+            initCustomSelect("custom-user-regen-style", function(val) {
+              var input = document.getElementById("user-regen-style");
+              if (input) input.value = val;
             });
           };
 
