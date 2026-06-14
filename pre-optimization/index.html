@@ -6779,6 +6779,12 @@
         position: relative;
         gap: 4px;
         z-index: 1;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .context-tabs-nav::-webkit-scrollbar {
+        display: none;
       }
       .context-tab-highlight {
         position: absolute;
@@ -6791,7 +6797,7 @@
         z-index: -1;
       }
       .context-tab-btn {
-        flex: 1;
+        flex: 1 0 auto;
         padding: 8px 12px;
         font-size: 11.5px;
         text-transform: uppercase;
@@ -13293,8 +13299,8 @@
                 </div>
                 <div>
                   ${isReconstructed 
-                    ? `<span class="context-snapshot-badge warning"><i class="bi bi-lightning-charge"></i> Realtime Reconstructed</span>`
-                    : `<span class="context-snapshot-badge success"><i class="bi bi-check-circle"></i> Verified Saved</span>`
+                    ? `<span class="context-snapshot-badge warning" style="padding: 6px 8px; gap: 0;" title="Realtime Reconstructed"><i class="bi bi-lightning-charge"></i></span>`
+                    : `<span class="context-snapshot-badge success" style="padding: 6px 8px; gap: 0;" title="Verified Saved"><i class="bi bi-check-circle"></i></span>`
                   }
                 </div>
               </div>
@@ -13382,6 +13388,13 @@
         if (highlight) {
           highlight.style.width = element.offsetWidth + 'px';
           highlight.style.left = element.offsetLeft + 'px';
+        }
+
+        // Ensure tab is scrolled into view smoothly if partially occluded
+        var nav = wrap.querySelector('.context-tabs-nav');
+        if (nav && nav.scrollWidth > nav.clientWidth) {
+          var scrollLeft = element.offsetLeft - (nav.clientWidth / 2) + (element.clientWidth / 2);
+          nav.scrollTo({ left: scrollLeft, behavior: 'smooth' });
         }
 
         // Update tab buttons class
