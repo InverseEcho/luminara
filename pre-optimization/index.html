@@ -1956,9 +1956,7 @@
         min-width: 255px;
       }
       [data-theme="light"] .msg-bubble.ai {
-        box-shadow:
-          2px 2px 8px rgba(0, 0, 0, 0.06),
-          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.05); /* Removed the white inset highlight that disconnects the tail */
       }
       .msg-group.ai .msg-row:first-child .msg-bubble.ai::before {
         content: "";
@@ -8721,7 +8719,7 @@
               placeholder="Your name…"
             />
           </div>
-          <div class="form-group">
+          <div class="form-group" style="padding-top: 4px;">
             <label class="form-label"
               >Personal Persona
               <span
@@ -9495,9 +9493,9 @@
         var hsl = hexToHsl(resolvedColor);
         var newL;
         if (isDarkTheme) {
-          newL = Math.max(10, hsl.l - 32);
+          newL = Math.max(10, hsl.l - 48);
         } else {
-          newL = Math.min(90, hsl.l + 32);
+          newL = Math.min(90, hsl.l + 48);
         }
         return hslToHex(hsl.h, hsl.s, newL);
       }
@@ -11144,9 +11142,11 @@
               ? '<i class="bi bi-image" style="font-size: 11px; margin-right: 4px; vertical-align: middle;"></i>Image'
               : ""
             : null;
-          if (lm && !last)
+          if (lm && !last) {
+            var rawText = typeof window.resolveMacros === 'function' ? window.resolveMacros(lm.text, c) : lm.text;
             last =
-              lm.text.length > 46 ? lm.text.slice(0, 46) + "\u2026" : lm.text;
+              rawText.length > 46 ? rawText.slice(0, 46) + "\u2026" : rawText;
+          }
           last = last || "Start chatting!";
           var ep = lm ? lm.epoch || 0 : 0;
           var time = ep ? relTime(ep) : "";
@@ -11784,6 +11784,10 @@
               : m.variants.length - 1;
           if (m.variants[vIdx] !== undefined) displayedText = m.variants[vIdx];
         }
+        
+        if (typeof window.resolveMacros === "function") {
+          displayedText = window.resolveMacros(displayedText, c);
+        }
 
         if (m.type === "image-carousel") {
           var slides = m.images
@@ -12265,9 +12269,10 @@
               "\n";
           }
 
+          var macroInstruct = "\n[SYSTEM DIRECTIVE: Token Deduplication Active. You MUST substitute these entities with their corresponding macros in your output: User's name -> {{user}}, Your name -> {{char}}, Current Time -> {{time}}, Current Location/Scene -> {{loc}}. Never output their literal values.]\n";
           var fullPrompt =
             "### System ###\n" +
-            sysPrompt +
+            sysPrompt + macroInstruct +
             loreBlock +
             "\n\n### Context ###\nCharacter: " +
             c.name +
@@ -12276,10 +12281,9 @@
             "\n" +
             (c.desc ? "Appearance: " + c.desc + "\n" : "") +
             "\n\n### Chat ###\n" +
-            summaryBlock +
-            histText +
+            (typeof window.macroify === 'function' ? window.macroify(summaryBlock + histText, userProfile, c) : (summaryBlock + histText)) +
             "\n\n### Respond as " +
-            (activeIsNar ? "the Narrator" : c.name) +
+            (activeIsNar ? "the Narrator" : "{{char}}") +
             " ###";
 
           if (extra) {
@@ -12292,6 +12296,9 @@
             " " + userProfile.name + ":",
             "\n" + userProfile.name + " ",
             "User:",
+            "{{user}}:",
+            " {{user}}:",
+            "\n{{user}} "
           ];
           var chatMsgs = $id("chat-messages");
           var typingRow;
@@ -13095,6 +13102,38 @@
         }
       };
 
+      window.resolveMacros = function (str, c) {
+        if (!str) return "";
+        var uName = (typeof userProfile !== "undefined" && userProfile.name) ? userProfile.name : "User";
+        var cName = (c && c.name) ? c.name : "Character";
+        var cLoc = (c && c.location) ? c.location : "Unknown";
+        
+        return str
+          .replace(/\{\{user\}\}/gi, uName)
+          .replace(/\{\{char\}\}/gi, cName)
+          .replace(/\{\{time\}\}/gi, function() {
+              return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          })
+          .replace(/\{\{loc\}\}/gi, cLoc);
+      };
+
+      window.macroify = function(text, userProfile, c) {
+        if (!text) return "";
+        var uName = (userProfile && userProfile.name) ? userProfile.name : "User";
+        var cName = (c && c.name) ? c.name : "Character";
+        
+        function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+        
+        var textOut = text;
+        if (uName && uName.toLowerCase() !== "user") {
+          textOut = textOut.replace(new RegExp("\\b" + escapeRegExp(uName) + "\\b", 'gi'), "{{user}}");
+        }
+        if (cName && cName.toLowerCase() !== "character") {
+          textOut = textOut.replace(new RegExp("\\b" + escapeRegExp(cName) + "\\b", 'gi'), "{{char}}");
+        }
+        return textOut;
+      };
+
       window.formatPromptString = function (str) {
         if (!str) return "";
         return escapeHTML(str)
@@ -13119,6 +13158,7 @@
         var extraPrompt = "";
         var fullPrompt = "";
         var isReconstructed = false;
+        var ctxMsgs = [];
 
         // If the message has stored prompt metadata, use it!
         if (m.prompt && m.contextPrompt) {
@@ -13128,6 +13168,9 @@
           summaryBlock = m.contextPrompt.summary || "";
           histText = m.contextPrompt.history || "";
           extraPrompt = m.contextPrompt.extra || "";
+          
+          var msgsForCtx = c.msgs.slice(0, idx);
+          ctxMsgs = msgsForCtx.filter(function (sm) { return sm.text && sm.role !== "sys"; }).slice(-20);
         } else {
           // Reconstruct the context prompt as closely as possible for past messages in conversation history!
           isReconstructed = true;
@@ -13178,7 +13221,7 @@
           // Rebuild Chat history (limit to preceding 20 turns)
           var msgsForCtx = c.msgs.slice(0, idx);
           var filtered = msgsForCtx.filter(function (sm) { return sm.text && sm.role !== "sys"; });
-          var ctxMsgs = filtered;
+          ctxMsgs = filtered;
           if (filtered.length > 20) {
             var older = filtered.slice(0, -20);
             var memoryContext = typeof buildMemoryContext === "function" ? buildMemoryContext(c) : "";
@@ -13195,124 +13238,118 @@
           fullPrompt = "### System ###\n" + systemPrompt + loreBlock + "\n\n### Context ###\nCharacter: " + c.name + "\nUser: " + userProfile.name + "\n" + (c.desc ? "Appearance: " + c.desc + "\n" : "") + "\n\n### Chat ###\n" + summaryBlock + histText + "\n\n### Respond as " + (activeIsNar ? "the Narrator" : c.name) + " ###";
         }
 
-        var systemTokens = window.estimateLlamaTokens(systemPrompt);
-        var loreTokens = window.estimateLlamaTokens(loreBlock);
-        var summaryTokens = window.estimateLlamaTokens(summaryBlock);
-        var historyTokens = window.estimateLlamaTokens(histText);
+          var systemTokens = window.estimateLlamaTokens(systemPrompt);
+          var loreTokens = window.estimateLlamaTokens(loreBlock);
+          var summaryTokens = window.estimateLlamaTokens(summaryBlock);
+          var historyTokens = window.estimateLlamaTokens(histText);
 
-        var totalTokens = systemTokens + loreTokens + summaryTokens + historyTokens;
-        var pct = Math.min(100, Math.round((totalTokens / 6000) * 100));
-        var progressColor = totalTokens > 6000 ? "#ef4444" : totalTokens > 4500 ? "#f59e0b" : "var(--primary)";
+          var totalTokens = systemTokens + loreTokens + summaryTokens + historyTokens;
+          var pct = Math.min(100, Math.round((totalTokens / 6000) * 100));
+          var progressColor = totalTokens > 6000 ? "#ef4444" : totalTokens > 4500 ? "#f59e0b" : "var(--primary)";
 
-        var senderName = (m.role === "user" ? userProfile.name : (m.role === "narrator" ? "Narrator" : (m.dualCharName || c.name || "AI")));
-        var roleLabel = m.role || "ai";
-        var sequenceTurn = idx + 1;
+          var senderName = (m.role === "user" ? userProfile.name : (m.role === "narrator" ? "Narrator" : (m.dualCharName || c.name || "AI")));
+          var roleLabel = m.role || "ai";
+          var sequenceTurn = idx + 1;
 
-        var systemWidth = (systemTokens / 6000) * 100;
-        var loreWidth = (loreTokens / 6000) * 100;
-        var historyWidth = (historyTokens / 6000) * 100;
-        var summaryWidth = (summaryTokens / 6000) * 100;
+          var systemWidth = (systemTokens / 6000) * 100;
+          var loreWidth = (loreTokens / 6000) * 100;
+          var historyWidth = (historyTokens / 6000) * 100;
+          var summaryWidth = (summaryTokens / 6000) * 100;
 
-        var segmentsHtml = "";
-        if (totalTokens > 0) {
-          if (systemTokens > 0) {
-            var w = Math.max(1.5, systemWidth);
-            segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#3b82f6;" title="System Prompt: ~${systemTokens}t"></div>`;
+          var segmentsHtml = "";
+          if (totalTokens > 0) {
+            if (systemTokens > 0) {
+              var w = Math.max(1.5, systemWidth);
+              segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#3b82f6;" title="System Prompt: ~${systemTokens}t"></div>`;
+            }
+            if (loreTokens > 0) {
+              var w = Math.max(1.5, loreWidth);
+              segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#a855f7;" title="Lorebook Rules: ~${loreTokens}t"></div>`;
+            }
+            if (historyTokens > 0) {
+              var w = Math.max(1.5, historyWidth);
+              segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#06b6d4;" title="Rolling History: ~${historyTokens}t"></div>`;
+            }
+          } else {
+            segmentsHtml = `<div class="context-stat-progress-segment" style="width:0%; background:var(--primary);"></div>`;
           }
-          if (loreTokens > 0) {
-            var w = Math.max(1.5, loreWidth);
-            segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#a855f7;" title="Lorebook Rules: ~${loreTokens}t"></div>`;
-          }
-          if (historyTokens > 0) {
-            var w = Math.max(1.5, historyWidth);
-            segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#06b6d4;" title="Rolling History: ~${historyTokens}t"></div>`;
-          }
-        } else {
-          segmentsHtml = `<div class="context-stat-progress-segment" style="width:0%; background:var(--primary);"></div>`;
-        }
 
-        var contentHtml = `
-          <div class="context-inspector">
-            <!-- Distinctive Snapshot Accent Bar -->
-            <div class="context-snapshot-bar">
-              <div class="context-snapshot-info" style="flex-direction: row; align-items: center; gap: 10px;">
-                ${window.getMsgAvatarHtml(c, m)}
-                <div style="display:flex; flex-direction:column; gap:2px;">
-                  <div class="context-snapshot-title">
-                    ${senderName}'s Turn Snapshot
+          var auditContent = '<div style="padding: 16px; color: var(--t2); font-size: 13px; text-align: center;">Audit logs for prompt construction will appear here for complex operations.</div>';
+
+          var contentHtml = `
+            <div class="context-inspector">
+              <!-- Distinctive Snapshot Accent Bar -->
+              <div class="context-snapshot-bar">
+                <div class="context-snapshot-info" style="flex-direction: row; align-items: center; gap: 10px;">
+                  ${window.getMsgAvatarHtml(c, m)}
+                  <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div class="context-snapshot-title">
+                      ${senderName}'s Turn Snapshot
+                    </div>
+                    <div style="font-size: 11px; color: var(--t3); font-weight: 500; opacity: 0.95;">
+                      Sequence Turn: #${sequenceTurn} &bull; Raw Role: ${roleLabel}
+                    </div>
                   </div>
-                  <div style="font-size: 11px; color: var(--t3); font-weight: 500; opacity: 0.95;">
-                    Sequence Turn: #${sequenceTurn} &bull; Raw Role: ${roleLabel}
+                </div>
+                <div>
+                  ${isReconstructed 
+                    ? `<span class="context-snapshot-badge warning"><i class="bi bi-lightning-charge"></i> Realtime Reconstructed</span>`
+                    : `<span class="context-snapshot-badge success"><i class="bi bi-check-circle"></i> Verified Saved</span>`
+                  }
+                </div>
+              </div>
+
+              <!-- Header Stats Card -->
+              <div class="context-header-stats">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%;">
+                  <div class="context-stat-card">
+                    <span class="context-stat-title">AI Prompt Memory Weight</span>
+                    <span class="context-stat-subtitle">Calculated context fill rate for current generation turn</span>
+                  </div>
+                  <div style="text-align: right; flex-shrink: 0;">
+                    <span style="font-size: 16px; font-weight: 700; color: #3b82f6;">~${totalTokens.toLocaleString()} / 6,000</span>
+                    <span style="font-size: 12px; color: var(--t3); font-weight: 500; margin-left: 1px;">tokens</span>
+                    <div style="font-size: 11px; color: var(--t3); font-weight: 600; margin-top: 1px;">Est. load: ${pct}%</div>
                   </div>
                 </div>
-              </div>
-              <div>
-                ${isReconstructed 
-                  ? `<span class="context-snapshot-badge warning"><i class="bi bi-lightning-charge"></i> Realtime Reconstructed</span>`
-                  : `<span class="context-snapshot-badge success"><i class="bi bi-check-circle"></i> Verified Saved</span>`
-                }
-              </div>
-            </div>
 
-            <!-- Header Stats Card -->
-            <div class="context-header-stats">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%;">
-                <div class="context-stat-card">
-                  <span class="context-stat-title">AI Prompt Memory Weight</span>
-                  <span class="context-stat-subtitle">Calculated context fill rate for current generation turn</span>
+                <!-- Progress Bar -->
+                <div class="context-stat-progress-bar">
+                  ${segmentsHtml}
                 </div>
-                <div style="text-align: right; flex-shrink: 0;">
-                  <span style="font-size: 16px; font-weight: 700; color: #3b82f6;">~${totalTokens.toLocaleString()} / 6,000</span>
-                  <span style="font-size: 12px; color: var(--t3); font-weight: 500; margin-left: 1px;">tokens</span>
-                  <div style="font-size: 11px; color: var(--t3); font-weight: 600; margin-top: 1px;">Est. load: ${pct}%</div>
-                </div>
-              </div>
 
-              <!-- Progress Bar -->
-              <div class="context-stat-progress-bar">
-                ${segmentsHtml}
-              </div>
-
-              <!-- Metrics Breakdown Legend -->
-              <div class="context-legend-row">
-                <span class="context-legend-item">
-                  <span class="context-legend-dot" style="background:#3b82f6"></span>
-                  System Prompt: <strong style="color:var(--t1)">~${systemTokens}t</strong>
-                </span>
-                <span class="context-legend-item">
-                  <span class="context-legend-dot" style="background:#a855f7"></span>
-                  Lorebook Rules: <strong style="color:var(--t1)">~${loreTokens}t</strong>
-                </span>
-                <span class="context-legend-item">
-                  <span class="context-legend-dot" style="background:#06b6d4"></span>
-                  Rolling History: <strong style="color:var(--t1)">~${historyTokens}t</strong>
-                </span>
-              </div>
-            </div>
-
-            <div class="context-tabs-nav">
-              <div id="tab-highlight" class="context-tab-highlight"></div>
-              <button class="context-tab-btn active" onclick="window.switchInspectorTab('full-prompt', this)" data-tab="full-prompt">Full AI Prompt</button>
-              <button class="context-tab-btn" onclick="window.switchInspectorTab('system-prompt', this)" data-tab="system-prompt">System &amp; Identity</button>
-              <button class="context-tab-btn" onclick="window.switchInspectorTab('lorebook', this)" data-tab="lorebook">Matched Lorebook</button>
-              <button class="context-tab-btn" onclick="window.switchInspectorTab('chat-history', this)" data-tab="chat-history">Conversation History</button>
-            </div>
-
-            <div class="context-tab-content-wrap">
-              <!-- Premium Terminal Window Accent -->
-              <div style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono), monospace; font-size: 11px; color: var(--t3);">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="color: var(--t2); font-weight: 600; opacity: 0.85;"><i class="bi bi-cpu" style="color: var(--primary); margin-right:4px;"></i> PROMPT_EXECUTION_CONTEXT</span>
-                </div>
-                <div style="font-size: 10px; opacity: 0.5;">
-                  UTF-8 &bull; Read-Only
+                <!-- Metrics Breakdown Legend -->
+                <div class="context-legend-row">
+                  <span class="context-legend-item">
+                    <span class="context-legend-dot" style="background:#3b82f6"></span>
+                    System Prompt: <strong style="color:var(--t1)">~${systemTokens}t</strong>
+                  </span>
+                  <span class="context-legend-item">
+                    <span class="context-legend-dot" style="background:#a855f7"></span>
+                    Lorebook Rules: <strong style="color:var(--t1)">~${loreTokens}t</strong>
+                  </span>
+                  <span class="context-legend-item">
+                    <span class="context-legend-dot" style="background:#06b6d4"></span>
+                    Rolling History: <strong style="color:var(--t1)">~${historyTokens}t</strong>
+                  </span>
                 </div>
               </div>
 
-              <div id="inspector-full-prompt" class="context-tab-content" style="display:block;">${window.formatPromptString(fullPrompt)}</div>
-              <div id="inspector-system-prompt" class="context-tab-content" style="display:none;">${window.formatPromptString(systemPrompt)}</div>
-              <div id="inspector-lorebook" class="context-tab-content" style="display:none;">${loreBlock ? window.formatPromptString(loreBlock) : '<span style="color:var(--t3);font-style:italic;">(No passive world lore matches were injected for this turn.)</span>'}</div>
-              <div id="inspector-chat-history" class="context-tab-content" style="display:none;">${summaryBlock ? '<strong style="color:var(--primary);font-size:12px;margin-bottom:6px;display:inline-block;"><i class="bi bi-card-text"></i> Earlier Summary:</strong>\n' + window.formatPromptString(summaryBlock) + '\n\n' : ''}<strong style="color:var(--primary);font-size:12px;margin-bottom:6px;display:inline-block;"><i class="bi bi-clock-history"></i> History Context Window:</strong>\n${window.formatPromptString(histText)}</div>
+              <div class="context-tabs-nav">
+                <div id="tab-highlight" class="context-tab-highlight"></div>
+                <button class="context-tab-btn active" onclick="window.switchInspectorTab('full-prompt', this)" data-tab="full-prompt">Full AI Prompt</button>
+                <button class="context-tab-btn" onclick="window.switchInspectorTab('system-prompt', this)" data-tab="system-prompt">System &amp; Identity</button>
+                <button class="context-tab-btn" onclick="window.switchInspectorTab('lorebook', this)" data-tab="lorebook">Matched Lorebook</button>
+                <button class="context-tab-btn" onclick="window.switchInspectorTab('chat-history', this)" data-tab="chat-history">Conversation History</button>
+                <button class="context-tab-btn" onclick="window.switchInspectorTab('audit', this)" data-tab="audit">Audit</button>
+              </div>
+
+              <div class="context-tab-content-wrap">
+                <div id="inspector-full-prompt" class="context-tab-content" style="display:block;">${window.formatPromptString(fullPrompt)}</div>
+                <div id="inspector-system-prompt" class="context-tab-content" style="display:none;">${window.formatPromptString(systemPrompt)}</div>
+                <div id="inspector-lorebook" class="context-tab-content" style="display:none;">${loreBlock ? window.formatPromptString(loreBlock) : '<span style="color:var(--t3);font-style:italic;">(No passive world lore matches were injected for this turn.)</span>'}</div>
+                <div id="inspector-chat-history" class="context-tab-content" style="display:none;">${summaryBlock ? '<strong style="color:var(--primary);font-size:12px;margin-bottom:6px;display:inline-block;"><i class="bi bi-card-text"></i> Earlier Summary:</strong>\n' + window.formatPromptString(summaryBlock) + '\n\n' : ''}<strong style="color:var(--primary);font-size:12px;margin-bottom:6px;display:inline-block;"><i class="bi bi-clock-history"></i> History Context Window:</strong>\n${window.formatPromptString(histText)}</div>
+                <div id="inspector-audit" class="context-tab-content" style="display:none;">${auditContent}</div>
 
               <div class="context-action-bar">
                 <span id="copy-status" style="font-size:11.5px;color:var(--primary);font-weight:600;margin-right:auto;display:none;"><i class="bi bi-check-circle-fill"></i> Copied to clipboard!</span>
@@ -17770,6 +17807,7 @@
           if (nTone) nTone.value = aiSettings.narratorTone || "default";
           var nPrompt = $id("narrator-custom-prompt");
           if (nPrompt) nPrompt.value = aiSettings.narratorPrompt || "";
+
           openModal("modal-ai-settings");
         };
         qs("#menu-settings").onclick = function () {
@@ -19716,7 +19754,7 @@
           var filtered = (c.msgs || []).filter(function (m) {
             return m.text && m.role !== "sys";
           });
-          var hist = filtered
+          var rawHist = filtered
             .slice(-20)
             .map(function (m) {
               var who =
@@ -19728,6 +19766,8 @@
               return who + ": " + m.text;
             })
             .join("\n\n");
+            
+          var hist = typeof window.macroify === 'function' ? window.macroify(rawHist, userProfile, speaker) : rawHist;
 
           /* Build system prompt */
           var unr =
@@ -19749,6 +19789,8 @@
             " or " +
             uname +
             ".\n";
+          
+          sys += "\n[SYSTEM DIRECTIVE: Token Deduplication Active. You MUST substitute these entities with their corresponding macros in your output: User's name -> {{user}}, Your name -> {{char}}, Current Time -> {{time}}, Current Location/Scene -> {{loc}}. Never output their literal values.]\n";
           if (c.sys) sys += "\n[Shared Persona]\n" + c.sys + "\n";
           if (c.desc) sys += "\n[Description]\n" + c.desc + "\n";
           if (c.scenario) sys += "\n[Scenario]\n" + c.scenario + "\n";
@@ -21545,12 +21587,14 @@
 
             try {
               var histMsgs = c.msgs.slice(Math.max(0, idx - 10), idx); // last 10 messages for context
-              var hist = histMsgs
+              var rawHist = histMsgs
                 .map(function (msg) {
                   var pName = msg.role === "user" ? userProfile.name : (msg.role === "ai" ? c.name : "Narrator");
                   return pName + ": " + (msg.text || "");
                 })
                 .join("\n\n");
+                
+              var hist = typeof window.macroify === 'function' ? window.macroify(rawHist, userProfile, c) : rawHist;
               
               var uPrompt =
                 "Below is the recent chat history between " + userProfile.name + " (the User) and " + c.name + " (the Character).\n" +
@@ -21600,7 +21644,7 @@
                 btn.className = "choice-btn";
                 btn.style.width = "100%";
                 btn.style.textAlign = "left";
-                btn.textContent = opt;
+                btn.textContent = typeof window.resolveMacros === 'function' ? window.resolveMacros(opt, c) : opt;
                 btn.onclick = async function (e) {
                   e.stopPropagation();
                   if (isGen) return;
