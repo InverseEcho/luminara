@@ -6778,14 +6778,9 @@
       .context-stat-progress-segment {
         height: 100%;
         border-radius: 9999px;
-        flex-shrink: 1;
-        min-width: 1px;
+        flex-shrink: 0;
+        min-width: 3px;
         transition: width var(--trans-hover);
-      }
-      .context-stat-progress-segment.unfilled {
-        background: var(--bg-1, rgba(255, 255, 255, 0.05));
-        border: 1px dashed var(--border);
-        opacity: 0.6;
       }
       .context-legend-row {
         display: flex;
@@ -7438,14 +7433,13 @@
       .ctx-v2-overview-unit { font-size: 13px; color: var(--t3); font-weight: 600; }
       .ctx-v2-overview-label { font-size: 12px; color: var(--t3); font-weight: 500; margin-left: auto; }
       .ctx-v2-overview-bar {
-        height: 14px;
-        background: var(--bg-3, rgba(0,0,0,0.2));
-        border: 1.5px solid var(--border);
+        height: 12px;
+        background: var(--bg-1, rgba(0,0,0,0.25));
         border-radius: 99px;
         overflow: hidden;
         display: flex;
         gap: 2px;
-        padding: 2px;
+        padding: 1px;
         box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
       }
       .ctx-v2-overview-legend {
@@ -8373,7 +8367,8 @@
       </div>
       <div class="ctx-divider"></div>
       <div class="ctx-item" id="ctx-cognitive-memory">
-        <i class="bi bi-brain"></i> Memory
+        <i class="bi bi-brain"></i>
+        Memory
       </div>
       <div class="ctx-divider"></div>
       <div class="ctx-item" id="ctx-clear-chat">
@@ -10617,7 +10612,6 @@
           "French",
           "German",
           "Portuguese",
-          "Italian",
           "Japanese",
           "Korean",
           "Russian",
@@ -15963,13 +15957,8 @@
               var w = Math.max(1.5, summaryWidth);
               segmentsHtml += `<div class="context-stat-progress-segment" style="width:${w}%; background:#f59e0b;" title="Summary: ~${summaryTokens}t"></div>`;
             }
-            if (totalTokens < 6000) {
-              var availTokens = 6000 - totalTokens;
-              var w = (availTokens / 6000) * 100;
-              segmentsHtml += `<div class="context-stat-progress-segment unfilled" style="width:${w}%;" title="Available Capacity: ~${availTokens}t"></div>`;
-            }
           } else {
-            segmentsHtml = `<div class="context-stat-progress-segment unfilled" style="width:100%;" title="Available Capacity: 6,000t"></div>`;
+            segmentsHtml = `<div class="context-stat-progress-segment" style="width:0%; background:var(--primary);"></div>`;
           }
 
           // ── Cognitive Machine status for this turn ──
