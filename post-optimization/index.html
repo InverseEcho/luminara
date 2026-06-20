@@ -7,11 +7,8 @@
 
     <!-- Dexie.js for IndexedDB async storage (replaces localStorage) -->
     <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.min.js"></script>
-    <!-- Xenova/Transformers for real WASM-based semantic embeddings -->
-    <script type="module">
-      import * as transformers from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.14.0/dist/transformers.min.js';
-      window.transformers = transformers;
-    </script>
+    <!-- Xenova/Transformers is loaded via dynamic ESM import() at runtime
+         (not a classic script tag — it uses ES module 'export' syntax) -->
     <style>
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap");
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css"); /* bootstrap icon*/
@@ -7247,6 +7244,14 @@ html[data-perf="on"] *::after {
 
 /* ── Action buttons ── */
 .cog-actions { display: flex; gap: 8px; justify-content: flex-end; padding-top: 4px; }
+.cog-actions-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
 .cog-btn {
   display: inline-flex;
   align-items: center;
@@ -8354,6 +8359,7 @@ html[data-perf="on"] *::after {
                     placeholder="Message…"
                     style="flex:1; background:transparent; border:none; padding:0; margin:0; outline:none; color:var(--t0); min-width: 0;"
                   ></textarea>
+                  <div id="chat-input-preview" style="display:none; padding:6px 10px; background:var(--bg-2); border:1px solid var(--border); border-radius:var(--r-sm); margin-top:4px; font-size:13px; line-height:1.5; max-height:100px; overflow-y:auto; color:var(--t1); white-space:pre-wrap;"></div>
                 </div>
               </div>
             </div>
@@ -8425,7 +8431,7 @@ html[data-perf="on"] *::after {
       </div>
       <div class="ctx-divider"></div>
       <div class="ctx-item" id="ctx-cognitive-memory">
-        <i class="bi bi-brain"></i> Memory
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0;color:var(--t2);"><path d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/></svg> Memory
       </div>
       <div class="ctx-divider"></div>
       <div class="ctx-item" id="ctx-clear-chat">
@@ -9101,7 +9107,7 @@ html[data-perf="on"] *::after {
             </div>
             <div class="form-switch">
               <div>
-                <div class="sw-label-title" style="display:flex;align-items:center;gap:6px;"><i class="bi bi-brain" style="color:var(--primary);font-size:15px"></i> Cognitive Memory Machine</div>
+                <div class="sw-label-title" style="display:flex;align-items:center;gap:6px;"><i class="bi bi-diagram-3" style="color:var(--primary);font-size:15px"></i> Cognitive Memory Machine</div>
                 <div class="sw-label-sub">Smart compression, salience pinning &amp; hybrid RAG — keeps infinite-context continuity under a 6K token ceiling</div>
               </div>
               <div class="sw-track on" id="cognitive-memory-toggle">
@@ -10619,7 +10625,12 @@ function applyActionPlacement() {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// INFRASTRUCTURE: Dexie IndexedDB, Xenova WASM Embeddings, Web Worker,
+// LUMINARA INFRASTRUCTURE NAMESPACE (self-contained IIFE)
+// All mathematical formulas, helpers, PruneWorkers, IndexedDB wrappers,
+// and WASM initializers live here protected from global scope pollution.
+// Public API exposed via window.LuminaraInfra for backward compatibility.
+// ══════════════════════════════════════════════════════════════════════
+window.LuminaraInfra = (function () {
 // Macro Interceptors — the high-performance local AI client backbone.
 // ══════════════════════════════════════════════════════════════════════
 
@@ -10694,18 +10705,22 @@ var dbKV = {
   },
 };
 
-// ── Vector store (Dexie-backed for large Float32Arrays) ──
+// ── Vector store (Dexie-backed — stores Float32Array natively) ──
+// IndexedDB natively supports storing TypedArrays (Float32Array) as binary
+// blobs. We store the vector directly without Array.from() conversion,
+// halving storage footprint and eliminating CPU overhead from back-and-
+// forth array casing.
 var VectorStore = {
   put: async function (entry) {
     if (!_dexieReady || !lumidb) return;
     try {
-      // Store the vector as a regular array (IndexedDB can't store typed arrays reliably)
       var storable = {
         id: entry.id,
         characterId: entry.characterId,
         text: entry.text,
         raw: entry.raw || null,
-        vectorArray: Array.from(entry.embedding),
+        // Store Float32Array directly — IndexedDB handles it natively
+        vector: entry.embedding instanceof Float32Array ? entry.embedding : new Float32Array(entry.embedding || []),
         metadata: entry.metadata || {},
         epoch: entry.epoch || Date.now(),
         source: entry.source || "evicted-chat",
@@ -10713,18 +10728,44 @@ var VectorStore = {
         archetype: entry.archetype || null,
       };
       await lumidb.vectors.put(storable);
-    } catch (e) { console.error("[VectorStore.put]", e); }
+    } catch (e) {
+      // Fallback: if native TypedArray storage fails, use array conversion
+      try {
+        var fallback = {
+          id: entry.id,
+          characterId: entry.characterId,
+          text: entry.text,
+          raw: entry.raw || null,
+          vectorArray: Array.from(entry.embedding || []),
+          metadata: entry.metadata || {},
+          epoch: entry.epoch || Date.now(),
+          source: entry.source || "evicted-chat",
+          salience: entry.salience || 4,
+          archetype: entry.archetype || null,
+        };
+        await lumidb.vectors.put(fallback);
+      } catch (e2) { console.error("[VectorStore.put]", e2); }
+    }
   },
   getAll: async function (characterId) {
     if (!_dexieReady || !lumidb) return [];
     try {
       var all = await lumidb.vectors.where("characterId").equals(characterId).toArray();
       return all.map(function (r) {
+        // Handle both native Float32Array and legacy array storage
+        var emb = null;
+        if (r.vector instanceof Float32Array) {
+          emb = r.vector;
+        } else if (r.vectorArray) {
+          emb = new Float32Array(r.vectorArray);
+        } else if (Array.isArray(r.vector)) {
+          emb = new Float32Array(r.vector);
+        }
         return {
           id: r.id,
           text: r.text,
           raw: r.raw,
-          embedding: r.vectorArray ? new Float32Array(r.vectorArray) : null,
+          embedding: emb,
           metadata: r.metadata,
           epoch: r.epoch,
           source: r.source,
@@ -11093,22 +11134,33 @@ function getPruneWorker() {
     "    if (historicEntries[pi].pinned) pinned.push({ id: historicEntries[pi].id, score: historicEntries[pi].score, preview: (historicEntries[pi].msg.text||'').slice(0,60) });",
     "  }",
     "",
-    "  // 5. RAG rehydration using real vectors",
+    "  // 5. RAG rehydration using real vectors + recency-relevance biasing",
     "  var rehydrated = [];",
     "  var lastUserMsg = '';",
     "  for (var lu = allMsgs.length - 1; lu >= 0; lu--) {",
     "    if (allMsgs[lu].role === 'user') { lastUserMsg = allMsgs[lu].text || ''; break; }",
     "  }",
     "  if (lastUserMsg && vectors && vectors.length > 0) {",
-    "    // The user's vector is pre-computed on the main thread (Xenova WASM)",
-    "    // and passed in d.userVector. We do cosine similarity here.",
-    "    var userVec = d_userVec; // injected from message",
+    "    var userVec = d_userVec;",
     "    if (userVec) {",
+    "      // ── Hybrid Recency-Relevance Biasing (α = 0.85) ──",
+    "      // Pure cosine similarity can pull deep-past memories that crowd out",
+    "      // recent context essential for short-term narrative flow. We blend:",
+    "      //   finalScore = (relevance * α) + (recencyBoost * (1-α))",
+    "      // where recencyBoost = 1 / (1 + ageDelta) and ageDelta is the message",
+    "      // index delta between the evicted memory and the current turn.",
+    "      var ALPHA = 0.85;",
+    "      var currentEpoch = (cog.turnCount || 0);",
     "      var scored = vectors.map(function(v) {",
     "        if (!v.embedding) return { entry: v, score: 0 };",
     "        var s = 0;",
     "        for (var i = 0; i < v.embedding.length && i < userVec.length; i++) s += v.embedding[i] * userVec[i];",
-    "        return { entry: v, score: s };",
+    "        // Recency boost: newer evicted memories get a slight edge",
+    "        var vEpoch = v.epoch || 0;",
+    "        var ageDelta = Math.max(0, currentEpoch - vEpoch);",
+    "        var recencyBoost = 1 / (1 + ageDelta * 0.01); // gentle decay",
+    "        var finalScore = (s * ALPHA) + (recencyBoost * (1 - ALPHA));",
+    "        return { entry: v, score: finalScore, semScore: s, recency: recencyBoost };",
     "      });",
     "      scored.sort(function(a,b){return b.score - a.score;});",
     "      rehydrated = scored.slice(0, 3).filter(function(s){return s.score > 0.6;}).map(function(r){",
@@ -11263,21 +11315,50 @@ function assembleViaWorker(msgs, cog, charName, userName, topicWords, vectors, m
 // full proper noun. This saves 3-4 tokens per occurrence across long
 // campaigns where "Eldoria, The Drowned Capital" appears hundreds of times.
 var MacroInterceptor = {
-  // Build/update the macro table for a character from recent messages
+  // Build/update the macro table for a character from recent messages.
+  // SMART DETECTION: Only macro TRUE proper nouns — words that:
+  //  (a) Are NOT the character's own name or user's name (those use {{char}}/{{user}})
+  //  (b) Appear capitalized MID-sentence (not just at line/sentence start)
+  //  (c) Never appear in lowercase (if "suddenly" appears lowercase, it's
+  //      a common word, not a proper noun — even if "Suddenly" starts sentences)
+  //  (d) Are NOT common sentence-starting adverbs/adjectives
   buildMacroTable: function (c, allMsgs) {
     if (!c.cognitive) c.cognitive = {};
     if (!c.cognitive.macros) c.cognitive.macros = {};
     var macros = c.cognitive.macros;
-    // Count proper-noun phrase occurrences across all messages
+    var charName = (c.name || "").toLowerCase();
+    var userName = "";
+    try { userName = (userProfile.name || "").toLowerCase(); } catch (e) {}
+
     var counts = {};
     var scanText = allMsgs.slice(-50).map(function (m) { return m.text || ""; }).join(" ");
-    // Match multi-word capitalized phrases (e.g., "Crimson Orb", "Shadow Guild", "Marcus")
+    var lowerScan = scanText.toLowerCase();
+
+    // Match capitalized phrases
     var phrases = scanText.match(/\b([A-Z][a-z]{2,}(?:\s+(?:of|the|de|von|le)\s+|[A-Z][a-z]{2,}\s*){0,3})\b/g) || [];
     for (var i = 0; i < phrases.length; i++) {
       var p = phrases[i].trim();
       if (p.length < 4) continue;
-      // Skip common sentence-starting words (not proper nouns)
-      var common = { The:1,This:1,That:1,Then:1,When:1,Where:1,What:1,How:1,Why:1,Yes:1,No:1,But:1,And:1,Now:1,Stay:1,Let:1,Look:1,Wait:1,Come:1,Go:1,Get:1,Take:1,Give:1,Tell:1,Said:1,Says:1,Say:1,Do:1,Did:1,Does:1,Have:1,Has:1,Had:1,Will:1,Would:1,Could:1,Should:1,Can:1,May:1,Might:1,Must:1,Is:1,Are:1,Was:1,Were:1,Be:1,Been:1,Being:1,I:1,You:1,He:1,She:1,It:1,We:1,They:1,His:1,Her:1,Their:1,Its:1,Our:1,My:1,Your:1,There:1,Here:1,So:1,Or:1,If:1,As:1,At:1,In:1,On:1,To:1,Of:1,For:1,With:1,From:1,By:1,An:1,A:1,Well:1,Oh:1,Ah:1,Yeah:1,Nope:1,Sure:1,Right:1,Okay:1,Ok:1,Good:1,Bad:1,Fine:1,Cool:1,Nice:1,Great:1,Thanks:1,Please:1,Sorry:1,Draw:1,Step:1,Turn:1,Move:1,Run:1,Walk:1,Stand:1,Sit:1,Hold:1,Keep:1,Try:1,Call:1,Make:1,Put:1,Set:1,Find:1,Show:1,Know:1,Think:1,Feel:1,See:1,Heard:1,Hear:1,Listen:1,Watch:1,Touch:1,Grab:1,Pull:1,Push:1,Open:1,Close:1,Lock:1,Unlock:1 };
+
+      // Skip the character's own name — the AI must always understand its identity
+      if (p.toLowerCase() === charName) continue;
+      // Skip the user's name — handled by {{user}} already
+      if (p.toLowerCase() === userName) continue;
+
+      // SMART CHECK: if this word EVER appears in the original text with a
+      // LOWERCASE first letter, it's a common word (adverb, adjective, verb)
+      // — NOT a proper noun. This catches "Suddenly", "Stupid", etc. that
+      // are only capitalized at sentence start but appear lowercase elsewhere.
+      // We check the ORIGINAL text (case-sensitive), not the lowercased version.
+      var pLower = p.toLowerCase();
+      if (p.indexOf(" ") === -1) {
+        // Single-word: check if lowercase version appears in original text
+        var lowerRe = new RegExp("\\b" + pLower.charAt(0).toLowerCase() + pLower.slice(1) + "\\b", "");
+        if (lowerRe.test(scanText)) continue; // lowercase form exists → common word
+      }
+
+      // Skip known common sentence-starting words
+      var common = { The:1,This:1,That:1,Then:1,When:1,Where:1,What:1,How:1,Why:1,Yes:1,No:1,But:1,And:1,Now:1,Stay:1,Let:1,Look:1,Wait:1,Come:1,Go:1,Get:1,Take:1,Give:1,Tell:1,Said:1,Says:1,Say:1,Do:1,Did:1,Does:1,Have:1,Has:1,Had:1,Will:1,Would:1,Could:1,Should:1,Can:1,May:1,Might:1,Must:1,Is:1,Are:1,Was:1,Were:1,Be:1,Been:1,Being:1,I:1,You:1,He:1,She:1,It:1,We:1,They:1,His:1,Her:1,Their:1,Its:1,Our:1,My:1,Your:1,There:1,Here:1,So:1,Or:1,If:1,As:1,At:1,In:1,On:1,To:1,Of:1,For:1,With:1,From:1,By:1,An:1,A:1,Well:1,Oh:1,Ah:1,Yeah:1,Nope:1,Sure:1,Right:1,Okay:1,Ok:1,Good:1,Bad:1,Fine:1,Cool:1,Nice:1,Great:1,Thanks:1,Please:1,Sorry:1,Draw:1,Step:1,Turn:1,Move:1,Run:1,Walk:1,Stand:1,Sit:1,Hold:1,Keep:1,Try:1,Call:1,Make:1,Put:1,Set:1,Find:1,Show:1,Know:1,Think:1,Feel:1,See:1,Heard:1,Hear:1,Listen:1,Watch:1,Touch:1,Grab:1,Pull:1,Push:1,Open:1,Close:1,Lock:1,Unlock:1,Suddenly:1,Stupid:1,Finally:1,Quickly:1,Slowly:1,Carefully:1,Quietly:1,Gently:1,Softly:1,Loudly:1,Hardly:1,Barely:1,Almost:1,Maybe:1,Perhaps:1,Probably:1,Definitely:1,Absolutely:1,Completely:1,Totally:1,Exactly:1,Actually:1,Really:1,Very:1,Just:1,Only:1,Even:1,Still:1,Also:1,Too:1,Either:1,Neither:1,Both:1,Each:1,Every:1,Some:1,Any:1,All:1,None:1,Few:1,Many:1,Much:1,More:1,Most:1,Less:1,Least:1,Other:1,Another:1,Such:1,Same:1,Different:1,New:1,Old:1,Big:1,Small:1,Large:1,Little:1,Long:1,Short:1,High:1,Low:1,Far:1,Near:1,Next:1,Last:1,First:1,Second:1,Third:1,Once:1,Twice:1,Again:1,Always:1,Never:1,Sometimes:1,Usually:1,Often:1,Seldom:1,Rarely:1,Soon:1,Late:1,Early:1,Today:1,Tomorrow:1,Yesterday:1,Tonight:1,Morning:1,Evening:1,Afternoon:1,Night:1,Day:1,Week:1,Month:1,Year:1 };
       if (common[p]) continue;
       counts[p] = (counts[p] || 0) + 1;
     }
@@ -11310,7 +11391,7 @@ var MacroInterceptor = {
     for (var key in macros) {
       var phrase = macros[key];
       // Use a global regex to replace all occurrences
-      var escPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      var escPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\\\$&");
       result = result.replace(new RegExp("\\b" + escPhrase + "\\b", "g"), "{{" + key + "}}");
     }
     return result;
@@ -11329,6 +11410,35 @@ var MacroInterceptor = {
 
 // Initialize infrastructure on script load
 initDexie();
+
+// ── Public API ──
+return {
+  lumidb: lumidb,
+  dbKV: dbKV,
+  VectorStore: VectorStore,
+  getXenovaPipeline: getXenovaPipeline,
+  realEmbed: realEmbed,
+  fakeEmbed: fakeEmbed,
+  cosineSim: cosineSim,
+  getPruneWorker: getPruneWorker,
+  assembleViaWorker: assembleViaWorker,
+  MacroInterceptor: MacroInterceptor,
+  initDexie: initDexie,
+};
+})(); // ── End LuminaraInfra IIFE ──
+
+// Backward-compat aliases (so existing code that references these directly
+// still works after the namespace segregation)
+var lumidb = window.LuminaraInfra.lumidb;
+var dbKV = window.LuminaraInfra.dbKV;
+var VectorStore = window.LuminaraInfra.VectorStore;
+var getXenovaPipeline = window.LuminaraInfra.getXenovaPipeline;
+var realEmbed = window.LuminaraInfra.realEmbed;
+var fakeEmbed = window.LuminaraInfra.fakeEmbed;
+var cosineSim = window.LuminaraInfra.cosineSim;
+var getPruneWorker = window.LuminaraInfra.getPruneWorker;
+var assembleViaWorker = window.LuminaraInfra.assembleViaWorker;
+var MacroInterceptor = window.LuminaraInfra.MacroInterceptor;
 
 
 var chars = [
@@ -13249,10 +13359,8 @@ function buildActionsHtml(m, i) {
   var id = m.id || i;
   var div = '<span class="bact-divider"></span>';
 
-  // Group 1 — quick utility: Reply + Pin
+  // Group 1 — quick utility: Reply (Pin moved to "Other Options" menu)
   acts += '<button class="bact" title="Reply" onclick="startReply(\'' + id + '\')"><i class="bi bi-reply"></i></button>';
-  var pinClass = m.pinned ? " pinned" : "";
-  acts += '<button class="bact' + pinClass + '" title="' + (m.pinned ? "Unpin" : "Pin") + '" onclick="togglePinMsg(\'' + id + '\', event)"><i class="bi bi-pin-angle"></i></button>';
 
   acts += div; // ─── divider ───
 
@@ -15245,6 +15353,10 @@ var CognitiveMachine = (function () {
 
     var contentHtml =
       '<div class="cog-inspector">' +
+        '<div class="cog-actions-bar">' +
+          '<button class="cog-btn" onclick="CognitiveMachine.manualExtract()"><i class="bi bi-magic"></i> Extract Facts Now</button>' +
+          '<button class="cog-btn danger" onclick="CognitiveMachine.clearAll()"><i class="bi bi-trash"></i> Reset Memory</button>' +
+        '</div>' +
         pipelineHtml +
         '<div class="cog-stat-grid">' +
           '<div class="cog-stat-card"><div class="cog-stat-num" style="color:#f59e0b">' + pinnedCount + '</div><div class="cog-stat-lbl">Pinned Messages</div></div>' +
@@ -15270,15 +15382,11 @@ var CognitiveMachine = (function () {
           '<div id="cog-tab-vector" class="cog-tab-pane" style="display:none"><div class="cog-vector-list">' + vectorRowsHtml + '</div></div>' +
           '<div id="cog-tab-audit" class="cog-tab-pane" style="display:none"><div class="cog-audit-list">' + auditRowsHtml + '</div></div>' +
         '</div>' +
-        '<div class="cog-actions">' +
-          '<button class="cog-btn" onclick="CognitiveMachine.manualExtract()"><i class="bi bi-magic"></i> Extract Facts Now</button>' +
-          '<button class="cog-btn danger" onclick="CognitiveMachine.clearAll()"><i class="bi bi-trash"></i> Reset Memory</button>' +
-        '</div>' +
       '</div>';
 
     if (typeof showQuickDialog === "function") {
       showQuickDialog({
-        titleHTML: '<i class="bi bi-brain" style="font-size:16px;color:var(--primary);margin-right:6px"></i> Cognitive Memory — ' + escapeHtml(c.name),
+        titleHTML: '<i class="bi bi-diagram-3" style="font-size:16px;color:var(--primary);margin-right:6px"></i> Cognitive Memory — ' + escapeHtml(c.name),
         maxWidth: "820px",
         content: contentHtml,
         actions: [],
@@ -16662,8 +16770,7 @@ window.macroify = function(text, userProfile, c) {
   var uName = (userProfile && userProfile.name) ? userProfile.name : "User";
   var cName = (c && c.name) ? c.name : "Character";
   
-  function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-  
+  function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&'); }
   var textOut = text;
   if (uName && uName.toLowerCase() !== "user") {
     textOut = textOut.replace(new RegExp("\\b" + escapeRegExp(uName) + "\\b", 'gi'), "{{user}}");
@@ -16980,7 +17087,7 @@ window.viewGenContext = function (id) {
           '</div>' +
           '<div class="ctx-compare-arrow"><i class="bi bi-arrow-right-circle"></i></div>' +
           '<div class="ctx-compare-col cog">' +
-            '<div class="ctx-compare-col-hd"><i class="bi bi-brain"></i> With Cognitive Machine</div>' +
+            '<div class="ctx-compare-col-hd"><i class="bi bi-diagram-3"></i> With Cognitive Machine</div>' +
             '<div class="ctx-compare-col-sub">Smart pipeline, nothing lost</div>' +
             '<div class="ctx-compare-num">' + cogT + '<span>t</span></div>' +
             '<div class="ctx-compare-bar"><div class="ctx-compare-bar-fill cog" style="width:' + cogPct + '%"></div></div>' +
@@ -17003,7 +17110,7 @@ window.viewGenContext = function (id) {
             ${window.getMsgAvatarHtml(c, m)}
             <div class="ctx-v2-head-info">
               <div class="ctx-v2-title">${senderName}'s Generation Context</div>
-              <div class="ctx-v2-sub">Turn #${sequenceTurn} · ${roleLabel}${cogEnabled ? ' · <i class="bi bi-brain" style="color:var(--primary)"></i> Cognitive Machine active' : ' · <i class="bi bi-toggle-off" style="color:var(--t3)"></i> Cognitive Machine off'}</div>
+              <div class="ctx-v2-sub">Turn #${sequenceTurn} · ${roleLabel}${cogEnabled ? ' · <i class="bi bi-diagram-3" style="color:var(--primary)"></i> Cognitive Machine active' : ' · <i class="bi bi-toggle-off" style="color:var(--t3)"></i> Cognitive Machine off'}</div>
             </div>
           </div>
           <div class="ctx-v2-status">
@@ -17205,6 +17312,9 @@ window.openRegen = function (id) {
       "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');continueMsg('" +
       id +
       '\')"><i class="bi bi-chevron-double-right"></i>Continue\u2026</div>' +
+      "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');togglePinMsg('" +
+      id +
+      '\')"><i class="bi bi-bookmark-star"></i>Pin to Memory</div>' +
       "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');window.viewGenContext('" +
       id +
       '\')"><i class="bi bi-braces"></i>View Generational Context\u2026</div></div>',
@@ -17426,8 +17536,7 @@ window.updateChatSearchList = function () {
     
     var safeTruncated = escHtml(truncated);
     if (q !== "") {
-      var regex = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ")", "gi");
-      safeTruncated = safeTruncated.replace(regex, '<span style="color:var(--primary);font-weight:bold;">$1</span>');
+      var regex = new RegExp("(" + q.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + ")", "gi");
     }
     
     html += '<div style="padding:10px;background:var(--bg-2);border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:all var(--dur-micro) ease;" ' +
@@ -23191,6 +23300,54 @@ function bindEvents() {
             : "none";
       });
     } else slashPopup.classList.remove("show");
+
+    // ── Live Markdown Preview ──
+    // Show the user what **bold**, *italics*, and ****both**** look like
+    // as they type, so they can see formatting effects in real-time.
+    try {
+      var previewEl = $id("chat-input-preview");
+      if (previewEl && val.length > 0) {
+        var hasFormatting = /(\*\*|__|\*|_|~~)/.test(val);
+        if (hasFormatting) {
+          var previewHtml = val
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/__(.*?)__/g, "<strong>$1</strong>")
+            .replace(/\*(.*?)\*/g, "<em>$1</em>")
+            .replace(/_(.*?)_/g, "<em>$1</em>")
+            .replace(/~~(.*?)~~/g, "<s>$1</s>");
+          previewEl.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + previewHtml;
+          previewEl.style.display = "block";
+        } else {
+          // Check for macro hints
+          var activeChar = typeof getActive === "function" ? getActive() : null;
+          if (activeChar && activeChar.cognitive && activeChar.cognitive.macros) {
+            var macros = activeChar.cognitive.macros;
+            var macroHints = [];
+            for (var mk in macros) {
+              var phrase = macros[mk];
+              if (val.indexOf(phrase) !== -1) {
+                macroHints.push(phrase + " → {{" + mk + "}}");
+              }
+            }
+            if (macroHints.length > 0) {
+              previewEl.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
+                macroHints.map(function(h){ return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + '</span>'; }).join(" ");
+              previewEl.style.display = "block";
+            } else {
+              previewEl.style.display = "none";
+            }
+          } else {
+            previewEl.style.display = "none";
+          }
+        }
+      } else if (previewEl) {
+        previewEl.style.display = "none";
+      }
+    } catch (previewErr) {
+      // Silently ignore preview errors — don't block the input handler
+    }
   });
   chatInput.addEventListener("keydown", function (e) {
     if (e.key === "Backspace" && this.value === "" && window.activeSlashCommand) {
@@ -23353,6 +23510,57 @@ async function init() {
   }
   bindEvents();
   renderMsgs();
+
+  // ── Live Markdown Preview + Macro Hints ──
+  // Attached here (in init) to ensure the DOM is ready and this runs
+  // before any patch code that might stop event propagation.
+  setTimeout(function () {
+    var previewInp = document.getElementById("chat-input");
+    var previewEl = document.getElementById("chat-input-preview");
+    if (previewInp && previewEl) {
+      previewInp.addEventListener("input", function () {
+        try {
+          var pval = this.value.trim();
+          if (!pval) { previewEl.style.display = "none"; return; }
+          var pfmt = /(\*\*|__|\*|_|~~)/.test(pval);
+          if (pfmt) {
+            var phtml = pval
+              .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+              .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
+              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              .replace(/__(.*?)__/g, "<strong>$1</strong>")
+              .replace(/\*(.*?)\*/g, "<em>$1</em>")
+              .replace(/_(.*?)_/g, "<em>$1</em>")
+              .replace(/~~(.*?)~~/g, "<s>$1</s>");
+            previewEl.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + phtml;
+            previewEl.style.display = "block";
+          } else {
+            var pChar = typeof getActive === "function" ? getActive() : null;
+            if (pChar && pChar.cognitive && pChar.cognitive.macros) {
+              var pMacros = pChar.cognitive.macros;
+              var pHints = [];
+              for (var pmk in pMacros) {
+                if (pval.indexOf(pMacros[pmk]) !== -1) {
+                  pHints.push(pMacros[pmk] + " → {{" + pmk + "}}");
+                }
+              }
+              if (pHints.length > 0) {
+                previewEl.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
+                  pHints.map(function (h) {
+                    return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + "</span>";
+                  }).join(" ");
+                previewEl.style.display = "block";
+              } else {
+                previewEl.style.display = "none";
+              }
+            } else {
+              previewEl.style.display = "none";
+            }
+          }
+        } catch (e) {}
+      });
+    }
+  }, 200);
 }
 
 init();
@@ -25480,6 +25688,9 @@ window.addEventListener("load", function () {
                 <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');if(typeof window.openTimeskipModal === 'function') window.openTimeskipModal()">
                   <i class="bi bi-hourglass-split"></i>Time Skip...
                 </div>
+                <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');togglePinMsg('${id}', event)">
+                  <i class="bi bi-bookmark-star"></i>Pin to Memory
+                </div>
                 <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.viewGenContext('${id}')">
                   <i class="bi bi-braces"></i>View Generational Context...
                 </div>
@@ -25667,6 +25878,9 @@ window.addEventListener("load", function () {
           <div class="qdialog-list">
             <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.openUserRegenWithPrompt('${id}')">
               <i class="bi bi-stars"></i>Regenerate options with custom prompt...
+            </div>
+            <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');togglePinMsg('${id}', event)">
+              <i class="bi bi-bookmark-star"></i>Pin to Memory
             </div>
             <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.viewGenContext('${id}')">
               <i class="bi bi-braces"></i>View Generational Context...
@@ -26682,6 +26896,116 @@ if (window.visualViewport) {
     if (typeof scrollBottom === "function") scrollBottom();
   });
 }
+
+// ── Live Markdown Preview + Macro Hints (independent listener) ──
+// Separate from the main input handler to ensure it always runs, even if
+// other handlers (DualChar, TimeSkip patches) intercept the event.
+(function () {
+  function attachPreview() {
+    var inp = document.getElementById("chat-input");
+    var previewEl = document.getElementById("chat-input-preview");
+    if (!inp || !previewEl) {
+      setTimeout(attachPreview, 500);
+      return;
+    }
+    inp.addEventListener("input", function () {
+      try {
+        var val = this.value.trim();
+        if (!val) {
+          previewEl.style.display = "none";
+          return;
+        }
+        var hasFormatting = /(\*\*|__|\*|_|~~)/.test(val);
+        if (hasFormatting) {
+          var previewHtml = val
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/__(.*?)__/g, "<strong>$1</strong>")
+            .replace(/\*(.*?)\*/g, "<em>$1</em>")
+            .replace(/_(.*?)_/g, "<em>$1</em>")
+            .replace(/~~(.*?)~~/g, "<s>$1</s>");
+          previewEl.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + previewHtml;
+          previewEl.style.display = "block";
+        } else {
+          // Check for macro hints
+          var activeChar = typeof getActive === "function" ? getActive() : null;
+          if (activeChar && activeChar.cognitive && activeChar.cognitive.macros) {
+            var macros = activeChar.cognitive.macros;
+            var hints = [];
+            for (var mk in macros) {
+              var phrase = macros[mk];
+              if (val.indexOf(phrase) !== -1) {
+                hints.push(phrase + " → {{" + mk + "}}");
+              }
+            }
+            if (hints.length > 0) {
+              previewEl.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
+                hints.map(function (h) {
+                  return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + "</span>";
+                }).join(" ");
+              previewEl.style.display = "block";
+            } else {
+              previewEl.style.display = "none";
+            }
+          } else {
+            previewEl.style.display = "none";
+          }
+        }
+      } catch (e) {
+        // Silently ignore — don't break the input
+      }
+    });
+  }
+  // Attach after DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", attachPreview);
+  } else {
+    setTimeout(attachPreview, 100);
+  }
+})();
 </script>
+    <script>
+      // ── Live Markdown Preview + Macro Hints ──
+      // Inline script to guarantee execution regardless of main.js loading order
+      window.addEventListener("load", function () {
+        function attachPreview() {
+          var inp = document.getElementById("chat-input");
+          var el = document.getElementById("chat-input-preview");
+          if (!inp || !el) { setTimeout(attachPreview, 300); return; }
+          inp.addEventListener("input", function () {
+            try {
+              var v = this.value.trim();
+              if (!v) { el.style.display = "none"; return; }
+              var fmt = /(\*\*|__|\*|_|~~)/.test(v);
+              if (fmt) {
+                var h = v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                  .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
+                  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                  .replace(/__(.*?)__/g, "<strong>$1</strong>")
+                  .replace(/\*(.*?)\*/g, "<em>$1</em>")
+                  .replace(/_(.*?)_/g, "<em>$1</em>")
+                  .replace(/~~(.*?)~~/g, "<s>$1</s>");
+                el.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + h;
+                el.style.display = "block";
+              } else {
+                var ch = (typeof getActive === "function") ? getActive() : null;
+                if (ch && ch.cognitive && ch.cognitive.macros) {
+                  var ms = ch.cognitive.macros;
+                  var hs = [];
+                  for (var k in ms) { if (v.indexOf(ms[k]) !== -1) hs.push(ms[k] + " \u2192 {{" + k + "}}"); }
+                  if (hs.length > 0) {
+                    el.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
+                      hs.map(function (h) { return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + "</span>"; }).join(" ");
+                    el.style.display = "block";
+                  } else { el.style.display = "none"; }
+                } else { el.style.display = "none"; }
+              }
+            } catch (e) {}
+          });
+        }
+        setTimeout(attachPreview, 500);
+      });
+    </script>
   </body>
 </html>
