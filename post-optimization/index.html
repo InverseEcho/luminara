@@ -11040,30 +11040,72 @@
         function clearAll() {
           var c = typeof getActive === "function" ? getActive() : null;
           if (!c) return;
-          if (
-            !confirm(
-              "Reset all cognitive memory for " +
-                c.name +
-                "? This clears fact-chains, the vector DB, salience cache, and bridges. Your chat messages are NOT deleted.",
+          if (typeof showQuickDialog === "function") {
+            showQuickDialog({
+              title: "Reset Cognitive Memory?",
+              content:
+                "<p style='font-size:14px;color:var(--t1);line-height:1.5'>Are you sure you want to reset all cognitive memory for <strong>" +
+                escHtml(c.name) +
+                "</strong>? This clears fact-chains, the vector DB, salience cache, and bridges. Your chat messages are NOT deleted.</p>",
+              actions: [
+                {
+                  text: "Cancel",
+                  type: "secondary",
+                  onClick: function () {
+                    return true;
+                  },
+                },
+                {
+                  text: "Reset",
+                  type: "danger",
+                  onClick: function () {
+                    var cog = getCognitiveState(c);
+                    cog.factChains = [];
+                    cog.vectorDB = [];
+                    cog.salienceScores = {};
+                    cog.narrativeBridges = {};
+                    cog.tierDownLog = [];
+                    cog.chapter = 1;
+                    cog.turnCount = 0;
+                    if (typeof saveState === "function") {
+                      try {
+                        saveState();
+                      } catch (e) {}
+                    }
+                    if (typeof showToast === "function")
+                      showToast("Cognitive memory reset", "info");
+                    openInspector(c);
+                    return true;
+                  },
+                },
+              ],
+            });
+          } else {
+            if (
+              !confirm(
+                "Reset all cognitive memory for " +
+                  c.name +
+                  "? This clears fact-chains, the vector DB, salience cache, and bridges. Your chat messages are NOT deleted.",
+              )
             )
-          )
-            return;
-          var cog = getCognitiveState(c);
-          cog.factChains = [];
-          cog.vectorDB = [];
-          cog.salienceScores = {};
-          cog.narrativeBridges = {};
-          cog.tierDownLog = [];
-          cog.chapter = 1;
-          cog.turnCount = 0;
-          if (typeof saveState === "function") {
-            try {
-              saveState();
-            } catch (e) {}
+              return;
+            var cog = getCognitiveState(c);
+            cog.factChains = [];
+            cog.vectorDB = [];
+            cog.salienceScores = {};
+            cog.narrativeBridges = {};
+            cog.tierDownLog = [];
+            cog.chapter = 1;
+            cog.turnCount = 0;
+            if (typeof saveState === "function") {
+              try {
+                saveState();
+              } catch (e) {}
+            }
+            if (typeof showToast === "function")
+              showToast("Cognitive memory reset", "info");
+            openInspector(c);
           }
-          if (typeof showToast === "function")
-            showToast("Cognitive memory reset", "info");
-          openInspector(c);
         }
 
         function salienceBadgeHtml(msg, c) {
@@ -14427,15 +14469,48 @@
           return ch.id === charId;
         });
         if (!c || !c.threads || !c.threads[idx]) return;
-        if (!confirm("Delete this thread and all its messages?")) return;
-        var threadId = c.threads[idx].id;
-        c.msgs = c.msgs.filter(function (m) {
-          return m.threadId !== threadId;
-        });
-        c.threads.splice(idx, 1);
-        if (typeof saveState === "function") saveState();
-        if (typeof renderMsgs === "function") renderMsgs();
-        refreshActiveThreadsModal(c);
+
+        if (typeof showQuickDialog === "function") {
+          showQuickDialog({
+            title: "Delete Thread?",
+            content:
+              "<p style='font-size:14px;color:var(--t1);line-height:1.5'>Are you sure you want to delete this thread and all its messages? This action cannot be undone.</p>",
+            actions: [
+              {
+                text: "Cancel",
+                type: "secondary",
+                onClick: function () {
+                  return true;
+                },
+              },
+              {
+                text: "Delete",
+                type: "danger",
+                onClick: function () {
+                  var threadId = c.threads[idx].id;
+                  c.msgs = c.msgs.filter(function (m) {
+                    return m.threadId !== threadId;
+                  });
+                  c.threads.splice(idx, 1);
+                  if (typeof saveState === "function") saveState();
+                  if (typeof renderMsgs === "function") renderMsgs();
+                  refreshActiveThreadsModal(c);
+                  return true;
+                },
+              },
+            ],
+          });
+        } else {
+          if (!confirm("Delete this thread and all its messages?")) return;
+          var threadId = c.threads[idx].id;
+          c.msgs = c.msgs.filter(function (m) {
+            return m.threadId !== threadId;
+          });
+          c.threads.splice(idx, 1);
+          if (typeof saveState === "function") saveState();
+          if (typeof renderMsgs === "function") renderMsgs();
+          refreshActiveThreadsModal(c);
+        }
       };
 
       window.startThread = function (msgId) {
