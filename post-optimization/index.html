@@ -327,6 +327,7 @@
       #chat-messages.actions-floating .msg-bubble.ai .bubble-actions, #chat-messages.actions-floating .msg-bubble.narrator .bubble-actions { left: 2px; right: auto; transform-origin: left center; }
       #chat-messages.actions-floating .msg-bubble.user .bubble-actions { right: 2px; left: auto; transform-origin: right center; }
       #chat-messages.actions-floating .msg-bubble:hover .bubble-actions, #chat-messages.actions-floating .msg-bubble.show-actions .bubble-actions { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+      #chat-messages.actions-floating .bubble-actions::before { content: ""; position: absolute; top: -14px; left: 0; right: 0; height: 14px; background: transparent; pointer-events: auto; }
       .bact-divider { width: 1px; height: 14px; background: var(--border2); margin: 0 2px; flex-shrink: 0; border-radius: 1px; display: none; }
       #chat-messages.actions-floating .bact-divider { display: block; }
       .bact { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--t2); border-radius: var(--r-sm); opacity: 0.8; transition: background var(--trans-hover), color var(--trans-hover), transform var(--trans-spring), opacity var(--trans-hover); flex-shrink: 0; font-size: 13px; }
@@ -1257,8 +1258,8 @@
       .lum-search-results::-webkit-scrollbar { width: 5px; }
       .lum-search-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
       .lum-search-empty { color: var(--t3); font-size: 12.5px; text-align: center; padding: 28px 16px; font-style: italic; }
-      .lum-search-item { padding: 10px 12px; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; transition: border-color 0.15s ease, transform 0.15s ease; }
-      .lum-search-item:hover { border-color: color-mix(in srgb, var(--primary) 40%, var(--border)); transform: translateX(2px); }
+      .lum-search-item { padding: 10px 12px; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; transition: border-color 0.15s ease, background-color 0.15s ease; }
+      .lum-search-item:hover { border-color: color-mix(in srgb, var(--primary) 40%, var(--border)); background: var(--bg-3); }
       .lum-search-item-hd { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
       .lum-search-item-role { font-size: 11px; font-weight: 700; color: var(--t2); }
       .lum-search-item-time { margin-left: auto; font-size: 10px; color: var(--t3); font-weight: 500; }
@@ -13487,6 +13488,13 @@
         await callAI(c, null, null, i);
       };
       window.openRegen = function (id) {
+        var isPinned = false;
+        var res = findMsg(id);
+        if (res && res.msg) {
+          isPinned = !!res.msg.pinned;
+        }
+        var pinIcon = isPinned ? "bi-bookmark-star-fill" : "bi-bookmark-star";
+        var pinText = isPinned ? "Unpin from Memory" : "Pin to Memory";
         showQuickDialog({
           title: "Other Options",
           content:
@@ -13499,7 +13507,11 @@
             '\')"><i class="bi bi-chevron-double-right"></i>Continue\u2026</div>' +
             "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');togglePinMsg('" +
             id +
-            '\')"><i class="bi bi-bookmark-star"></i>Pin to Memory</div>' +
+            '\')"><i class="bi ' +
+            pinIcon +
+            '"></i>' +
+            pinText +
+            "</div>" +
             "<div class=\"qdialog-item\" onclick=\"closeModal('modal-quick-dialog');window.viewGenContext('" +
             id +
             '\')"><i class="bi bi-braces"></i>View Generational Context\u2026</div></div>',
@@ -23455,6 +23467,13 @@
           };
 
           window.openRegen = function (id) {
+            var isPinned = false;
+            var res = findMsg(id);
+            if (res && res.msg) {
+              isPinned = !!res.msg.pinned;
+            }
+            var pinIcon = isPinned ? "bi-bookmark-star-fill" : "bi-bookmark-star";
+            var pinText = isPinned ? "Unpin from Memory" : "Pin to Memory";
             showQuickDialog({
               title: "Other Options",
               content: `
@@ -23469,7 +23488,7 @@
                         <i class="bi bi-hourglass-split"></i>Time Skip...
                       </div>
                       <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');togglePinMsg('${id}', event)">
-                        <i class="bi bi-bookmark-star"></i>Pin to Memory
+                        <i class="bi ${pinIcon}"></i>${pinText}
                       </div>
                       <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.viewGenContext('${id}')">
                         <i class="bi bi-braces"></i>View Generational Context...
@@ -23705,6 +23724,13 @@
           };
 
           window.openUserRegen = function (id) {
+            var isPinned = false;
+            var res = findMsg(id);
+            if (res && res.msg) {
+              isPinned = !!res.msg.pinned;
+            }
+            var pinIcon = isPinned ? "bi-bookmark-star-fill" : "bi-bookmark-star";
+            var pinText = isPinned ? "Unpin from Memory" : "Pin to Memory";
             showQuickDialog({
               title: "Other Options",
               content: `
@@ -23713,7 +23739,7 @@
                     <i class="bi bi-stars"></i>Regenerate options with custom prompt...
                   </div>
                   <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');togglePinMsg('${id}', event)">
-                    <i class="bi bi-bookmark-star"></i>Pin to Memory
+                    <i class="bi ${pinIcon}"></i>${pinText}
                   </div>
                   <div class="qdialog-item" onclick="closeModal('modal-quick-dialog');window.viewGenContext('${id}')">
                     <i class="bi bi-braces"></i>View Generational Context...
