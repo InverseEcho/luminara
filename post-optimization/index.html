@@ -3329,6 +3329,13 @@ svg {
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
+.modal-ft[style*="display: none"],
+.modal-ft[style*="display:none"] {
+  border-top: none;
+  padding: 0;
+  height: 0;
+  overflow: hidden;
+}
 .tab-pane {
   display: none;
 }
@@ -4562,7 +4569,6 @@ textarea.qdialog-input {
   min-height: 38px;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
   transition:
     transform var(--trans-spring),
     box-shadow var(--trans-hover),
@@ -4590,13 +4596,7 @@ textarea.qdialog-input {
 }
 @media (hover: hover) {
   .btn-primary:hover {
-    background: linear-gradient(
-      135deg,
-      var(--primary-400),
-      var(--primary)
-    );
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 7px 22px var(--primary-glow);
+    opacity: 0.92;
   }
 }
 
@@ -4609,9 +4609,7 @@ textarea.qdialog-input {
 @media (hover: hover) {
   .btn-secondary:hover {
     background: var(--bg-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 14px var(--secondary-glow);
-    border-color: color-mix(in srgb, var(--secondary) 38%, transparent);
+    border-color: color-mix(in srgb, var(--secondary) 30%, transparent);
     color: var(--secondary);
   }
 }
@@ -6254,18 +6252,13 @@ html[data-perf="on"] *::after {
 
   /* Tactical touch responses & elastic micro-interactions for buttons on mobile */
   .btn-primary:active {
-    transform: scale(0.94) !important;
-    background: linear-gradient(
-      135deg,
-      var(--primary-600),
-      var(--primary-700)
-    ) !important;
-    box-shadow: 0 2px 8px var(--primary-glow) !important;
+    transform: scale(0.96) !important;
+    opacity: 0.88 !important;
     transition: transform var(--dur-micro) var(--ease-spring) !important;
   }
   .btn-secondary:active {
-    transform: scale(0.95) !important;
-    background: var(--bg-active) !important;
+    transform: scale(0.96) !important;
+    opacity: 0.88 !important;
     border-color: color-mix(
       in srgb,
       var(--text-500) 20%,
@@ -6598,8 +6591,14 @@ html[data-perf="on"] *::after {
 /* ── MESSAGE ROW & SELECTION STATES ── */
 .msg-group.bulk-mode-grp {
   max-width: 100% !important;
-  align-self: flex-start !important;
+  align-self: stretch !important;
   width: 100% !important;
+}
+.msg-group.user.bulk-mode-grp {
+  align-self: stretch !important;
+}
+.msg-group.bulk-mode-grp .msg-bubble {
+  max-width: 100% !important;
 }
 .msg-row.bulk-mode {
   display: flex;
@@ -6990,8 +6989,6 @@ html[data-perf="on"] *::after {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  max-height: 72vh;
-  overflow: hidden;
 }
 
 /* ── Pipeline conveyor-belt visualization ── */
@@ -7088,10 +7085,19 @@ html[data-perf="on"] *::after {
 
 /* ── Tabs ── */
 .cog-tabs-nav {
-  display: flex;
+  display: flex !important;
   gap: 4px;
   border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
+  overflow-x: auto !important;
+  flex-wrap: nowrap !important;
+  scrollbar-width: thin;
+}
+.cog-tabs-nav::-webkit-scrollbar {
+  height: 3px;
+}
+.cog-tabs-nav::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
 }
 .cog-tab-btn {
   padding: 7px 12px;
@@ -7110,9 +7116,7 @@ html[data-perf="on"] *::after {
   color: var(--primary);
   border-bottom-color: var(--primary);
 }
-.cog-tab-body { overflow-y: auto; max-height: 38vh; padding-right: 4px; }
-.cog-tab-body::-webkit-scrollbar { width: 6px; }
-.cog-tab-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+.cog-tab-body { padding-right: 4px; }
 
 .cog-empty {
   padding: 24px 16px;
@@ -7252,6 +7256,13 @@ html[data-perf="on"] *::after {
   border-bottom: 1px solid var(--border);
   margin-bottom: 4px;
 }
+.cog-btn-sm {
+  padding: 4px 10px !important;
+  font-size: 10.5px !important;
+  min-height: 28px !important;
+  gap: 4px !important;
+}
+.cog-btn-sm i { font-size: 11px !important; }
 .cog-btn {
   display: inline-flex;
   align-items: center;
@@ -7600,8 +7611,111 @@ html[data-perf="on"] *::after {
 }
 .ctx-v2-section-hd i { color: var(--primary); }
 
-/* ── Pipeline Diagram ── */
-.ctx-pipeline-diagram {
+/* ── Pipeline details collapsible panel ── */
+details.cog-pipeline-details {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: var(--bg-1);
+  flex-shrink: 0 !important;
+}
+details.cog-pipeline-details summary {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--t1);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  background: var(--bg-2);
+}
+details.cog-pipeline-details summary::-webkit-details-marker {
+  display: none !important;
+}
+details.cog-pipeline-details summary:hover {
+  background: var(--border);
+}
+details.cog-pipeline-details .details-chevron {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--t3);
+  transition: transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+details.cog-pipeline-details[open] .details-chevron {
+  transform: rotate(180deg);
+}
+details.cog-pipeline-details[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Pipeline diagram ── */
+.cog-pipeline-diagram {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 16px 12px !important;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow-x: auto !important;
+  flex-wrap: nowrap !important;
+}
+.cog-pipeline-diagram::-webkit-scrollbar {
+  height: 4px;
+}
+.cog-pipeline-diagram::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+.cog-diagram-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  min-width: 80px;
+  flex: 1;
+  flex-shrink: 0;
+  text-align: center;
+}
+.cog-diagram-icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c) 14%, var(--bg-1, rgba(0,0,0,0.2)));
+  border: 1.5px solid color-mix(in srgb, var(--c) 40%, var(--border));
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c);
+  font-size: 15px;
+  transition: transform 0.2s ease;
+}
+.cog-diagram-node:hover .cog-diagram-icon {
+  transform: translateY(-2px);
+}
+.cog-diagram-label {
+  font-size: 9.5px; font-weight: 700; color: var(--t2);
+  text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
+}
+.cog-diagram-sub {
+  font-size: 8.5px; color: var(--t3); font-weight: 600; white-space: nowrap;
+}
+.cog-diagram-arrow {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 16px; flex-shrink: 0;
+  color: var(--t3); font-size: 13px; font-weight: 700;
+  opacity: 0.6;
+}
+
+/* ── Pipeline (legacy, kept for backward compat) ── */
+.cog-pipeline {
   display: flex;
   align-items: stretch;
   gap: 0;
@@ -7866,6 +7980,506 @@ html[data-perf="on"] *::after {
   height: 8px;
   border-width: 1.5px;
 }
+
+/* ═══ Luminara Search Menu ═══ */
+.lum-search-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: -4px;
+}
+.lum-search-tabs {
+  position: relative;
+  display: flex;
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+.lum-search-tabs::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: var(--lum-tab-left, 0px);
+  width: var(--lum-tab-width, 0px);
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 8px var(--primary-glow);
+  transition: left 0.24s cubic-bezier(0.2, 0.8, 0.2, 1.1),
+    width 0.24s cubic-bezier(0.2, 0.8, 0.2, 1.1);
+  z-index: 1;
+  pointer-events: none;
+}
+.lum-search-tab {
+  flex: 1;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t3);
+  cursor: pointer;
+  position: relative;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  transition: color var(--trans-hover);
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.lum-search-tab.active {
+  color: var(--primary);
+}
+.lum-search-tab:active {
+  transform: scale(0.94);
+  transition-duration: var(--dur-micro);
+}
+.lum-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.lum-search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  color: var(--t3);
+  pointer-events: none;
+}
+.lum-search-input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  font-size: 13px;
+  color: var(--t1);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  outline: none;
+  transition: border-color 0.18s ease;
+  font-family: inherit;
+}
+.lum-search-input:focus {
+  border-color: var(--primary);
+}
+.lum-search-input::placeholder {
+  color: var(--t3);
+}
+.lum-search-results {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lum-search-results::-webkit-scrollbar { width: 5px; }
+.lum-search-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+.lum-search-empty {
+  color: var(--t3);
+  font-size: 12.5px;
+  text-align: center;
+  padding: 28px 16px;
+  font-style: italic;
+}
+.lum-search-item {
+  padding: 10px 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.lum-search-item:hover {
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  transform: translateX(2px);
+}
+.lum-search-item-hd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.lum-search-item-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t2);
+}
+.lum-search-item-time {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--t3);
+  font-weight: 500;
+}
+.lum-search-item-text {
+  font-size: 12.5px;
+  color: var(--t1);
+  white-space: pre-wrap;
+  line-height: 1.45;
+}
+.lum-search-highlight {
+  color: var(--primary);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* ═══ Thread input modal ═══ */
+.lum-thread-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lum-thread-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--t1);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  outline: none;
+  font-family: inherit;
+}
+.lum-thread-input:focus { border-color: var(--primary); }
+.lum-thread-input::placeholder { color: var(--t3); }
+
+/* ═══ Thread items ═══ */
+.lum-thread-tree {
+  padding-left: 14px;
+  border-left: 1px dashed var(--border);
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lum-thread-item {
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.lum-thread-item:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+.lum-thread-item.active {
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-2));
+  border-color: var(--primary);
+}
+.lum-thread-item.subthread {
+  border-left: 3px solid color-mix(in srgb, var(--primary) 40%, var(--border));
+}
+.lum-thread-item-hd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lum-thread-icon {
+  font-size: 12px;
+  color: var(--t2);
+}
+.lum-thread-item.active .lum-thread-icon {
+  color: var(--primary);
+}
+.lum-thread-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t1);
+}
+.lum-thread-check {
+  color: var(--primary);
+  font-size: 10px;
+}
+.lum-thread-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--t3);
+  font-weight: 500;
+}
+.lum-thread-sub-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  letter-spacing: 0.3px;
+}
+.lum-thread-origin {
+  font-size: 10px;
+  color: var(--t3);
+  margin-top: 3px;
+}
+
+/* ─── Threads modal toggle tabs style ─── */
+.threads-modal-toggle-tab {
+  display: inline-flex;
+  background: var(--bg-3);
+  padding: 3px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  gap: 2px;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+.threads-toggle-tab-btn {
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: calc(var(--r-md) - 2px);
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--t3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+.threads-toggle-tab-btn:hover {
+  color: var(--t2);
+}
+.threads-toggle-tab-btn.active {
+  background: var(--bg-1);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+/* ═══ Thread Visualizer ═══ */
+.lum-viz-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lum-viz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+.lum-viz-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lum-viz-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t1);
+  background: var(--bg-1, rgba(0,0,0,0.2));
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.lum-viz-active-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.lum-viz-active-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2);
+}
+.lum-viz-header-right {
+  display: flex;
+  gap: 4px;
+}
+.lum-viz-ctrl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-1, rgba(0,0,0,0.15));
+  color: var(--t2);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+.lum-viz-ctrl:hover {
+  background: var(--bg-hover);
+  color: var(--t1);
+}
+.lum-viz-ctrl.active {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  color: var(--primary);
+}
+.lum-viz-ctrl.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.lum-viz-ctrl.primary:hover {
+  opacity: 0.9;
+}
+.lum-viz-canvas {
+  overflow: auto;
+  max-height: 420px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: grab;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.lum-viz-canvas:active, .lum-viz-canvas.grabbing {
+  cursor: grabbing !important;
+}
+.lum-viz-grid {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding: 16px;
+}
+.lum-viz-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.lum-viz-card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  background: var(--bg-1, rgba(0,0,0,0.25));
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+  z-index: 1;
+  height: 100px;
+  box-sizing: border-box;
+}
+.lum-viz-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  transform: translateY(-1px);
+}
+.lum-viz-card.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, var(--bg-1, rgba(0,0,0,0.25)));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent), 0 4px 12px rgba(0,0,0,0.15);
+}
+.lum-viz-card.on-path {
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+.lum-viz-card-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.lum-viz-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lum-viz-card-edit {
+  font-size: 10px;
+  color: var(--t3);
+  cursor: pointer;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+}
+.lum-viz-card-edit:hover { color: var(--primary); }
+.lum-viz-card-snippet {
+  font-size: 10px;
+  color: var(--t3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+  flex: 1;
+}
+.lum-viz-card-bottom {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.lum-viz-card-count {
+  font-size: 9.5px;
+  color: var(--t3);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.lum-viz-card-count i { font-size: 9px; }
+.lum-viz-card-active-tag {
+  font-size: 7.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--primary);
+  color: #fff;
+  letter-spacing: 0.4px;
+}
+.lum-viz-card-orig-tag {
+  font-size: 7.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--bg-2);
+  color: var(--t3);
+  border: 1px solid var(--border);
+  letter-spacing: 0.3px;
+}
+.lum-viz-fork-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin-left: auto;
+}
+.lum-viz-fork-btn:hover {
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+.lum-viz-fork-btn i { font-size: 8px; }
+.lum-viz-del-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--error);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 18%, transparent);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.lum-viz-del-btn:hover {
+  background: color-mix(in srgb, var(--error) 18%, transparent);
+}
+.lum-viz-del-btn i { font-size: 9px; }
 </style>
   </head>
   <body>
@@ -8082,8 +8696,8 @@ html[data-perf="on"] *::after {
               </div>
             </div>
             <div class="ch-actions">
-              <button class="icon-btn" id="pinned-messages-btn" title="Pinned Messages" style="display: none;">
-                <i class="bi bi-pin-angle" style="font-size: 20px"></i>
+              <button class="icon-btn" id="chat-threads-btn" title="Chat Threads" style="display: none;">
+                <i class="bi bi-diagram-2" style="font-size: 20px"></i>
               </button>
               <button class="nar-btn" id="nar-toggle">
                 <i class="bi bi-chat-square-text" style="font-size: 20px"></i>
@@ -8359,7 +8973,6 @@ html[data-perf="on"] *::after {
                     placeholder="Message…"
                     style="flex:1; background:transparent; border:none; padding:0; margin:0; outline:none; color:var(--t0); min-width: 0;"
                   ></textarea>
-                  <div id="chat-input-preview" style="display:none; padding:6px 10px; background:var(--bg-2); border:1px solid var(--border); border-radius:var(--r-sm); margin-top:4px; font-size:13px; line-height:1.5; max-height:100px; overflow-y:auto; color:var(--t1); white-space:pre-wrap;"></div>
                 </div>
               </div>
             </div>
@@ -8431,7 +9044,7 @@ html[data-perf="on"] *::after {
       </div>
       <div class="ctx-divider"></div>
       <div class="ctx-item" id="ctx-cognitive-memory">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0;color:var(--t2);"><path d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/></svg> Memory
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--t2);"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Memory
       </div>
       <div class="ctx-divider"></div>
       <div class="ctx-item" id="ctx-clear-chat">
@@ -9107,7 +9720,7 @@ html[data-perf="on"] *::after {
             </div>
             <div class="form-switch">
               <div>
-                <div class="sw-label-title" style="display:flex;align-items:center;gap:6px;"><i class="bi bi-diagram-3" style="color:var(--primary);font-size:15px"></i> Cognitive Memory Machine</div>
+                <div class="sw-label-title" style="display:flex;align-items:center;gap:6px;"><i class="bi bi-cpu" style="color:var(--primary);font-size:15px"></i> Cognitive Memory Machine</div>
                 <div class="sw-label-sub">Smart compression, salience pinning &amp; hybrid RAG — keeps infinite-context continuity under a 6K token ceiling</div>
               </div>
               <div class="sw-track on" id="cognitive-memory-toggle">
@@ -11184,20 +11797,25 @@ function getPruneWorker() {
     "  var histText = (historicText ? historicText + '\\n\\n' : '') + immediateText;",
     "",
     "  // Apply macros (proper noun deduplication) — REPLACE full phrases with {{L1}} tokens",
+    "  // Use a boundary that works inside markdown formatting (*bold*, **italics**, etc.)",
+    "  // The \\\\b word boundary fails next to * and other markdown chars, so we use",
+    "  // a custom lookaround that matches word edges OR markdown formatting chars.",
     "  var macroTable = macros || {};",
     "  var appliedMacros = {};",
     "  if (macroTable && Object.keys(macroTable).length > 0) {",
     "    for (var mk in macroTable) {",
     "      var phrase = macroTable[mk];",
     "      var escPhrase = phrase.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');",
-    "      var re = new RegExp('\\\\b' + escPhrase + '\\\\b', 'g');",
-    "      if (re.test(histText)) {",
-    "        histText = histText.replace(re, '{{' + mk + '}}');",
+    "      // Match phrase when preceded by start, whitespace, or markdown chars (* _ ~ \" ' ( [ {)",    "      // and followed by end, whitespace, or markdown/punctuation chars",
+    "      var re = new RegExp('(^|[\\\\s*_~\"\\'\\(\\[\\{])(' + escPhrase + ')(?=[\\\\s*_~\"\\'\\),\\.\\!?;:\\]\\}]|$)', 'g');",
+    "      histText = histText.replace(re, function(match, prefix, inner) { return prefix + '{{' + mk + '}}'; });",
+    "      if (summaryBlock) summaryBlock = summaryBlock.replace(re, function(match, prefix, inner) { return prefix + '{{' + mk + '}}'; });",
+    "      if (rehydrateBlock) rehydrateBlock = rehydrateBlock.replace(re, function(match, prefix, inner) { return prefix + '{{' + mk + '}}'; });",
+    "      // Track if any replacement happened",
+    "      var checkRe = new RegExp('\\\\{\\\\{' + mk + '\\\\}\\\\}');",
+    "      if (checkRe.test(histText) || checkRe.test(summaryBlock) || checkRe.test(rehydrateBlock)) {",
     "        appliedMacros[mk] = phrase;",
     "      }",
-    "      // Also apply to summaryBlock and rehydrateBlock",
-    "      if (summaryBlock) summaryBlock = summaryBlock.replace(re, '{{' + mk + '}}');",
-    "      if (rehydrateBlock) rehydrateBlock = rehydrateBlock.replace(re, '{{' + mk + '}}');",
     "    }",
     "  }",
     "",
@@ -11385,14 +12003,17 @@ var MacroInterceptor = {
   },
 
   // Apply macros to text (replace full phrases with {{L1}} tokens)
+  // Uses a boundary that works inside markdown formatting (*bold*, *italics*)
   apply: function (text, macros) {
     if (!text || !macros) return text;
     var result = text;
     for (var key in macros) {
       var phrase = macros[key];
-      // Use a global regex to replace all occurrences
-      var escPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\\\$&");
-      result = result.replace(new RegExp("\\b" + escPhrase + "\\b", "g"), "{{" + key + "}}");
+      var escPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      // Match phrase preceded by start/whitespace/markdown-chars and followed by
+      // end/whitespace/markdown/punctuation — works inside *bold*, **italics**, etc.
+      var re = new RegExp('(^|[\\s*_~"\'(\\[\\{])(' + escPhrase + ')(?=[\\s*_~"\',.!?;:\\]\\}]|$)', "g");
+      result = result.replace(re, function (match, prefix, inner) { return prefix + "{{" + key + "}}"; });
     }
     return result;
   },
@@ -11491,7 +12112,6 @@ var aiSettings = {
     "French",
     "German",
     "Portuguese",
-    "Italian",
     "Japanese",
     "Korean",
     "Russian",
@@ -11551,8 +12171,7 @@ var RS_PRESETS = [
     desc: "Short, relaxed conversation",
     color: "#A78BFA",
     icon: '<i class="bi bi-chat-square-dots"></i>',
-    prompt:
-      "Keep responses short, natural, and conversational—like a real text message exchange. Avoid long paragraphs and keep replies to 1-3 sentences.",
+    prompt: "Keep it short and natural. 1-3 sentences.",
   },
   {
     id: "enhanced",
@@ -11560,8 +12179,7 @@ var RS_PRESETS = [
     desc: "Focused first-person scenes",
     color: "#e879f9",
     icon: '<i class="bi bi-person-standing"></i>',
-    prompt:
-      "Write in first-person, present tense. Stay focused on a single moment and use **asterisks** only for actions. Keep responses concise: 1-3 sentences or 1-2 action lines.",
+    prompt: "First-person, present tense. Focus on one moment. 1-3 sentences.",
   },
   {
     id: "lust",
@@ -11569,8 +12187,7 @@ var RS_PRESETS = [
     desc: "Flirtatious, sensual themes",
     color: "#f15c6d",
     icon: '<i class="bi bi-heart"></i>',
-    prompt:
-      "Write in a flirtatious, sensual style. Be suggestive, intimate, and character-driven while avoiding generic or overly explicit exposition.",
+    prompt: "Flirtatious and suggestive. Character-driven, not explicit exposition.",
   },
   {
     id: "roleplay",
@@ -11578,8 +12195,7 @@ var RS_PRESETS = [
     desc: "Immersive narrative storytelling",
     color: "#FF6B7A",
     icon: '<i class="bi bi-pen"></i>',
-    prompt:
-      'Write in a deeply immersive narrative style. Use vivid sensory detail, internal impressions, and stay fully in character. Use **asterisks** for actions and "quotes" for dialogue.',
+    prompt: "Immersive narrative. Vivid detail, stay in character.",
   },
   {
     id: "romance",
@@ -11587,8 +12203,7 @@ var RS_PRESETS = [
     desc: "Warm, intimate, heartfelt",
     color: "#f472b6",
     icon: '<i class="bi bi-heart"></i>',
-    prompt:
-      "Write in a warm, tender romantic voice. Focus on emotional depth, gentle affection, longing, and the feeling of connection.",
+    prompt: "Warm and tender. Emotional depth and gentle affection.",
   },
 ];
 
@@ -13139,13 +13754,13 @@ function updateUIChatState() {
       nb.style.display = "none";
       nb.classList.toggle("active", isNar);
     }
-    var pinBtn = $id("pinned-messages-btn");
-    if (pinBtn) {
-      pinBtn.style.display = "inline-flex";
+    var threadsBtn = $id("chat-threads-btn");
+    if (threadsBtn) {
+      threadsBtn.style.display = "inline-flex";
     }
   } else {
-    var pinBtn2 = $id("pinned-messages-btn");
-    if (pinBtn2) pinBtn2.style.display = "none";
+    var threadsBtn2 = $id("chat-threads-btn");
+    if (threadsBtn2) threadsBtn2.style.display = "none";
     var nb2 = $id("nar-toggle");
     if (nb2) nb2.style.display = "none";
   }
@@ -13359,8 +13974,9 @@ function buildActionsHtml(m, i) {
   var id = m.id || i;
   var div = '<span class="bact-divider"></span>';
 
-  // Group 1 — quick utility: Reply (Pin moved to "Other Options" menu)
+  // Group 1 — quick utility: Reply + Thread
   acts += '<button class="bact" title="Reply" onclick="startReply(\'' + id + '\')"><i class="bi bi-reply"></i></button>';
+  acts += '<button class="bact" title="Start Thread" onclick="startThread(\'' + id + '\')"><i class="bi bi-diagram-2"></i></button>';
 
   acts += div; // ─── divider ───
 
@@ -13432,13 +14048,28 @@ function renderMsgs(keepScrollPosition) {
     return;
   }
 
+  // ── Thread filtering ──
+  // If a thread is active, only show messages belonging to that thread.
+  // If no thread is active (main conversation), show messages without a threadId.
+  var activeThread = c.activeThreadId || null;
+  var visibleMsgs = c.msgs.filter(function (m) {
+    if (activeThread) return m.threadId === activeThread;
+    return !m.threadId; // main conversation: messages without threadId
+  });
+
+  if (visibleMsgs.length === 0) {
+    el.innerHTML = '<div class="welcome-screen"><div class="welcome-icon"><i class="bi bi-diagram-2" style="font-size:48px;color:var(--primary);"></i></div><h2>' + (activeThread ? "Thread is empty" : "Start the Story") + '</h2><p>' + (activeThread ? "No messages in this thread yet. Send a message to start the conversation." : "Type a message or use /char to have the character speak first.") + '</p></div>';
+    refreshSidebar();
+    return;
+  }
+
   // Measure old scroll state for maintaining scroll position
   var s = getScrollEl();
   var oldScrollHeight = s ? s.scrollHeight : 0;
   var oldScrollTop = s ? s.scrollTop : 0;
 
   var frag = document.createDocumentFragment();
-  var totalMsgs = c.msgs.length;
+  var totalMsgs = visibleMsgs.length;
   var startIndex = 0;
 
   if (totalMsgs > chatLimit) {
@@ -13463,7 +14094,7 @@ function renderMsgs(keepScrollPosition) {
   }
 
   for (var i = startIndex; i < totalMsgs; i++) {
-    frag.appendChild(makeBubble(c.msgs[i], i, c));
+    frag.appendChild(makeBubble(visibleMsgs[i], i, c));
   }
 
   if (c.isGenerating) {
@@ -13845,14 +14476,22 @@ async function sendMsg() {
     ? { role: replyingTo.role, text: replyingTo.text, dualCharName: replyingTo.dualCharName }
     : null;
   var msgIdx = c.msgs.length;
+  // Resolve global variables ({{user}}, {{char}}, {{time}}, {{loc}}) in the
+  // user's typed text so the AI sees actual names, not raw placeholders.
+  var resolvedText = text;
+  if (typeof window.resolveMacros === "function") {
+    resolvedText = window.resolveMacros(text, c);
+  }
   var newMsg = {
     id: generateMsgId(),
     role: "user",
-    text: text,
+    text: resolvedText,
     time: ts(),
     epoch: tsEpoch(),
     replyTo: rep,
   };
+  // Tag with active thread if in a thread view
+  if (c.activeThreadId) newMsg.threadId = c.activeThreadId;
   if (currentAttachment && currentAttachment.dataUrl) {
     newMsg.images = [currentAttachment.dataUrl];
     clearAttachment();
@@ -15335,27 +15974,60 @@ var CognitiveMachine = (function () {
           '</div>';
       }).join("");
 
-    // Pipeline visualization
+    // Pipeline visualization — diagram with arrows and explanations
     var pipelineHtml =
-      '<div class="cog-pipeline">' +
-        '<div class="cog-pipe-stage"><i class="bi bi-box-arrow-in-down"></i><span>Input</span></div>' +
-        '<div class="cog-pipe-arrow">→</div>' +
-        '<div class="cog-pipe-stage"><i class="bi bi-tag"></i><span>Salience</span></div>' +
-        '<div class="cog-pipe-arrow">→</div>' +
-        '<div class="cog-pipe-stage"><i class="bi bi-search"></i><span>Hybrid RAG</span></div>' +
-        '<div class="cog-pipe-arrow">→</div>' +
-        '<div class="cog-pipe-stage"><i class="bi bi-layers"></i><span>Assembler</span></div>' +
-        '<div class="cog-pipe-arrow">→</div>' +
-        '<div class="cog-pipe-stage"><i class="bi bi-scissors"></i><span>Tier-Down</span></div>' +
-        '<div class="cog-pipe-arrow">→</div>' +
-        '<div class="cog-pipe-stage"><i class="bi bi-cpu"></i><span>&lt;6K Prompt</span></div>' +
-      '</div>';
+      '<details class="cog-pipeline-details">' +
+        '<summary>' +
+          '<i class="bi bi-diagram-3-fill" style="color:var(--primary);font-size:14px"></i>' +
+          '<span>Pipeline Steps Visualization</span>' +
+          '<span class="details-chevron"><i class="bi bi-chevron-down"></i></span>' +
+        '</summary>' +
+        '<div style="padding:12px; background:var(--bg-1);">' +
+          '<div class="cog-pipeline-diagram">' +
+            '<div class="cog-diagram-node" style="--c:#06b6d4">' +
+              '<div class="cog-diagram-icon"><i class="bi bi-box-arrow-in-down"></i></div>' +
+              '<div class="cog-diagram-label">Input</div>' +
+              '<div class="cog-diagram-sub">' + (allMsgs ? allMsgs.length : 0) + ' messages</div>' +
+            '</div>' +
+            '<div class="cog-diagram-arrow"><i class="bi bi-chevron-right"></i></div>' +
+            '<div class="cog-diagram-node" style="--c:#10b981">' +
+              '<div class="cog-diagram-icon"><i class="bi bi-search"></i></div>' +
+              '<div class="cog-diagram-label">Recall</div>' +
+              '<div class="cog-diagram-sub">Hybrid RAG</div>' +
+            '</div>' +
+            '<div class="cog-diagram-arrow"><i class="bi bi-chevron-right"></i></div>' +
+            '<div class="cog-diagram-node" style="--c:#a855f7">' +
+              '<div class="cog-diagram-icon"><i class="bi bi-layers"></i></div>' +
+              '<div class="cog-diagram-label">Assemble</div>' +
+              '<div class="cog-diagram-sub">Combine context</div>' +
+            '</div>' +
+            '<div class="cog-diagram-arrow"><i class="bi bi-chevron-right"></i></div>' +
+            '<div class="cog-diagram-node" style="--c:#f59e0b">' +
+              '<div class="cog-diagram-icon"><i class="bi bi-tag"></i></div>' +
+              '<div class="cog-diagram-label">Salience</div>' +
+              '<div class="cog-diagram-sub">' + pinnedCount + ' pinned/scr</div>' +
+            '</div>' +
+            '<div class="cog-diagram-arrow"><i class="bi bi-chevron-right"></i></div>' +
+            '<div class="cog-diagram-node" style="--c:#ef4444">' +
+              '<div class="cog-diagram-icon"><i class="bi bi-scissors"></i></div>' +
+              '<div class="cog-diagram-label">Compress</div>' +
+              '<div class="cog-diagram-sub">' + auditCount + ' tier-down</div>' +
+            '</div>' +
+            '<div class="cog-diagram-arrow"><i class="bi bi-chevron-right"></i></div>' +
+            '<div class="cog-diagram-node" style="--c:var(--primary)">' +
+              '<div class="cog-diagram-icon"><i class="bi bi-cpu"></i></div>' +
+              '<div class="cog-diagram-label">Output</div>' +
+              '<div class="cog-diagram-sub">&lt;6,000 tokens</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</details>';
 
     var contentHtml =
       '<div class="cog-inspector">' +
         '<div class="cog-actions-bar">' +
-          '<button class="cog-btn" onclick="CognitiveMachine.manualExtract()"><i class="bi bi-magic"></i> Extract Facts Now</button>' +
-          '<button class="cog-btn danger" onclick="CognitiveMachine.clearAll()"><i class="bi bi-trash"></i> Reset Memory</button>' +
+          '<button class="cog-btn cog-btn-sm" onclick="CognitiveMachine.manualExtract()"><i class="bi bi-arrow-repeat"></i> Rebuild Memory</button>' +
+          '<button class="cog-btn danger cog-btn-sm" onclick="CognitiveMachine.clearAll()"><i class="bi bi-trash"></i> Clear</button>' +
         '</div>' +
         pipelineHtml +
         '<div class="cog-stat-grid">' +
@@ -15386,7 +16058,7 @@ var CognitiveMachine = (function () {
 
     if (typeof showQuickDialog === "function") {
       showQuickDialog({
-        titleHTML: '<i class="bi bi-diagram-3" style="font-size:16px;color:var(--primary);margin-right:6px"></i> Cognitive Memory — ' + escapeHtml(c.name),
+        titleHTML: '<i class="bi bi-cpu" style="font-size:16px;color:var(--primary);margin-right:6px"></i> Cognitive Memory — ' + escapeHtml(c.name),
         maxWidth: "820px",
         content: contentHtml,
         actions: [],
@@ -15397,6 +16069,13 @@ var CognitiveMachine = (function () {
   function switchTab(tabId, el) {
     var wrap = el.closest(".cog-inspector");
     if (!wrap) return;
+
+    var nav = wrap.querySelector('.cog-tabs-nav');
+    if (nav && nav.scrollWidth > nav.clientWidth) {
+      var scrollLeft = el.offsetLeft - (nav.clientWidth / 2) + (el.clientWidth / 2);
+      nav.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+    }
+
     var btns = wrap.querySelectorAll(".cog-tab-btn");
     for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
     el.classList.add("active");
@@ -15985,6 +16664,8 @@ async function callAI(c, extra, replyToMsg, insertAt, forceNarrator) {
         cognitive: cogAudit
       }
     };
+    // Tag AI response with active thread if in a thread view
+    if (c.activeThreadId) mObj.threadId = c.activeThreadId;
     c.msgs.forEach(function (m) {
       if (m.isRegenerating) delete m.isRegenerating;
     });
@@ -16769,14 +17450,21 @@ window.macroify = function(text, userProfile, c) {
   if (!text) return "";
   var uName = (userProfile && userProfile.name) ? userProfile.name : "User";
   var cName = (c && c.name) ? c.name : "Character";
-  
-  function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&'); }
+
+  function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\' + '$' + '&'); }
+
   var textOut = text;
+  // Use a boundary that works inside markdown formatting (*bold*, *italics*, etc.)
+  // The \b word boundary fails next to * and other markdown chars.
   if (uName && uName.toLowerCase() !== "user") {
-    textOut = textOut.replace(new RegExp("\\b" + escapeRegExp(uName) + "\\b", 'gi'), "{{user}}");
+    var escU = escapeRegExp(uName);
+    var reU = new RegExp('(^|[\\s*_~"\'(\\[\\{])(' + escU + ')(?=[\\s*_~"\',.!?;:\\]\\}]|$)', 'gi');
+    textOut = textOut.replace(reU, function(match, prefix, inner) { return prefix + "{{user}}"; });
   }
   if (cName && cName.toLowerCase() !== "character") {
-    textOut = textOut.replace(new RegExp("\\b" + escapeRegExp(cName) + "\\b", 'gi'), "{{char}}");
+    var escC = escapeRegExp(cName);
+    var reC = new RegExp('(^|[\\s*_~"\'(\\[\\{])(' + escC + ')(?=[\\s*_~"\',.!?;:\\]\\}]|$)', 'gi');
+    textOut = textOut.replace(reC, function(match, prefix, inner) { return prefix + "{{char}}"; });
   }
   return textOut;
 };
@@ -17039,22 +17727,23 @@ window.viewGenContext = function (id) {
     var pipelineDiagram = (function () {
       var stages = [
         { icon: "bi-box-arrow-in-down", label: "Input", sub: naiveTotalMsgs + " msgs", color: "#06b6d4" },
+        { icon: "bi-search", label: "Recall", sub: cogAudit && cogAudit.rehydrated ? cogAudit.rehydrated.length + " recalled" : "direct cache", color: "#10b981" },
+        { icon: "bi-layers", label: "Assemble", sub: cogAudit && cogAudit.lorebookMatches ? cogAudit.lorebookMatches.length + " lore/context" : "ready", color: "#a855f7" },
         { icon: "bi-tag", label: "Salience", sub: cogAudit && cogAudit.pinned ? cogAudit.pinned.length + " pinned" : "scoring", color: "#f59e0b" },
-        { icon: "bi-scissors", label: "Prune", sub: cogAudit && cogAudit.steps ? cogAudit.steps.length + " steps" : "—", color: "#ef4444" },
-        { icon: "bi-signpost-split", label: "Bridge", sub: cogAudit && cogAudit.bridges ? cogAudit.bridges.length + " bridges" : "—", color: "#06b6d4" },
-        { icon: "bi-archive", label: "Evict→RAG", sub: cogAudit && cogAudit.evicted ? cogAudit.evicted.length + " evicted" : "—", color: "#a855f7" },
-        { icon: "bi-search", label: "Rehydrate", sub: cogAudit && cogAudit.rehydrated ? cogAudit.rehydrated.length + " recalled" : "—", color: "#10b981" },
-        { icon: "bi-cpu", label: "≤6K Prompt", sub: cogT + "t", color: "var(--primary)" },
+        { icon: "bi-scissors", label: "Compress", sub: cogAudit && cogAudit.steps ? cogAudit.steps.length + " steps" : "—", color: "#ef4444" },
+        { icon: "bi-cpu", label: "Output", sub: cogT + "t", color: "var(--primary)" },
       ];
-      var html = '<div class="ctx-pipeline-diagram">';
+      var html = '<div class="cog-pipeline-diagram">';
       for (var i = 0; i < stages.length; i++) {
         var s = stages[i];
-        html += '<div class="ctx-pipe-node" style="--pc:' + s.color + '" title="' + s.label + ': ' + s.sub + '">';
-        html += '<div class="ctx-pipe-icon"><i class="bi ' + s.icon + '"></i></div>';
-        html += '<div class="ctx-pipe-label">' + s.label + '</div>';
-        html += '<div class="ctx-pipe-sub">' + s.sub + '</div>';
+        html += '<div class="cog-diagram-node" style="--c:' + s.color + '" title="' + s.label + ': ' + s.sub + '">';
+        html += '<div class="cog-diagram-icon"><i class="bi ' + s.icon + '"></i></div>';
+        html += '<div class="cog-diagram-label">' + s.label + '</div>';
+        html += '<div class="cog-diagram-sub">' + s.sub + '</div>';
         html += '</div>';
-        if (i < stages.length - 1) html += '<div class="ctx-pipe-connector"><div class="ctx-pipe-flow"></div></div>';
+        if (i < stages.length - 1) {
+          html += '<div class="cog-diagram-arrow"><i class="bi bi-chevron-right"></i></div>';
+        }
       }
       html += '</div>';
       return html;
@@ -17087,7 +17776,7 @@ window.viewGenContext = function (id) {
           '</div>' +
           '<div class="ctx-compare-arrow"><i class="bi bi-arrow-right-circle"></i></div>' +
           '<div class="ctx-compare-col cog">' +
-            '<div class="ctx-compare-col-hd"><i class="bi bi-diagram-3"></i> With Cognitive Machine</div>' +
+            '<div class="ctx-compare-col-hd"><i class="bi bi-cpu"></i> With Cognitive Machine</div>' +
             '<div class="ctx-compare-col-sub">Smart pipeline, nothing lost</div>' +
             '<div class="ctx-compare-num">' + cogT + '<span>t</span></div>' +
             '<div class="ctx-compare-bar"><div class="ctx-compare-bar-fill cog" style="width:' + cogPct + '%"></div></div>' +
@@ -17110,7 +17799,7 @@ window.viewGenContext = function (id) {
             ${window.getMsgAvatarHtml(c, m)}
             <div class="ctx-v2-head-info">
               <div class="ctx-v2-title">${senderName}'s Generation Context</div>
-              <div class="ctx-v2-sub">Turn #${sequenceTurn} · ${roleLabel}${cogEnabled ? ' · <i class="bi bi-diagram-3" style="color:var(--primary)"></i> Cognitive Machine active' : ' · <i class="bi bi-toggle-off" style="color:var(--t3)"></i> Cognitive Machine off'}</div>
+              <div class="ctx-v2-sub">Turn #${sequenceTurn} · ${roleLabel}${cogEnabled ? ' · <i class="bi bi-cpu" style="color:var(--primary)"></i> Cognitive Machine active' : ' · <i class="bi bi-toggle-off" style="color:var(--t3)"></i> Cognitive Machine off'}</div>
             </div>
           </div>
           <div class="ctx-v2-status">
@@ -17161,10 +17850,16 @@ window.viewGenContext = function (id) {
         ${comparisonPanel}
 
         <!-- Pipeline Diagram -->
-        <div class="ctx-v2-section">
-          <div class="ctx-v2-section-hd"><i class="bi bi-diagram-3"></i> How the Cognitive Machine Transformed This Turn</div>
-          ${pipelineDiagram}
-        </div>
+        <details class="cog-pipeline-details" style="margin-top:12px; margin-bottom:12px;">
+          <summary>
+            <i class="bi bi-diagram-3-fill" style="color:var(--primary);font-size:14px"></i>
+            <span>How the Cognitive Machine Transformed This Turn</span>
+            <span class="details-chevron"><i class="bi bi-chevron-down"></i></span>
+          </summary>
+          <div style="padding:12px; background:var(--bg-1);">
+            ${pipelineDiagram}
+          </div>
+        </details>
 
         <!-- Tabs -->
         <div class="ctx-v2-tabs">
@@ -17410,6 +18105,670 @@ window.openEdit = function (id) {
   });
 };
 
+// ── THREADS SYSTEM ──
+// Allows users to create branching conversation threads from any message.
+// Threads are stored on the character object and can be renamed, favorited,
+// and viewed in a hierarchy tree.
+window.openThreadsView = function (c) {
+  if (!c.threads) c.threads = [];
+  var threads = c.threads;
+  var mainThreadMsgs = c.msgs.filter(function (m) { return !m.threadId; });
+  var activeThread = c.activeThreadId || null;
+
+  // Build a parent-child map for subthread indentation
+  // A thread is a "subthread" if its parentMsgId belongs to another thread
+  function getThreadDepth(threadId, visited) {
+    if (!threadId) return 0;
+    if (visited && visited[threadId]) return 0; // cycle guard
+    visited = visited || {};
+    visited[threadId] = true;
+    var t = threads.find(function (th) { return th.id === threadId; });
+    if (!t || !t.parentMsgId) return 0;
+    // Check if parent message belongs to another thread
+    var parentMsg = c.msgs.find(function (m) { return m.id === t.parentMsgId; });
+    if (parentMsg && parentMsg.threadId && parentMsg.threadId !== threadId) {
+      return 1 + getThreadDepth(parentMsg.threadId, visited);
+    }
+    return 0;
+  }
+
+  var treeHtml = '<div style="display:flex;flex-direction:column;gap:6px;">';
+
+  // Main thread (the default conversation) — clickable to switch to
+  var isMainActive = !activeThread;
+  treeHtml += '<div class="lum-thread-item' + (isMainActive ? ' active' : '') + '" onclick="switchToThread(\'' + c.id + '\', null)">' +
+    '<div class="lum-thread-item-hd">' +
+      '<i class="bi bi-chat-dots lum-thread-icon"></i>' +
+      '<b class="lum-thread-name">Main Conversation</b>' +
+      (isMainActive ? '<i class="bi bi-check-circle-fill lum-thread-check"></i>' : '') +
+      '<span class="lum-thread-count">' + mainThreadMsgs.length + ' msgs</span>' +
+    '</div></div>';
+
+  // Thread tree
+  if (threads.length > 0) {
+    treeHtml += '<div class="lum-thread-tree">';
+    threads.forEach(function (t, idx) {
+      var depth = getThreadDepth(t.id);
+      var favIcon = t.favorite ? '<i class="bi bi-star-fill" style="color:#f59e0b;font-size:11px;"></i>' : '<i class="bi bi-star" style="color:var(--t3);font-size:11px;cursor:pointer;" onclick="event.stopPropagation();toggleThreadFav(\'' + c.id + '\',' + idx + ')"></i>';
+      var msgCount = c.msgs.filter(function (m) { return m.threadId === t.id; }).length;
+      var isThisActive = activeThread === t.id;
+      var indent = depth * 20;
+      treeHtml += '<div class="lum-thread-item' + (isThisActive ? ' active' : '') + (depth > 0 ? ' subthread' : '') + '" style="margin-left:' + indent + 'px;" onclick="switchToThread(\'' + c.id + '\', \'' + t.id + '\')">' +
+        '<div class="lum-thread-item-hd">' +
+          '<i class="bi bi-diagram-2 lum-thread-icon"></i>' +
+          '<span class="lum-thread-name">' + (t.name || "Untitled Thread") + '</span>' +
+          (isThisActive ? '<i class="bi bi-check-circle-fill lum-thread-check"></i>' : '') +
+          favIcon +
+          '<span class="lum-thread-count">' + msgCount + ' msgs</span>' +
+          '<button class="bact" style="padding:2px 6px;font-size:10px;" title="Rename" onclick="event.stopPropagation();renameThread(\'' + c.id + '\',' + idx + ')"><i class="bi bi-pencil"></i></button>' +
+          '<button class="bact" style="padding:2px 6px;font-size:10px;" title="Delete" onclick="event.stopPropagation();deleteThread(\'' + c.id + '\',' + idx + ')"><i class="bi bi-trash"></i></button>' +
+        '</div>' +
+        '<div class="lum-thread-origin">From: ' + (t.parentMsgText || "").slice(0, 50) + '</div>' +
+      '</div>';
+    });
+    treeHtml += '</div>';
+  } else {
+    treeHtml += '<div style="padding:16px;text-align:center;color:var(--t3);font-size:12px;">No threads yet. Click the thread icon on any message to start a thread.</div>';
+  }
+
+  treeHtml += '</div>';
+
+  showQuickDialog({
+    titleHTML: '<span style="display:inline-flex; align-items:center; flex-wrap:wrap; gap:8px;">' +
+      '<span style="font-size:14px; font-weight:800; color:var(--t1); display:inline-flex; align-items:center; gap:6px;"><i class="bi bi-diagram-2" style="color:var(--primary);"></i> Chat Threads</span>' +
+      '<span class="threads-modal-toggle-tab">' +
+        '<button class="threads-toggle-tab-btn active"><i class="bi bi-list-task"></i> List</button>' +
+        '<button class="threads-toggle-tab-btn" onclick="var c = getActive(); if (c) openThreadVisualizer(c.id);"><i class="bi bi-diagram-3"></i> Tree</button>' +
+      '</span>' +
+    '</span>',
+    content: treeHtml,
+    actions: [],
+  });
+};
+
+// ── Thread Visualizer ──
+// A horizontal branching tree showing conversation timelines as cards
+// connected by curved SVG lines. Active path is highlighted in primary color,
+// inactive paths are dashed gray. Includes control buttons and a dotted grid
+// background. Users can fork, switch, rename, and delete timelines.
+window.openThreadVisualizer = function (charId) {
+
+  var c = chars.find(function (ch) { return ch.id === charId; });
+  if (!c) return;
+  if (!c.threads) c.threads = [];
+  var threads = c.threads;
+  var activeThread = c.activeThreadId || null;
+  var totalTimelines = threads.length + 1;
+
+  // Gather node data
+  var nodes = [];
+  // Main conversation
+  var mainMsgCount = c.msgs.filter(function (m) { return !m.threadId; }).length;
+  var mainSnippet = "";
+  for (var mi = c.msgs.length - 1; mi >= 0; mi--) {
+    if (!c.msgs[mi].threadId && c.msgs[mi].text) { mainSnippet = c.msgs[mi].text.slice(0, 40); break; }
+  }
+  nodes.push({
+    id: null, name: "Main Timeline", snippet: mainSnippet, msgCount: mainMsgCount,
+    active: !activeThread, isOriginal: true, parentIdx: -1, threadIdx: -1,
+  });
+
+  // Threads
+  threads.forEach(function (t, idx) {
+    var msgCount = c.msgs.filter(function (m) { return m.threadId === t.id; }).length;
+    nodes.push({
+      id: t.id, name: t.name || "Untitled", snippet: (t.parentMsgText || "").slice(0, 40),
+      msgCount: msgCount, active: activeThread === t.id, isOriginal: false,
+      threadIdx: idx,
+    });
+  });
+
+  // Determine parentIds and build children tree relationships
+  nodes.forEach(function (n) {
+    if (n.id === null) {
+      n.parentId = null;
+    } else {
+      var t = threads.find(function (th) { return th.id === n.id; });
+      var pMsg = t ? c.msgs.find(function (m) { return m.id === t.parentMsgId; }) : null;
+      n.parentId = pMsg ? (pMsg.threadId || null) : null;
+    }
+    n.children = [];
+  });
+
+  var nodeMap = {};
+  nodes.forEach(function (n) {
+    nodeMap[n.id] = n;
+  });
+
+  nodes.forEach(function (n) {
+    if (n.parentId !== undefined && n.parentId !== null) {
+      var parentNode = nodeMap[n.parentId];
+      if (parentNode) {
+        parentNode.children.push(n);
+      } else {
+        // Fallback to Main Timeline
+        nodeMap[null].children.push(n);
+        n.parentId = null;
+      }
+    } else if (n.id !== null) {
+      nodeMap[null].children.push(n);
+      n.parentId = null;
+    }
+  });
+
+  // Center tree nodes using a post-order centering DFS layout
+  var leafCount = 0;
+  function assignCoords(node, depth) {
+    node.depth = depth;
+    if (node.children.length === 0) {
+      node.order = leafCount;
+      leafCount++;
+    } else {
+      node.children.forEach(function (child) {
+        assignCoords(child, depth + 1);
+      });
+      var sum = 0;
+      node.children.forEach(function (child) {
+        sum += child.order;
+      });
+      node.order = sum / node.children.length;
+    }
+  }
+  assignCoords(nodeMap[null], 0);
+
+  // Layout geometry calculations under horizontal/vertical direction
+  var layoutDir = window.__lumVizLayoutDir || 'h';
+  var cardW = 200, cardH = 100, gapX = 60, gapY = 20;
+
+  nodes.forEach(function (n) {
+    if (layoutDir === 'h') {
+      n.x = n.depth * (cardW + gapX) + 20;
+      n.y = n.order * (cardH + gapY) + 20;
+    } else {
+      n.x = n.order * (cardW + gapX) + 20;
+      n.y = n.depth * (cardH + gapY) + 20;
+    }
+  });
+
+  var maxDepth = 0, maxOrder = 0;
+  nodes.forEach(function (n) {
+    if (n.depth > maxDepth) maxDepth = n.depth;
+    if (n.order > maxOrder) maxOrder = n.order;
+  });
+
+  var totalWidth, totalHeight;
+  if (layoutDir === 'h') {
+    totalWidth = (maxDepth + 1) * cardW + (maxDepth * gapX) + 40;
+    totalHeight = (maxOrder + 1) * cardH + (maxOrder * gapY) + 40;
+  } else {
+    totalWidth = (maxOrder + 1) * cardW + (maxOrder * gapX) + 40;
+    totalHeight = (maxDepth + 1) * cardH + (maxDepth * gapY) + 40;
+  }
+
+  // Determine which nodes are on the active path
+  var activePath = {};
+  if (activeThread) {
+    var cur = activeThread;
+    var guard = 0;
+    while (cur && guard < 50) {
+      guard++;
+      activePath[cur] = true;
+      var t = threads.find(function (th) { return th.id === cur; });
+      if (!t || !t.parentMsgId) break;
+      var parentMsg = c.msgs.find(function (m) { return m.id === t.parentMsgId; });
+      if (parentMsg && parentMsg.threadId && parentMsg.threadId !== cur) {
+        cur = parentMsg.threadId;
+      } else {
+        cur = null;
+      }
+    }
+  } else {
+    activePath[null] = true;
+  }
+
+  // Build the Header HTML
+  var headerHtml = '<div class="lum-viz-header">' +
+    '<div class="lum-viz-header-left">' +
+      '<span class="lum-viz-count">' + totalTimelines + ' Timeline' + (totalTimelines !== 1 ? 's' : '') + '</span>' +
+      '<span class="lum-viz-active-dot"></span>' +
+      '<span class="lum-viz-active-label">Active Path</span>' +
+    '</div>' +
+    '<div class="lum-viz-header-right">' +
+      '<button class="lum-viz-ctrl' + (layoutDir === 'h' ? ' active' : '') + '" title="Horizontal" onclick="lumVizLayout(this, \'h\', \'' + charId + '\')"><i class="bi bi-arrows-angle-expand"></i></button>' +
+      '<button class="lum-viz-ctrl' + (layoutDir === 'v' ? ' active' : '') + '" title="Vertical" onclick="lumVizLayout(this, \'v\', \'' + charId + '\')"><i class="bi bi-arrows-angle-contract"></i></button>' +
+      '<button class="lum-viz-ctrl" title="Center" onclick="lumVizCenter()"><i class="bi bi-bullseye"></i></button>' +
+      '<button class="lum-viz-ctrl primary" title="New Branch" onclick="lumVizFork(\'' + charId + '\', null)"><i class="bi bi-plus-lg"></i></button>' +
+    '</div>' +
+  '</div>';
+
+  // Build SVG for connecting lines + card positions
+  var svgLines = '';
+  nodes.forEach(function (n) {
+    if (n.id === null) return; // Skip drawing connection for root node since it has no parent
+    var pId = (n.parentId === undefined || n.parentId === null) ? null : n.parentId;
+    var parent = nodeMap[pId];
+    if (!parent) return;
+
+    var x1, y1, x2, y2;
+    if (layoutDir === 'h') {
+      x1 = parent.x + cardW;
+      y1 = parent.y + cardH / 2;
+      x2 = n.x;
+      y2 = n.y + cardH / 2;
+    } else {
+      x1 = parent.x + cardW / 2;
+      y1 = parent.y + cardH;
+      x2 = n.x + cardW / 2;
+      y2 = n.y;
+    }
+
+    var isActive = activePath[n.id];
+    var stroke = isActive ? 'var(--primary)' : 'var(--border)';
+    var dashArray = isActive ? 'none' : '4 3';
+    var strokeWidth = isActive ? '2' : '1.5';
+
+    var pathD = '';
+    if (layoutDir === 'h') {
+      var midX = (x1 + x2) / 2;
+      pathD = 'M ' + x1 + ' ' + y1 + ' C ' + midX + ' ' + y1 + ', ' + midX + ' ' + y2 + ', ' + x2 + ' ' + y2;
+    } else {
+      var midY = (y1 + y2) / 2;
+      pathD = 'M ' + x1 + ' ' + y1 + ' C ' + x1 + ' ' + midY + ', ' + x2 + ' ' + midY + ', ' + x2 + ' ' + y2;
+    }
+
+    svgLines += '<path d="' + pathD + '" fill="none" stroke="' + stroke + '" stroke-width="' + strokeWidth + '" stroke-dasharray="' + dashArray + '" style="transition: stroke 0.3s ease;"/>';
+
+    var arrowFill, arrowStroke, arrowDash;
+    if (isActive) {
+      arrowFill = stroke;
+      arrowStroke = 'none';
+      arrowDash = 'none';
+    } else {
+      arrowFill = 'none';
+      arrowStroke = stroke;
+      arrowDash = '2 1.5';
+    }
+
+    if (layoutDir === 'h') {
+      svgLines += '<polygon points="' + (x2 - 6) + ',' + (y2 - 3.5) + ' ' + (x2 - 6) + ',' + (y2 + 3.5) + ' ' + x2 + ',' + y2 + '" fill="' + arrowFill + '" stroke="' + arrowStroke + '" stroke-width="1.2" stroke-dasharray="' + arrowDash + '"/>';
+    } else {
+      svgLines += '<polygon points="' + (x2 - 3.5) + ',' + (y2 - 6) + ' ' + (x2 + 3.5) + ',' + (y2 - 6) + ' ' + x2 + ',' + y2 + '" fill="' + arrowFill + '" stroke="' + arrowStroke + '" stroke-width="1.2" stroke-dasharray="' + arrowDash + '"/>';
+    }
+  });
+
+  // Build card HTML elements (absolutely positioned over the SVG)
+  var cardsHtml = '';
+  nodes.forEach(function (n) {
+    var isActivePath = activePath[n.id] !== undefined && activePath[n.id];
+    var cardClass = 'lum-viz-card' + (n.active ? ' active' : '') + (isActivePath && !n.active ? ' on-path' : '');
+    var editBtnHtml = !n.isOriginal ? '<i class="bi bi-pencil lum-viz-card-edit" title="Rename" onclick="event.stopPropagation();renameThread(\'' + charId + '\',' + n.threadIdx + ')"></i>' : '';
+    var delBtnHtml = !n.isOriginal ? '<button class="lum-viz-del-btn" onclick="event.stopPropagation();deleteThread(\'' + charId + '\',' + n.threadIdx + ')"><i class="bi bi-trash"></i></button>' : '';
+
+    cardsHtml += '<div class="' + cardClass + '" style="left:' + n.x + 'px;top:' + n.y + 'px;width:' + cardW + 'px;" onclick="switchToThread(\'' + charId + '\', ' + (n.id ? "'" + n.id + "'" : "null") + ')">' +
+      '<div class="lum-viz-card-top">' +
+        '<span class="lum-viz-card-title">' + escHtml(n.name) + '</span>' +
+        editBtnHtml +
+      '</div>' +
+      '<div class="lum-viz-card-snippet">' + escHtml(n.snippet) + '…</div>' +
+      '<div class="lum-viz-card-bottom">' +
+        '<span class="lum-viz-card-count"><i class="bi bi-chat-dots"></i> ' + n.msgCount + ' msgs</span>' +
+        (n.active ? '<span class="lum-viz-card-active-tag">ACTIVE</span>' : (n.isOriginal ? '<span class="lum-viz-card-orig-tag">Original</span>' : '')) +
+        '<button class="lum-viz-fork-btn" onclick="event.stopPropagation();lumVizFork(\'' + charId + '\', ' + (n.id ? "'" + n.id + "'" : "null") + ')"><i class="bi bi-diagram-2"></i> Fork</button>' +
+        delBtnHtml +
+      '</div>' +
+    '</div>';
+  });
+
+  var canvasHtml = '<div class="lum-viz-canvas" id="lum-viz-canvas">' +
+    '<div class="lum-viz-grid" style="width:' + totalWidth + 'px;height:' + totalHeight + 'px;">' +
+      '<svg class="lum-viz-svg" width="' + totalWidth + '" height="' + totalHeight + '" viewBox="0 0 ' + totalWidth + ' ' + totalHeight + '">' +
+        svgLines +
+      '</svg>' +
+      cardsHtml +
+    '</div>' +
+  '</div>';
+
+  var html = '<div class="lum-viz-wrap">' + headerHtml + canvasHtml + '</div>';
+
+  showQuickDialog({
+    titleHTML: '<span style="display:inline-flex; align-items:center; flex-wrap:wrap; gap:8px;">' +
+      '<span style="font-size:14px; font-weight:800; color:var(--t1); display:inline-flex; align-items:center; gap:6px;"><i class="bi bi-diagram-3" style="color:var(--primary);"></i> Branch Visualizer</span>' +
+      '<span class="threads-modal-toggle-tab">' +
+        '<button class="threads-toggle-tab-btn" onclick="var c = getActive(); if (c) openThreadsView(c);"><i class="bi bi-list-task"></i> List</button>' +
+        '<button class="threads-toggle-tab-btn active"><i class="bi bi-diagram-3"></i> Tree</button>' +
+      '</span>' +
+    '</span>',
+    maxWidth: "850px",
+    content: html,
+    actions: [],
+  });
+
+  // Auto scroll center
+  setTimeout(function () {
+    window.lumVizCenter();
+
+    // Enable drag-to-pan / grab-hand scrolling mechanics
+    var canvas = document.getElementById('lum-viz-canvas');
+    if (!canvas) return;
+
+    var isDown = false;
+    var startX, startY;
+    var scrollLeft, scrollTop;
+
+    // Mouse events
+    canvas.addEventListener('mousedown', function (e) {
+      // Don't pan if clicking interactive overlay tools, cards, buttons, or icons
+      if (e.target.closest('.lum-viz-card') || e.target.closest('button') || e.target.closest('i')) {
+        return;
+      }
+      isDown = true;
+      canvas.classList.add('grabbing');
+      startX = e.pageX - canvas.offsetLeft;
+      startY = e.pageY - canvas.offsetTop;
+      scrollLeft = canvas.scrollLeft;
+      scrollTop = canvas.scrollTop;
+    });
+
+    canvas.addEventListener('mouseleave', function () {
+      isDown = false;
+      canvas.classList.remove('grabbing');
+    });
+
+    canvas.addEventListener('mouseup', function () {
+      isDown = false;
+      canvas.classList.remove('grabbing');
+    });
+
+    canvas.addEventListener('mousemove', function (e) {
+      if (!isDown) return;
+      e.preventDefault();
+      var x = e.pageX - canvas.offsetLeft;
+      var y = e.pageY - canvas.offsetTop;
+      var walkX = (x - startX);
+      var walkY = (y - startY);
+      canvas.scrollLeft = scrollLeft - walkX;
+      canvas.scrollTop = scrollTop - walkY;
+    });
+
+    // Touch events for mobile screens
+    var touchStartX, touchStartY;
+    canvas.addEventListener('touchstart', function (e) {
+      if (e.target.closest('.lum-viz-card') || e.target.closest('button') || e.target.closest('i')) {
+        return;
+      }
+      isDown = true;
+      var touch = e.touches[0];
+      touchStartX = touch.pageX - canvas.offsetLeft;
+      touchStartY = touch.pageY - canvas.offsetTop;
+      scrollLeft = canvas.scrollLeft;
+      scrollTop = canvas.scrollTop;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', function () {
+      isDown = false;
+    });
+
+    canvas.addEventListener('touchmove', function (e) {
+      if (!isDown) return;
+      var touch = e.touches[0];
+      var x = touch.pageX - canvas.offsetLeft;
+      var y = touch.pageY - canvas.offsetTop;
+      var walkX = (x - touchStartX);
+      var walkY = (y - touchStartY);
+      canvas.scrollLeft = scrollLeft - walkX;
+      canvas.scrollTop = scrollTop - walkY;
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+  }, 100);
+};
+
+// Layout toggle (updates the global direction and triggers redraw)
+window.lumVizLayout = function (btn, dir, charId) {
+  window.__lumVizLayoutDir = dir;
+  if (charId) {
+    window.openThreadVisualizer(charId);
+  }
+};
+
+// Center the canvas scroll position
+window.lumVizCenter = function () {
+  var canvas = document.getElementById('lum-viz-canvas');
+  if (canvas) {
+    canvas.scrollLeft = (canvas.scrollWidth - canvas.clientWidth) / 2;
+    canvas.scrollTop = (canvas.scrollHeight - canvas.clientHeight) / 2;
+  }
+};
+
+// Fork from a specific thread (creates a new thread branching from the last message of the given thread)
+window.lumVizFork = function (charId, fromThreadId) {
+  var c = chars.find(function (ch) { return ch.id === charId; });
+  if (!c) return;
+  if (!c.threads) c.threads = [];
+
+  // Find the last message in the source thread (or main if fromThreadId is null)
+  var sourceMsgs = c.msgs.filter(function (m) {
+    if (fromThreadId) return m.threadId === fromThreadId;
+    return !m.threadId;
+  });
+  if (sourceMsgs.length === 0) {
+    showToast("No messages to fork from", "warning");
+    return;
+  }
+  var parentMsg = sourceMsgs[sourceMsgs.length - 1];
+
+  var threadId = "thread_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+
+  showQuickDialog({
+    titleHTML: '<i class="bi bi-diagram-2" style="color:var(--primary);margin-right:6px;"></i> New Branch',
+    content: '<div class="lum-thread-input-wrap">' +
+      '<label style="font-size:12px;color:var(--t2);font-weight:600;">Branch Name</label>' +
+      '<input type="text" id="thread-fork-input" class="lum-thread-input" placeholder="Branch ' + (c.threads.length + 1) + '" autofocus/>' +
+      '</div>',
+    actions: [
+      { text: "Cancel", type: "secondary", onClick: function () {
+        openThreadVisualizer(charId);
+        return true;
+      } },
+      { text: "Create", type: "primary", onClick: function () {
+        var nameEl = document.getElementById("thread-fork-input");
+        var name = nameEl ? nameEl.value.trim() : "";
+        if (!name) name = "Branch " + (c.threads.length + 1);
+
+        c.threads.push({
+          id: threadId,
+          name: name,
+          parentMsgId: parentMsg.id,
+          parentMsgText: (parentMsg.text || "").slice(0, 100),
+          created: Date.now(),
+          favorite: false,
+        });
+
+        // Duplicate all messages from the source thread up to and including parent
+        var sourceMsgsAll = c.msgs.filter(function (m) {
+          if (fromThreadId) return m.threadId === fromThreadId;
+          return !m.threadId;
+        });
+        var parentIdx = sourceMsgsAll.indexOf(parentMsg);
+        for (var mi = 0; mi <= parentIdx; mi++) {
+          var orig = sourceMsgsAll[mi];
+          if (!orig || orig.role === "sys") continue;
+          var copy = Object.assign({}, orig);
+          copy.id = generateMsgId();
+          copy.threadId = threadId;
+          c.msgs.push(copy);
+        }
+
+        parentMsg.threadBranch = threadId;
+        if (typeof saveState === "function") saveState();
+        showToast('Branch "' + name + '" created', "success");
+        setTimeout(function () { openThreadVisualizer(charId); }, 100);
+        return true;
+      } },
+    ],
+  });
+
+  setTimeout(function () {
+    var inp = document.getElementById("thread-fork-input");
+    if (inp) inp.focus();
+  }, 100);
+};
+
+// Switch the active thread view — filters messages to only show that thread
+window.switchToThread = function (charId, threadId) {
+  var c = chars.find(function (ch) { return ch.id === charId; });
+  if (!c) return;
+  c.activeThreadId = threadId; // null = main conversation
+  if (typeof saveState === "function") saveState();
+  closeModal("modal-quick-dialog");
+  if (typeof renderMsgs === "function") renderMsgs();
+  var threadName = "Main Conversation";
+  if (threadId && c.threads) {
+    var t = c.threads.find(function (th) { return th.id === threadId; });
+    if (t) threadName = t.name;
+  }
+  showToast("Switched to: " + threadName, "info");
+};
+
+window.refreshActiveThreadsModal = function (c) {
+  var isVisualizer = !!document.getElementById("lum-viz-canvas");
+  if (isVisualizer) {
+    openThreadVisualizer(c.id);
+  } else {
+    openThreadsView(c);
+  }
+};
+
+window.toggleThreadFav = function (charId, idx) {
+  var c = chars.find(function (ch) { return ch.id === charId; });
+  if (!c || !c.threads || !c.threads[idx]) return;
+  c.threads[idx].favorite = !c.threads[idx].favorite;
+  if (typeof saveState === "function") saveState();
+  refreshActiveThreadsModal(c);
+};
+
+window.renameThread = function (charId, idx) {
+  var c = chars.find(function (ch) { return ch.id === charId; });
+  if (!c || !c.threads || !c.threads[idx]) return;
+  var currentName = c.threads[idx].name || "";
+  var wasVisualizer = !!document.getElementById("lum-viz-canvas");
+  
+  showQuickDialog({
+    titleHTML: '<i class="bi bi-pencil" style="color:var(--primary);margin-right:6px;"></i> Rename Thread',
+    content: '<div class="lum-thread-input-wrap">' +
+      '<label style="font-size:12px;color:var(--t2);font-weight:600;">Thread Name</label>' +
+      '<input type="text" id="thread-rename-input" class="lum-thread-input" value="' + currentName.replace(/"/g, '&quot;') + '" autofocus/>' +
+      '</div>',
+    actions: [
+      { text: "Cancel", type: "secondary", onClick: function () {
+        if (wasVisualizer) {
+          openThreadVisualizer(c.id);
+        } else {
+          openThreadsView(c);
+        }
+        return true;
+      } },
+      { text: "Save", type: "primary", onClick: function () {
+        var nameEl = document.getElementById("thread-rename-input");
+        var name = nameEl ? nameEl.value.trim() : "";
+        if (!name) name = "Untitled Thread";
+        c.threads[idx].name = name;
+        if (typeof saveState === "function") saveState();
+        if (wasVisualizer) {
+          openThreadVisualizer(c.id);
+        } else {
+          openThreadsView(c);
+        }
+        return true;
+      } },
+    ],
+  });
+  
+  setTimeout(function () {
+    var inp = document.getElementById("thread-rename-input");
+    if (inp) { inp.focus(); inp.select(); }
+  }, 100);
+};
+
+window.deleteThread = function (charId, idx) {
+  var c = chars.find(function (ch) { return ch.id === charId; });
+  if (!c || !c.threads || !c.threads[idx]) return;
+  if (!confirm("Delete this thread and all its messages?")) return;
+  var threadId = c.threads[idx].id;
+  c.msgs = c.msgs.filter(function (m) { return m.threadId !== threadId; });
+  c.threads.splice(idx, 1);
+  if (typeof saveState === "function") saveState();
+  if (typeof renderMsgs === "function") renderMsgs();
+  refreshActiveThreadsModal(c);
+};
+
+window.startThread = function (msgId) {
+  var c = getActive();
+  if (!c) return;
+  var res = findMsg(msgId);
+  if (!res) return;
+  var parentMsg = res.msg;
+  var parentIdx = res.idx;
+  if (!c.threads) c.threads = [];
+  var threadId = "thread_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+  
+  // Show styled modal instead of prompt()
+  showQuickDialog({
+    titleHTML: '<i class="bi bi-diagram-2" style="color:var(--primary);margin-right:6px;"></i> New Thread',
+    content: '<div class="lum-thread-input-wrap">' +
+      '<label style="font-size:12px;color:var(--t2);font-weight:600;">Thread Name</label>' +
+      '<input type="text" id="thread-name-input" class="lum-thread-input" placeholder="Thread ' + (c.threads.length + 1) + '" autofocus/>' +
+      '</div>',
+    actions: [
+      { text: "Cancel", type: "secondary", onClick: function () { return true; } },
+      { text: "Create", type: "primary", onClick: function () {
+        var nameEl = document.getElementById("thread-name-input");
+        var threadName = nameEl ? nameEl.value.trim() : "";
+        if (!threadName) threadName = "Thread " + (c.threads.length + 1);
+        
+        c.threads.push({
+          id: threadId,
+          name: threadName,
+          parentMsgId: msgId,
+          parentMsgText: (parentMsg.text || "").slice(0, 100),
+          created: Date.now(),
+          favorite: false,
+        });
+        
+        // Duplicate all messages up to and including the parent message
+        // from the correct thread lineage, tagged with the new threadId
+        var parentThreadId = parentMsg.threadId || null;
+        var lineageMsgs = c.msgs.filter(function (m) {
+          if (parentThreadId) return m.threadId === parentThreadId;
+          return !m.threadId;
+        });
+        var localParentIdx = lineageMsgs.indexOf(parentMsg);
+        for (var mi = 0; mi <= localParentIdx; mi++) {
+          var orig = lineageMsgs[mi];
+          if (!orig || orig.role === "sys") continue;
+          var copy = Object.assign({}, orig);
+          copy.id = generateMsgId();
+          copy.threadId = threadId;
+          c.msgs.push(copy);
+        }
+        
+        parentMsg.threadBranch = threadId;
+        if (typeof saveState === "function") saveState();
+        showToast('Thread "' + threadName + '" created', "success");
+        return true;
+      } },
+    ],
+  });
+  
+  // Focus the input after render
+  setTimeout(function () {
+    var inp = document.getElementById("thread-name-input");
+    if (inp) inp.focus();
+  }, 100);
+};
+
 window.openPinnedMessages = function (c) {
   var pinnedMsgs = c.msgs.filter(function(m) { return m.pinned; });
   var count = pinnedMsgs.length;
@@ -17455,12 +18814,17 @@ window.openPinnedMessages = function (c) {
 };
 
 window.openChatSearch = function (c) {
-  var contentHtml = 
-    '<div style="display:flex;flex-direction:column;gap:12px;">' +
-    '<div class="qdialog-input-group">' +
-      '<input type="text" id="chat-search-input" class="qdialog-input" placeholder="Search chat..." oninput="updateChatSearchList()"/>' +
+  var contentHtml =
+    '<div class="lum-search-wrap">' +
+    '<div class="lum-search-tabs">' +
+      '<button id="search-tab-all" class="lum-search-tab active" onclick="setSearchTab(\'all\')">All</button>' +
+      '<button id="search-tab-pinned" class="lum-search-tab" onclick="setSearchTab(\'pinned\')"><i class="bi bi-pin-angle"></i> Pinned</button>' +
     '</div>' +
-    '<div id="chat-search-results" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>' +
+    '<div class="lum-search-input-wrap">' +
+      '<i class="bi bi-search lum-search-icon"></i>' +
+      '<input type="text" id="chat-search-input" class="lum-search-input" placeholder="Search messages..." oninput="updateChatSearchList()"/>' +
+    '</div>' +
+    '<div id="chat-search-results" class="lum-search-results"></div>' +
     '</div>';
 
   showQuickDialog({
@@ -17469,8 +18833,43 @@ window.openChatSearch = function (c) {
     actions: []
   });
 
-  // Initialize empty search
   window.activeSearchChar = c;
+  window.__searchPinnedOnly = false;
+  updateChatSearchList();
+  // Initialize sliding underline position
+  setTimeout(function () {
+    var allBtn = document.getElementById("search-tab-all");
+    var tabsContainer = document.querySelector(".lum-search-tabs");
+    if (allBtn && tabsContainer) {
+      tabsContainer.style.setProperty("--lum-tab-left", allBtn.offsetLeft + "px");
+      tabsContainer.style.setProperty("--lum-tab-width", allBtn.offsetWidth + "px");
+    }
+  }, 50);
+};
+
+window.setSearchTab = function (tab) {
+  window.__searchPinnedOnly = (tab === "pinned");
+  var allBtn = document.getElementById("search-tab-all");
+  var pinBtn = document.getElementById("search-tab-pinned");
+  if (allBtn) { allBtn.classList.toggle("active", tab === "all"); }
+  if (pinBtn) { pinBtn.classList.toggle("active", tab === "pinned"); }
+  // Update sliding underline position
+  var activeBtn = tab === "all" ? allBtn : pinBtn;
+  var tabsContainer = document.querySelector(".lum-search-tabs");
+  if (activeBtn && tabsContainer) {
+    tabsContainer.style.setProperty("--lum-tab-left", activeBtn.offsetLeft + "px");
+    tabsContainer.style.setProperty("--lum-tab-width", activeBtn.offsetWidth + "px");
+  }
+  updateChatSearchList();
+};
+
+window.toggleSearchPinned = function () {
+  window.__searchPinnedOnly = !window.__searchPinnedOnly;
+  var btn = document.getElementById("search-pinned-toggle");
+  if (btn) {
+    btn.classList.toggle("btn-primary", window.__searchPinnedOnly);
+    btn.classList.toggle("btn-secondary", !window.__searchPinnedOnly);
+  }
   updateChatSearchList();
 };
 
@@ -17480,20 +18879,31 @@ window.updateChatSearchList = function () {
   var el = document.getElementById("chat-search-input");
   var resEl = document.getElementById("chat-search-results");
   if (!el || !resEl) return;
-  
+
   var q = el.value.toLowerCase().trim();
+  var pinnedOnly = !!window.__searchPinnedOnly;
   var matches = [];
-  
-  if (q === "") {
-    matches = [];
-  } else {
-    matches = c.msgs.filter(function(m) { 
+
+  if (pinnedOnly) {
+    // Show pinned messages (optionally filtered by search query)
+    matches = c.msgs.filter(function(m) {
+      if (!m.pinned) return false;
+      if (q === "") return true;
       return m.text && m.text.toLowerCase().indexOf(q) !== -1;
     });
+  } else {
+    if (q === "") {
+      matches = [];
+    } else {
+      matches = c.msgs.filter(function(m) {
+        return m.text && m.text.toLowerCase().indexOf(q) !== -1;
+      });
+    }
   }
-  
+
   if (matches.length === 0) {
-    resEl.innerHTML = '<div style="color:var(--t3);font-size:12px;text-align:center;padding:20px;">' + (q === "" ? "Type a query to search messages." : "No results found.") + '</div>';
+    var emptyMsg = pinnedOnly ? "No pinned messages in this chat." : (q === "" ? "Type a query to search messages." : "No results found.");
+    resEl.innerHTML = '<div class="lum-search-empty">' + emptyMsg + '</div>';
     return;
   }
   
@@ -17504,46 +18914,38 @@ window.updateChatSearchList = function () {
       var idx = m.text.toLowerCase().indexOf(q);
       if (idx !== -1) {
         var totalLen = m.text.length;
-        if (totalLen > 100) {
-          var start = idx - 45;
-          var end = idx + q.length + 45;
-          if (start < 0) {
-            end += Math.abs(start);
-            start = 0;
-          }
-          if (end > totalLen) {
-            start -= (end - totalLen);
-            end = totalLen;
-          }
+        if (totalLen > 120) {
+          var start = idx - 50;
+          var end = idx + q.length + 50;
+          if (start < 0) { end += Math.abs(start); start = 0; }
+          if (end > totalLen) { start -= (end - totalLen); end = totalLen; }
           if (start < 0) start = 0;
-          
           truncated = m.text.substring(start, end);
           if (start > 0) truncated = "..." + truncated;
           if (end < totalLen) truncated = truncated + "...";
         }
       } else {
-        if (m.text.length > 100) {
-          truncated = m.text.substring(0, 100) + "...";
-        }
+        if (m.text.length > 120) truncated = m.text.substring(0, 120) + "...";
       }
     } else {
-      if (m.text.length > 100) {
-        truncated = m.text.substring(0, 100) + "...";
-      }
+      if (m.text.length > 120) truncated = m.text.substring(0, 120) + "...";
     }
     var roleName = m.role === "user" ? "You" : (m.role === "ai" ? c.name : "Narrator");
-    var pinIcon = m.pinned ? '<i class="bi bi-pin-angle-fill" style="color:var(--primary);margin-left:6px;"></i>' : '';
+    var pinIcon = m.pinned ? '<i class="bi bi-pin-angle-fill" style="color:var(--primary);font-size:10px;"></i>' : '';
     
     var safeTruncated = escHtml(truncated);
     if (q !== "") {
-      var regex = new RegExp("(" + q.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + ")", "gi");
+      var regex = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, '\\' + '$' + '&') + ")", "gi");
+      safeTruncated = safeTruncated.replace(regex, '<span class="lum-search-highlight">$1</span>');
     }
     
-    html += '<div style="padding:10px;background:var(--bg-2);border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:all var(--dur-micro) ease;" ' +
-      'onmouseover="this.style.borderColor=\'var(--primary)\'" onmouseout="this.style.borderColor=\'transparent\'" ' +
-      'onclick="scrollToMessage(\'' + m.id + '\')">' +
-      '<div style="font-size:11px;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;"><b>' + roleName + '</b>' + pinIcon + '<span style="margin-left:auto">' + (m.time || "") + '</span></div>' +
-      '<div style="font-size:13px;color:var(--t1);white-space:pre-wrap;line-height:1.4;">' + safeTruncated + '</div>' +
+    html += '<div class="lum-search-item" onclick="scrollToMessage(\'' + m.id + '\')">' +
+      '<div class="lum-search-item-hd">' +
+        '<span class="lum-search-item-role">' + roleName + '</span>' +
+        pinIcon +
+        '<span class="lum-search-item-time">' + (m.time || "") + '</span>' +
+      '</div>' +
+      '<div class="lum-search-item-text">' + safeTruncated + '</div>' +
     '</div>';
   });
   resEl.innerHTML = html;
@@ -19410,10 +20812,12 @@ function openAvatarDialog() {
 function openModal(id) {
   var m = document.getElementById(id);
   if (m) m.classList.add("show");
+  if (typeof window.syncVisualizerBtnState === "function") window.syncVisualizerBtnState();
 }
 function closeModal(id) {
   var m = document.getElementById(id);
   if (m) m.classList.remove("show");
+  if (typeof window.syncVisualizerBtnState === "function") window.syncVisualizerBtnState();
 }
 
 function showQuickDialog(opts) {
@@ -22133,17 +23537,15 @@ function bindEvents() {
   qs("#nar-toggle").onclick = function () {
     isNar = !isNar;
     this.classList.toggle("active", isNar);
-    var c = getActive();
-    if (c) {
-      c.msgs.push({
-        role: "sys",
-        text: "Mode: " + (isNar ? "Narrator" : "Roleplay"),
-        time: ts(),
-        epoch: tsEpoch(),
-      });
-      saveState();
-      renderMsgs();
+    // Update the header status indicator instead of inserting sys messages
+    // into the chat history (which polluted the message container)
+    var statusEl = $id("chat-char-status");
+    if (statusEl) {
+      statusEl.textContent = isNar ? "Narrator mode" : "online";
+      statusEl.style.color = isNar ? "var(--primary)" : "";
     }
+    // Save the narrator state without adding a message
+    if (typeof saveState === "function") saveState();
     showToast(
       isNar ? "Narrator mode enabled" : "Narrator mode disabled",
       "info",
@@ -22166,11 +23568,14 @@ function bindEvents() {
     openChatSearch(c);
   };
 
-  qs("#pinned-messages-btn").onclick = function () {
-    var c = getActive();
-    if (!c) return;
-    openPinnedMessages(c);
-  };
+  var threadsBtn = qs("#chat-threads-btn");
+  if (threadsBtn) {
+    threadsBtn.onclick = function () {
+      var c = getActive();
+      if (!c) return;
+      openThreadsView(c);
+    };
+  }
 
   qs("#ctx-cognitive-memory").onclick = function () {
     var c = getActive();
@@ -23300,54 +24705,6 @@ function bindEvents() {
             : "none";
       });
     } else slashPopup.classList.remove("show");
-
-    // ── Live Markdown Preview ──
-    // Show the user what **bold**, *italics*, and ****both**** look like
-    // as they type, so they can see formatting effects in real-time.
-    try {
-      var previewEl = $id("chat-input-preview");
-      if (previewEl && val.length > 0) {
-        var hasFormatting = /(\*\*|__|\*|_|~~)/.test(val);
-        if (hasFormatting) {
-          var previewHtml = val
-            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-            .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-            .replace(/__(.*?)__/g, "<strong>$1</strong>")
-            .replace(/\*(.*?)\*/g, "<em>$1</em>")
-            .replace(/_(.*?)_/g, "<em>$1</em>")
-            .replace(/~~(.*?)~~/g, "<s>$1</s>");
-          previewEl.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + previewHtml;
-          previewEl.style.display = "block";
-        } else {
-          // Check for macro hints
-          var activeChar = typeof getActive === "function" ? getActive() : null;
-          if (activeChar && activeChar.cognitive && activeChar.cognitive.macros) {
-            var macros = activeChar.cognitive.macros;
-            var macroHints = [];
-            for (var mk in macros) {
-              var phrase = macros[mk];
-              if (val.indexOf(phrase) !== -1) {
-                macroHints.push(phrase + " → {{" + mk + "}}");
-              }
-            }
-            if (macroHints.length > 0) {
-              previewEl.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
-                macroHints.map(function(h){ return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + '</span>'; }).join(" ");
-              previewEl.style.display = "block";
-            } else {
-              previewEl.style.display = "none";
-            }
-          } else {
-            previewEl.style.display = "none";
-          }
-        }
-      } else if (previewEl) {
-        previewEl.style.display = "none";
-      }
-    } catch (previewErr) {
-      // Silently ignore preview errors — don't block the input handler
-    }
   });
   chatInput.addEventListener("keydown", function (e) {
     if (e.key === "Backspace" && this.value === "" && window.activeSlashCommand) {
@@ -23410,7 +24767,10 @@ function bindEvents() {
   });
   qsa(".overlay").forEach(function (overlay) {
     overlay.onclick = function (e) {
-      if (e.target === overlay) overlay.classList.remove("show");
+      if (e.target === overlay) {
+        overlay.classList.remove("show");
+        if (typeof window.syncVisualizerBtnState === "function") window.syncVisualizerBtnState();
+      }
     };
   });
 
@@ -23510,57 +24870,6 @@ async function init() {
   }
   bindEvents();
   renderMsgs();
-
-  // ── Live Markdown Preview + Macro Hints ──
-  // Attached here (in init) to ensure the DOM is ready and this runs
-  // before any patch code that might stop event propagation.
-  setTimeout(function () {
-    var previewInp = document.getElementById("chat-input");
-    var previewEl = document.getElementById("chat-input-preview");
-    if (previewInp && previewEl) {
-      previewInp.addEventListener("input", function () {
-        try {
-          var pval = this.value.trim();
-          if (!pval) { previewEl.style.display = "none"; return; }
-          var pfmt = /(\*\*|__|\*|_|~~)/.test(pval);
-          if (pfmt) {
-            var phtml = pval
-              .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-              .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
-              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-              .replace(/__(.*?)__/g, "<strong>$1</strong>")
-              .replace(/\*(.*?)\*/g, "<em>$1</em>")
-              .replace(/_(.*?)_/g, "<em>$1</em>")
-              .replace(/~~(.*?)~~/g, "<s>$1</s>");
-            previewEl.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + phtml;
-            previewEl.style.display = "block";
-          } else {
-            var pChar = typeof getActive === "function" ? getActive() : null;
-            if (pChar && pChar.cognitive && pChar.cognitive.macros) {
-              var pMacros = pChar.cognitive.macros;
-              var pHints = [];
-              for (var pmk in pMacros) {
-                if (pval.indexOf(pMacros[pmk]) !== -1) {
-                  pHints.push(pMacros[pmk] + " → {{" + pmk + "}}");
-                }
-              }
-              if (pHints.length > 0) {
-                previewEl.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
-                  pHints.map(function (h) {
-                    return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + "</span>";
-                  }).join(" ");
-                previewEl.style.display = "block";
-              } else {
-                previewEl.style.display = "none";
-              }
-            } else {
-              previewEl.style.display = "none";
-            }
-          }
-        } catch (e) {}
-      });
-    }
-  }, 200);
 }
 
 init();
@@ -26897,115 +28206,7 @@ if (window.visualViewport) {
   });
 }
 
-// ── Live Markdown Preview + Macro Hints (independent listener) ──
-// Separate from the main input handler to ensure it always runs, even if
-// other handlers (DualChar, TimeSkip patches) intercept the event.
-(function () {
-  function attachPreview() {
-    var inp = document.getElementById("chat-input");
-    var previewEl = document.getElementById("chat-input-preview");
-    if (!inp || !previewEl) {
-      setTimeout(attachPreview, 500);
-      return;
-    }
-    inp.addEventListener("input", function () {
-      try {
-        var val = this.value.trim();
-        if (!val) {
-          previewEl.style.display = "none";
-          return;
-        }
-        var hasFormatting = /(\*\*|__|\*|_|~~)/.test(val);
-        if (hasFormatting) {
-          var previewHtml = val
-            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-            .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-            .replace(/__(.*?)__/g, "<strong>$1</strong>")
-            .replace(/\*(.*?)\*/g, "<em>$1</em>")
-            .replace(/_(.*?)_/g, "<em>$1</em>")
-            .replace(/~~(.*?)~~/g, "<s>$1</s>");
-          previewEl.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + previewHtml;
-          previewEl.style.display = "block";
-        } else {
-          // Check for macro hints
-          var activeChar = typeof getActive === "function" ? getActive() : null;
-          if (activeChar && activeChar.cognitive && activeChar.cognitive.macros) {
-            var macros = activeChar.cognitive.macros;
-            var hints = [];
-            for (var mk in macros) {
-              var phrase = macros[mk];
-              if (val.indexOf(phrase) !== -1) {
-                hints.push(phrase + " → {{" + mk + "}}");
-              }
-            }
-            if (hints.length > 0) {
-              previewEl.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
-                hints.map(function (h) {
-                  return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + "</span>";
-                }).join(" ");
-              previewEl.style.display = "block";
-            } else {
-              previewEl.style.display = "none";
-            }
-          } else {
-            previewEl.style.display = "none";
-          }
-        }
-      } catch (e) {
-        // Silently ignore — don't break the input
-      }
-    });
-  }
-  // Attach after DOM is ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", attachPreview);
-  } else {
-    setTimeout(attachPreview, 100);
-  }
-})();
+// (Preview popup removed — raw markdown formatting stays visible in the textarea)
 </script>
-    <script>
-      // ── Live Markdown Preview + Macro Hints ──
-      // Inline script to guarantee execution regardless of main.js loading order
-      window.addEventListener("load", function () {
-        function attachPreview() {
-          var inp = document.getElementById("chat-input");
-          var el = document.getElementById("chat-input-preview");
-          if (!inp || !el) { setTimeout(attachPreview, 300); return; }
-          inp.addEventListener("input", function () {
-            try {
-              var v = this.value.trim();
-              if (!v) { el.style.display = "none"; return; }
-              var fmt = /(\*\*|__|\*|_|~~)/.test(v);
-              if (fmt) {
-                var h = v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-                  .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
-                  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                  .replace(/__(.*?)__/g, "<strong>$1</strong>")
-                  .replace(/\*(.*?)\*/g, "<em>$1</em>")
-                  .replace(/_(.*?)_/g, "<em>$1</em>")
-                  .replace(/~~(.*?)~~/g, "<s>$1</s>");
-                el.innerHTML = '<span style="font-size:9px;color:var(--t3);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Preview</span>' + h;
-                el.style.display = "block";
-              } else {
-                var ch = (typeof getActive === "function") ? getActive() : null;
-                if (ch && ch.cognitive && ch.cognitive.macros) {
-                  var ms = ch.cognitive.macros;
-                  var hs = [];
-                  for (var k in ms) { if (v.indexOf(ms[k]) !== -1) hs.push(ms[k] + " \u2192 {{" + k + "}}"); }
-                  if (hs.length > 0) {
-                    el.innerHTML = '<span style="font-size:9px;color:var(--primary);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;">Macros</span>' +
-                      hs.map(function (h) { return '<span style="display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--primary) 10%,transparent);border-radius:4px;margin:1px;font-size:10px;color:var(--primary);">' + h + "</span>"; }).join(" ");
-                    el.style.display = "block";
-                  } else { el.style.display = "none"; }
-                } else { el.style.display = "none"; }
-              }
-            } catch (e) {}
-          });
-        }
-        setTimeout(attachPreview, 500);
-      });
-    </script>
   </body>
 </html>
