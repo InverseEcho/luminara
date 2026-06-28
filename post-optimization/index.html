@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.min.js"></script>
 
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap"); @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css"); .lorebook-entry { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: border-color var(--trans-hover), box-shadow var(--trans-hover); }
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap"); @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css"); .lorebook-entry { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: border-color var(--trans-hover), box-shadow var(--trans-hover); }
       .lorebook-entry:hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--border)); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); }
       .lorebook-entry-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
       .lorebook-entry-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--t1); letter-spacing: 0.5px; }
@@ -357,8 +357,14 @@
       .slash-item { display: flex; align-items: center; gap: 12px; padding: 10px 15px; cursor: pointer; border-top: 1px solid var(--border); transition: background var(--trans-hover), transform var(--trans-hover); }
       .slash-item:hover { background: var(--bg-overlay); transform: translateX(4px); }
       .slash-item:active { background: var(--bg-overlay); transform: translateX(2px) scale(0.99); transition-duration: var(--dur-micro); }
-      .slash-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border); }
+      .slash-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border); transition: all 0.18s ease; }
       .slash-icon svg { width: 13px; height: 13px; }
+      .slash-icon-char { background: rgba(52, 211, 153, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.25); }
+      .slash-icon-nar { background: rgba(167, 139, 250, 0.12); color: #a78bfa; border-color: rgba(167, 139, 250, 0.25); }
+      .slash-icon-user { background: rgba(56, 189, 248, 0.12); color: #38bdf8; border-color: rgba(56, 189, 248, 0.25); }
+      .slash-icon-img { background: rgba(244, 114, 182, 0.12); color: #f472b6; border-color: rgba(244, 114, 182, 0.25); }
+      .slash-icon-skip { background: rgba(251, 191, 36, 0.12); color: #fbbf24; border-color: rgba(251, 191, 36, 0.25); }
+      .slash-item:hover .slash-icon { transform: scale(1.08); }
       .slash-cmd { font-size: 12.5px; font-weight: 800; color: var(--accent); margin-bottom: 1px; }
       .slash-desc { font-size: 11px; color: var(--t1); font-weight: 500; }
       #reply-preview { display: none; width: 100%; max-width: 100%; box-sizing: border-box; background: var(--bg-raised); border-left: 2px solid var(--accent); border-radius: var(--r-sm); margin-bottom: 7px; padding: 7px 10px 7px 12px; overflow: hidden; }
@@ -1322,7 +1328,7 @@
       .lum-viz-del-btn { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; font-size: 9px; font-weight: 700; color: var(--error); background: color-mix(in srgb, var(--error) 8%, transparent); border: 1px solid color-mix(in srgb, var(--error) 18%, transparent); border-radius: 4px; cursor: pointer; transition: background 0.15s ease; }
       .lum-viz-del-btn:hover { background: color-mix(in srgb, var(--error) 18%, transparent); }
       .lum-viz-del-btn i { font-size: 9px; }
-    </style>
+</style>
   </head>
   <body>
     <svg
@@ -1744,17 +1750,7 @@
           <div class="slash-popup" id="slash-popup">
             <div class="slash-head">Commands</div>
             <div class="slash-item" data-cmd="/char">
-              <div
-                class="slash-icon"
-                style="
-                  background: color-mix(
-                    in srgb,
-                    var(--primary-500) 12%,
-                    transparent
-                  );
-                  color: var(--primary);
-                "
-              >
+              <div class="slash-icon slash-icon-char">
                 <i class="bi bi-chat-square" style="font-size: 10px"></i>
               </div>
               <div>
@@ -1774,17 +1770,7 @@
               </div>
             </div>
             <div class="slash-item" data-cmd="/nar">
-              <div
-                class="slash-icon"
-                style="
-                  background: color-mix(
-                    in srgb,
-                    var(--primary-500) 10%,
-                    transparent
-                  );
-                  color: var(--blue);
-                "
-              >
+              <div class="slash-icon slash-icon-nar">
                 <i class="bi bi-book" style="font-size: 10px"></i>
               </div>
               <div>
@@ -1804,10 +1790,7 @@
               </div>
             </div>
             <div class="slash-item" data-cmd="/user">
-              <div
-                class="slash-icon"
-                style="background: var(--bg-2); color: var(--primary)"
-              >
+              <div class="slash-icon slash-icon-user">
                 <i class="bi bi-person" style="font-size: 10px"></i>
               </div>
               <div>
@@ -1827,17 +1810,7 @@
               </div>
             </div>
             <div class="slash-item" data-cmd="/img">
-              <div
-                class="slash-icon"
-                style="
-                  background: color-mix(
-                    in srgb,
-                    var(--primary-500) 10%,
-                    transparent
-                  );
-                  color: var(--rose);
-                "
-              >
+              <div class="slash-icon slash-icon-img">
                 <i class="bi bi-image" style="font-size: 10px"></i>
               </div>
               <div>
@@ -1857,17 +1830,7 @@
               </div>
             </div>
             <div class="slash-item" data-cmd="/timeskip">
-              <div
-                class="slash-icon"
-                style="
-                  background: color-mix(
-                    in srgb,
-                    var(--primary-500) 10%,
-                    transparent
-                  );
-                  color: var(--primary-500);
-                "
-              >
+              <div class="slash-icon slash-icon-skip">
                 <i class="bi bi-hourglass-split" style="font-size: 10px"></i>
               </div>
               <div>
@@ -4475,7 +4438,7 @@
     </div>
 
     <script>
-      function debounce(fn, ms) {
+function debounce(fn, ms) {
         var t;
         return function () {
           var a = arguments,
@@ -24821,6 +24784,6 @@
           if (typeof scrollBottom === "function") scrollBottom();
         });
       }
-    </script>
+</script>
   </body>
 </html>
