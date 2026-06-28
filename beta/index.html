@@ -3500,69 +3500,29 @@
             </div>
           </div>
 
-          <!-- ── Cloud API panel ── -->
-          <div class="provider-panel" id="provider-panel-cloud" style="display:none;">
-            <div class="provider-fields">
-              <div class="form-group">
-                <label class="form-label">Provider Preset</label>
-                <div class="custom-select" id="custom-cloud-preset">
-                  <div class="select-trigger">
-                    <span>Custom (OpenAI-compatible)</span><i class="bi bi-chevron-down"></i>
-                  </div>
-                  <div class="select-dropdown"></div>
-                </div>
-                <div class="provider-preset-hint" id="cloud-preset-hint"></div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Base URL</label>
-                <input type="text" id="cloud-base-url" class="form-input" placeholder="https://api.openai.com" autocomplete="off" spellcheck="false" />
-                <div class="form-hint">The endpoint exposing <code>/v1/chat/completions</code>. No trailing slash.</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">API Key</label>
-                <div class="input-with-toggle">
-                  <input type="password" id="cloud-api-key" class="form-input" placeholder="sk-..." autocomplete="off" spellcheck="false" />
-                  <button type="button" class="input-toggle-btn" onclick="togglePasswordField('cloud-api-key', this)" aria-label="Show API key">
-                    <i class="bi bi-eye"></i>
-                  </button>
-                </div>
-                <div class="form-hint">Stored locally in your browser only — never sent anywhere except the Base URL above.</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Model</label>
-                <input type="text" id="cloud-model" class="form-input" placeholder="gpt-4o-mini" autocomplete="off" spellcheck="false" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">
-                  Custom Headers
-                  <span class="form-label-optional">(optional)</span>
-                </label>
-                <textarea id="cloud-custom-headers" class="form-textarea" rows="2" placeholder='\{"HTTP-Referer":"https://luminara.app","X-Title":"Luminara"\}' spellcheck="false"></textarea>
-                <div class="form-hint">JSON object of extra HTTP headers (e.g. for OpenRouter routing).</div>
-              </div>
-            </div>
-          </div>
-
           <!-- ── Local LLM panel ── -->
           <div class="provider-panel" id="provider-panel-local" style="display:none;">
             <div class="provider-fields">
+              <div class="provider-hint">
+                <i class="bi bi-info-circle"></i>
+                <div>
+                  <strong>Local LLM via Cloudflare Tunnel.</strong> Since Perchance is served over HTTPS, browsers block direct calls to <code>http://localhost</code>. Tunnel your local server to get an HTTPS URL: run <code>cloudflared tunnel --url http://localhost:PORT</code> in a terminal, then paste the resulting <code>https://*.trycloudflare.com</code> URL into the Base URL field below.
+                </div>
+              </div>
               <div class="form-group">
-                <label class="form-label">Local Server</label>
+                <label class="form-label">Local Server Software</label>
                 <div class="custom-select" id="custom-local-preset">
                   <div class="select-trigger">
-                    <span>Custom local endpoint</span><i class="bi bi-chevron-down"></i>
+                    <span>Custom endpoint</span><i class="bi bi-chevron-down"></i>
                   </div>
                   <div class="select-dropdown"></div>
                 </div>
                 <div class="provider-preset-hint" id="local-preset-hint"></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Base URL</label>
-                <input type="text" id="local-base-url" class="form-input" placeholder="http://localhost:11434" autocomplete="off" spellcheck="false" />
-                <div class="form-hint">
-                  <i class="bi bi-exclamation-triangle"></i>
-                  If Luminara runs on HTTPS, browsers block calls to <code>http://localhost</code> (mixed content). Serve Luminara over HTTP, or proxy your local LLM through HTTPS.
-                </div>
+                <label class="form-label">Base URL (Cloudflare Tunnel URL)</label>
+                <input type="text" id="local-base-url" class="form-input" placeholder="https://your-tunnel.trycloudflare.com" autocomplete="off" spellcheck="false" />
+                <div class="form-hint">Paste the HTTPS tunnel URL from <code>cloudflared tunnel</code>. No trailing slash. The endpoint must expose <code>/v1/chat/completions</code>.</div>
               </div>
               <div class="form-group">
                 <label class="form-label">
@@ -3578,12 +3538,20 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Model</label>
-                <input type="text" id="local-model" class="form-input" placeholder="llama3.2" autocomplete="off" spellcheck="false" />
-                <div class="form-hint">The model ID your local server reports (e.g. <code>llama3.2</code>, <code>qwen2.5:7b</code>, or the LM Studio model identifier).</div>
+                <input type="text" id="local-model" class="form-input" placeholder="loaded-model-name" autocomplete="off" spellcheck="false" />
+                <div class="form-hint">The model ID your local server reports. In LM Studio, this is the model name shown in the server tab. For Ollama, use the tag (e.g. <code>llama3.2</code>, <code>qwen2.5:7b</code>).</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">
+                  Custom Headers
+                  <span class="form-label-optional">(optional)</span>
+                </label>
+                <textarea id="local-custom-headers" class="form-textarea" rows="2" placeholder="Optional JSON headers (set dynamically)" spellcheck="false"></textarea>
+                <div class="form-hint">JSON object of extra HTTP headers. Useful for Cloudflare Access tokens or custom auth.</div>
               </div>
               <div class="provider-tip">
                 <i class="bi bi-lightbulb"></i>
-                <div><strong>Quick start with Ollama:</strong> <code>ollama serve</code> then <code>ollama pull llama3.2</code>. CORS is enabled by default.</div>
+                <div><strong>Quick start with LM Studio:</strong> 1) Load a model, 2) Start the Local Server (Developer tab), 3) Run <code>cloudflared tunnel --url http://localhost:1234</code> in a terminal, 4) Paste the tunnel URL above. CORS is enabled by default in LM Studio.</div>
               </div>
             </div>
           </div>
@@ -3629,7 +3597,7 @@
             </div>
           </div>
 
-          <!-- ── Test connection row (shared by cloud/local/webllm) ── -->
+          <!-- ── Test connection row (shared by local/webllm) ── -->
           <div class="provider-test-row">
             <button type="button" class="btn btn-secondary" id="provider-test-btn" onclick="testProviderConnection()">
               <i class="bi bi-plug"></i> Test Connection
@@ -6714,19 +6682,11 @@ function debounce(fn, ms) {
         narratorPrompt: "",
         // ── LLM Provider Router ──────────────────────────────────────
         // 'native' = Perchance AI (default)
-        // 'cloud'  = OpenAI-compatible cloud endpoint (OpenAI, OpenRouter,
-        //            Together, Groq, DeepSeek, Mistral, or custom)
-        // 'local'  = Local LLM via OpenAI-compat API (Ollama, LM Studio,
-        //            KoboldCpp, or custom localhost endpoint)
+        // 'local'  = Local LLM via OpenAI-compat API (LM Studio, Ollama,
+        //            etc.) — typically tunnelled through Cloudflare to get
+        //            HTTPS since Perchance is served over HTTPS.
         // 'webllm' = In-browser WebGPU LLM via @mlc-ai/web-llm (no server)
         provider: "native",
-        cloud: {
-          preset: "custom",
-          baseUrl: "",
-          apiKey: "",
-          model: "",
-          customHeaders: "",
-        },
         local: {
           preset: "custom",
           baseUrl: "",
@@ -6799,43 +6759,79 @@ function debounce(fn, ms) {
           return await _nativeGT(opts);
         }
 
-        // ── OpenAI-compatible provider (cloud + local share this) ────
-        async function openaiCompatibleGenerate(opts, isLocal) {
+        // ── Content extraction helper ───────────────────────────────
+        // Different servers put the generated text in different places:
+        //   • OpenAI standard streaming: choices[0].delta.content
+        //   • OpenAI standard complete:  choices[0].message.content
+        //   • Some Ollama versions:      choices[0].delta.text
+        //   • Text-completion format:    choices[0].text  OR  choices[0].content
+        //   • KoboldCpp / legacy:        choices[0].text
+        //   • Direct response:           .content / .response / .text
+        // This helper checks all known locations and returns the first match.
+        function extractContentFromChunk(parsed) {
+          if (!parsed || typeof parsed !== "object") return "";
+          // Standard choices array
+          if (Array.isArray(parsed.choices) && parsed.choices.length > 0) {
+            var choice = parsed.choices[0];
+            if (choice) {
+              // Streaming delta
+              if (choice.delta && typeof choice.delta === "object") {
+                if (choice.delta.content) return choice.delta.content;
+                if (choice.delta.text) return choice.delta.text;
+              }
+              // Complete message
+              if (choice.message && typeof choice.message === "object") {
+                if (choice.message.content) return choice.message.content;
+                if (choice.message.text) return choice.message.text;
+              }
+              // Direct text on choice (text-completion format)
+              if (choice.text) return choice.text;
+              if (choice.content) return choice.content;
+            }
+          }
+          // Non-standard direct fields (some local servers)
+          if (typeof parsed.content === "string") return parsed.content;
+          if (typeof parsed.response === "string") return parsed.response;
+          if (typeof parsed.text === "string") return parsed.text;
+          if (typeof parsed.output === "string") return parsed.output;
+          return "";
+        }
+
+        // ── Local LLM provider (OpenAI-compatible) ───────────────────
+        // Used for LM Studio, Ollama, KoboldCpp, llama.cpp, etc. Since
+        // Perchance is HTTPS, users tunnel their local server through
+        // Cloudflare to get an HTTPS URL.
+        async function localGenerate(opts) {
           var c = providerCfg();
           var baseUrl = normalizeBaseUrl(c.baseUrl);
-          var label = isLocal ? "Local LLM" : "Cloud API";
           if (!baseUrl)
             throw new Error(
-              label +
-                " base URL is not set. Open AI Settings → Provider to configure it.",
+              "Local LLM base URL is not set. Open AI Settings → Provider to configure it.",
             );
           var apiKey = c.apiKey || "";
           var model = (c.model || "").trim();
           if (!model)
             throw new Error(
-              "Model name is required for " +
-                label +
-                ". Open AI Settings → Provider to set it.",
+              "Model name is required. Open AI Settings → Provider to set it.",
             );
 
-          // Mixed-content guard: HTTPS page cannot fetch http://localhost
-          if (isLocal && isHttpsPage() && baseUrl.indexOf("http://") === 0) {
+          // Mixed-content guard: HTTPS page cannot fetch http://localhost.
+          // This is why Cloudflare tunneling is needed.
+          if (isHttpsPage() && baseUrl.indexOf("http://") === 0) {
             throw new Error(
-              "Mixed content blocked: this page is served over HTTPS but the local LLM URL is HTTP. Either run Luminara over HTTP, or expose your local LLM through an HTTPS proxy.",
+              "Mixed content blocked: this page is HTTPS but the Local LLM URL is HTTP. Tunnel your local server through Cloudflare (cloudflared tunnel --url http://localhost:PORT) and paste the HTTPS tunnel URL in the Base URL field.",
             );
           }
 
           // Build messages array. Luminara's `instruction` is the full
           // composite prompt (character card + scenario + history), so we
-          // send it as the user message. An optional systemPrompt can be
-          // supplied by call sites that want to separate concerns.
+          // send it as the user message.
           var messages = [];
           if (opts.systemPrompt) {
             messages.push({ role: "system", content: opts.systemPrompt });
           }
           var userContent = opts.instruction || "";
           if (Array.isArray(opts.images) && opts.images.length > 0) {
-            // OpenAI vision format — pass image URLs as multipart content
             var parts = [];
             if (userContent)
               parts.push({ type: "text", text: userContent });
@@ -6877,90 +6873,162 @@ function debounce(fn, ms) {
           }
 
           var endpoint = joinPath(baseUrl, "/v1/chat/completions");
-          var resp;
-          try {
-            resp = await fetch(endpoint, {
-              method: "POST",
-              headers: headers,
-              body: JSON.stringify(body),
-            });
-          } catch (netErr) {
-            throw new Error(
-              "Network error reaching " +
-                label +
-                " at " +
-                endpoint +
-                ". " +
-                (isLocal
-                  ? "Is the local server running and CORS-enabled?"
-                  : "Check the base URL and your connection.") +
-                " (" +
-                netErr.message +
-                ")",
-            );
+
+          async function doFetch(reqBody) {
+            try {
+              return await fetch(endpoint, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(reqBody),
+              });
+            } catch (netErr) {
+              throw new Error(
+                "Network error reaching Local LLM at " +
+                  endpoint +
+                  ". Is the server running, the tunnel active, and CORS enabled? (" +
+                  netErr.message +
+                  ")",
+              );
+            }
           }
+
+          var resp = await doFetch(body);
 
           if (!resp.ok) {
             var errText = "";
             try {
               errText = await resp.text();
             } catch (e) {}
-            // Trim overly verbose error bodies
             if (errText && errText.length > 500)
               errText = errText.slice(0, 500) + "…";
             throw new Error(
-              label +
-                " error " +
-                resp.status +
-                (errText ? ": " + errText : ""),
+              "Local LLM error " + resp.status +
+              (errText ? ": " + errText : ""),
             );
           }
 
-          // ── Streaming: parse Server-Sent Events ───────────────────
+          // ── Streaming: parse SSE or NDJSON ─────────────────────────
           if (wantStream && resp.body && resp.body.getReader) {
             var full = "";
             var reader = resp.body.getReader();
             var decoder = new TextDecoder();
             var buffer = "";
-            while (true) {
-              var chunk = await reader.read();
-              if (chunk.done) break;
-              buffer += decoder.decode(chunk.value, { stream: true });
-              var lines = buffer.split("\n");
-              buffer = lines.pop(); // keep incomplete trailing line
-              for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].trim();
-                if (!line || line.charAt(0) === ":") continue; // comment
-                if (line.indexOf("data:") === 0) {
-                  var data = line.slice(5).trim();
-                  if (data === "[DONE]") continue;
+
+            // Process a single line. Returns true if the caller should abort
+            // (i.e. onChunk threw an error like "aborted_by_user").
+            function processLine(line) {
+              line = line.trim();
+              if (!line || line.charAt(0) === ":") return false;
+              var data = null;
+              if (line.indexOf("data:") === 0) {
+                data = line.slice(5).trim();
+                if (data === "[DONE]") return false;
+              } else if (line.charAt(0) === "{") {
+                data = line;
+              }
+              if (data) {
+                var parsed = null;
+                try {
+                  parsed = JSON.parse(data);
+                } catch (e) {
+                  return false; // malformed JSON — skip, don't abort
+                }
+                var content = extractContentFromChunk(parsed);
+                if (content) {
+                  full += content;
+                  // Call onChunk — if it throws (e.g. abort), let it
+                  // propagate. Do NOT swallow onChunk errors.
+                  opts.onChunk({ textChunk: content });
+                }
+              }
+              return false;
+            }
+
+            try {
+              while (true) {
+                var chunk = await reader.read();
+                if (chunk.done) break;
+                buffer += decoder.decode(chunk.value, { stream: true });
+                var lines = buffer.split("\n");
+                buffer = lines.pop();
+                for (var i = 0; i < lines.length; i++) {
+                  processLine(lines[i]);
+                }
+              }
+              // Process remaining buffer (final chunk without trailing newline)
+              if (buffer && buffer.trim()) {
+                var remainingLines = buffer.split("\n");
+                for (var j = 0; j < remainingLines.length; j++) {
+                  processLine(remainingLines[j]);
+                }
+                buffer = "";
+              }
+            } catch (streamErr) {
+              // If onChunk threw (abort), re-throw immediately.
+              // If the stream broke (network), we still have partial content
+              // in `full` — but we should let the caller decide. Re-throw.
+              throw streamErr;
+            }
+
+            // If we got content from streaming, return it
+            if (full) return full;
+
+            // ── Streaming yielded nothing — fall back to non-streaming ──
+            // Some servers ignore the stream flag. The body is consumed, so
+            // we make a fresh non-streaming request.
+            var fallbackBody = Object.assign({}, body, { stream: false });
+            var fbResp = await doFetch(fallbackBody);
+            if (fbResp.ok) {
+              try {
+                var fbText = await fbResp.text();
+                var fbJson = JSON.parse(fbText);
+                var fbContent = extractContentFromChunk(fbJson);
+                if (fbContent) {
+                  opts.onChunk({ textChunk: fbContent });
+                  return fbContent;
+                }
+                // JSON parsed but no content found — return raw text
+                if (fbText && fbText.trim()) {
+                  opts.onChunk({ textChunk: fbText });
+                  return fbText;
+                }
+              } catch (e) {
+                // JSON parse failed — return raw text
+                if (fbResp.text) {
                   try {
-                    var parsed = JSON.parse(data);
-                    var choice =
-                      parsed.choices && parsed.choices[0];
-                    var delta = choice && choice.delta;
-                    if (delta && delta.content) {
-                      full += delta.content;
-                      opts.onChunk({ textChunk: delta.content });
+                    var fbRaw = await fbResp.text();
+                    if (fbRaw && fbRaw.trim()) {
+                      opts.onChunk({ textChunk: fbRaw });
+                      return fbRaw;
                     }
-                  } catch (e) {
-                    /* skip malformed chunk */
-                  }
+                  } catch (e2) {}
                 }
               }
             }
-            return full;
+            return "";
           }
 
-          // ── Non-streaming JSON response ────────────────────────────
-          var json = await resp.json();
-          var content =
-            json.choices &&
-            json.choices[0] &&
-            json.choices[0].message &&
-            json.choices[0].message.content;
+          // ── Non-streaming response ──────────────────────────────────
+          var rawText = "";
+          try {
+            rawText = await resp.text();
+          } catch (e) {
+            return "";
+          }
+          // Try JSON parse
+          var json = null;
+          try {
+            json = JSON.parse(rawText);
+          } catch (e) {
+            // Not JSON — return raw text
+            if (rawText && rawText.trim()) {
+              if (wantStream) opts.onChunk({ textChunk: rawText });
+              return rawText;
+            }
+            return "";
+          }
+          var content = extractContentFromChunk(json);
           if (content && wantStream) {
-            // Surface the full text in one chunk so streaming UIs update
             opts.onChunk({ textChunk: content });
           }
           return content || "";
@@ -7112,10 +7180,8 @@ function debounce(fn, ms) {
           opts = opts || {};
           var p = provider();
           try {
-            if (p === "cloud")
-              return await openaiCompatibleGenerate(opts, false);
             if (p === "local")
-              return await openaiCompatibleGenerate(opts, true);
+              return await localGenerate(opts);
             if (p === "webllm") return await webllmGenerate(opts);
             return await nativeGenerate(opts);
           } catch (e) {
@@ -7149,7 +7215,7 @@ function debounce(fn, ms) {
                 "WebLLM models load on first use. Click \u201cLoad Model\u201d to begin (the first load downloads model weights, cached thereafter).",
             };
           }
-          // cloud / local — fire a tiny ping
+          // local — fire a tiny ping
           try {
             var result = await dispatch({
               instruction: "Reply with exactly: OK",
@@ -7209,7 +7275,7 @@ function debounce(fn, ms) {
           setAISettingsGetter: function (fn) {
             _getAISettings = fn;
           },
-          PROVIDERS: ["native", "cloud", "local", "webllm"],
+          PROVIDERS: ["native", "local", "webllm"],
           // Curated WebLLM model list (subset of @mlc-ai/web-llm prebuilt).
           // ALL models are under 20 GB download. Organized by size tier.
           // `group` is used to render category headers in the custom dropdown.
@@ -7502,178 +7568,53 @@ function debounce(fn, ms) {
               group: "Extra (15–20 GB)",
             },
           ],
-          // Curated cloud presets (popular OpenAI-compatible endpoints).
-          // All expose POST /v1/chat/completions with Bearer auth.
-          CLOUD_PRESETS: [
-            {
-              id: "openai",
-              label: "OpenAI",
-              baseUrl: "https://api.openai.com",
-              hint: "gpt-4o-mini, gpt-4o, gpt-4.1, gpt-4-turbo, o4-mini",
-            },
-            {
-              id: "openrouter",
-              label: "OpenRouter (multi-provider gateway)",
-              baseUrl: "https://openrouter.ai/api",
-              hint: "anthropic/claude-3.5-sonnet, google/gemini-2.0-flash, meta-llama/llama-3.3-70b",
-            },
-            {
-              id: "anthropic",
-              label: "Anthropic (Claude)",
-              baseUrl: "https://api.anthropic.com",
-              hint: "claude-3-5-sonnet, claude-3-5-haiku, claude-3-opus",
-            },
-            {
-              id: "google",
-              label: "Google AI Studio (Gemini)",
-              baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
-              hint: "gemini-2.0-flash, gemini-1.5-pro, gemini-1.5-flash",
-            },
-            {
-              id: "groq",
-              label: "Groq (ultra-fast)",
-              baseUrl: "https://api.groq.com/openai",
-              hint: "llama-3.3-70b-versatile, llama-3.1-8b-instant, mixtral-8x7b",
-            },
-            {
-              id: "cerebras",
-              label: "Cerebras (ultra-fast)",
-              baseUrl: "https://api.cerebras.ai/v1",
-              hint: "llama-3.3-70b, llama-3.1-8b",
-            },
-            {
-              id: "together",
-              label: "Together AI",
-              baseUrl: "https://api.together.xyz",
-              hint: "meta-llama/Llama-3.3-70B-Instruct-Turbo, Qwen/Qwen2.5-72B-Instruct-Turbo",
-            },
-            {
-              id: "deepseek",
-              label: "DeepSeek",
-              baseUrl: "https://api.deepseek.com",
-              hint: "deepseek-chat, deepseek-reasoner",
-            },
-            {
-              id: "mistral",
-              label: "Mistral La Plateforme",
-              baseUrl: "https://api.mistral.ai",
-              hint: "mistral-large-latest, mistral-small-latest, codestral-latest",
-            },
-            {
-              id: "xai",
-              label: "xAI (Grok)",
-              baseUrl: "https://api.x.ai",
-              hint: "grok-2-1212, grok-2-vision, grok-beta",
-            },
-            {
-              id: "fireworks",
-              label: "Fireworks AI",
-              baseUrl: "https://api.fireworks.ai/inference",
-              hint: "accounts/fireworks/models/llama-v3p3-70b-instruct, deepseek-v3",
-            },
-            {
-              id: "novita",
-              label: "Novita AI",
-              baseUrl: "https://api.novita.ai/v3/openai",
-              hint: "deepseek/deepseek-v3-turbo, meta-llama/llama-3.3-70b-instruct",
-            },
-            {
-              id: "hyperbolic",
-              label: "Hyperbolic",
-              baseUrl: "https://api.hyperbolic.xyz/v1",
-              hint: "meta-llama/Meta-Llama-3.1-70B-Instruct, Qwen/Qwen2.5-72B-Instruct",
-            },
-            {
-              id: "lepton",
-              label: "Lepton AI",
-              baseUrl: "https://api.lepton.ai/v1",
-              hint: "deepseek-v3, llama3.3-70b, mistral",
-            },
-            {
-              id: "perplexity",
-              label: "Perplexity (online models)",
-              baseUrl: "https://api.perplexity.ai",
-              hint: "sonar-pro, sonar, sonar-reasoning",
-            },
-            {
-              id: "siliconflow",
-              label: "SiliconFlow",
-              baseUrl: "https://api.siliconflow.cn/v1",
-              hint: "deepseek-ai/DeepSeek-V3, Qwen/Qwen2.5-72B-Instruct",
-            },
-            {
-              id: "nebius",
-              label: "Nebius AI Studio",
-              baseUrl: "https://api.studio.nebius.ai/v1",
-              hint: "meta-llama/Meta-Llama-3.1-8B-Instruct, deepseek-ai/deepseek-v3",
-            },
-            {
-              id: "sambanova",
-              label: "SambaNova",
-              baseUrl: "https://api.sambanova.ai/v1",
-              hint: "Meta-Llama-3.1-8B-Instruct, Meta-Llama-3.1-70B-Instruct",
-            },
-            {
-              id: "nvidia",
-              label: "NVIDIA NIM (build.nvidia.com)",
-              baseUrl: "https://integrate.api.nvidia.com",
-              hint: "meta/llama-3.3-70b-instruct, deepseek-ai/deepseek-r1",
-            },
-            {
-              id: "github",
-              label: "GitHub Models",
-              baseUrl: "https://models.inference.ai.azure.com",
-              hint: "gpt-4o, gpt-4o-mini, Mistral-large",
-            },
-            {
-              id: "chutes",
-              label: "Chutes AI",
-              baseUrl: "https://api.chutes.ai/v1",
-              hint: "deepseek-v3, deepseek-r1, llama-3.3-70b",
-            },
-            {
-              id: "zhipu",
-              label: "ZhipuAI (GLM)",
-              baseUrl: "https://open.bigmodel.cn/api/paas/v4",
-              hint: "glm-4-plus, glm-4-air, glm-4-flash",
-            },
-            {
-              id: "custom",
-              label: "Custom (OpenAI-compatible)",
-              baseUrl: "",
-              hint: "Any endpoint exposing /v1/chat/completions",
-            },
-          ],
+          // Local LLM presets. Since Perchance is served over HTTPS, direct
+          // http://localhost calls are blocked by mixed-content rules.
+          // Users typically tunnel their local server through Cloudflare
+          // (`cloudflared tunnel --url http://localhost:PORT`) to get an
+          // HTTPS URL. The base URL field is where they paste that tunnel URL.
           LOCAL_PRESETS: [
             {
-              id: "ollama",
-              label: "Ollama · localhost:11434",
-              baseUrl: "http://localhost:11434",
-              hint: "Run: ollama serve · Models: llama3.2, qwen2.5, mistral",
+              id: "lmstudio",
+              label: "LM Studio (port 1234)",
+              baseUrl: "",
+              hint: "Enable Local Server in LM Studio. Tunnel: cloudflared tunnel --url http://localhost:1234. Model: the loaded model name.",
             },
             {
-              id: "lmstudio",
-              label: "LM Studio · localhost:1234",
-              baseUrl: "http://localhost:1234",
-              hint: "Enable the Local Server in LM Studio, then load any GGUF model",
+              id: "ollama",
+              label: "Ollama (port 11434)",
+              baseUrl: "",
+              hint: "Run: ollama serve. Tunnel: cloudflared tunnel --url http://localhost:11434. Models: llama3.2, qwen2.5, mistral.",
             },
             {
               id: "koboldcpp",
-              label: "KoboldCpp · localhost:5001",
-              baseUrl: "http://localhost:5001",
-              hint: "Launch with --port 5001 and enable the OpenAI API",
+              label: "KoboldCpp (port 5001)",
+              baseUrl: "",
+              hint: "Launch with --port 5001, enable OpenAI API. Tunnel: cloudflared tunnel --url http://localhost:5001.",
             },
             {
               id: "llamacpp",
-              label: "llama.cpp server · localhost:8080",
-              baseUrl: "http://localhost:8080",
-              hint: "llama-server --host 0.0.0.0 --port 8080 -m model.gguf",
+              label: "llama.cpp server (port 8080)",
+              baseUrl: "",
+              hint: "llama-server --host 0.0.0.0 --port 8080 -m model.gguf. Tunnel: cloudflared tunnel --url http://localhost:8080.",
+            },
+            {
+              id: "textgenwebui",
+              label: "text-generation-webui (port 5000)",
+              baseUrl: "",
+              hint: "Enable the OpenAI API extension. Tunnel: cloudflared tunnel --url http://localhost:5000.",
+            },
+            {
+              id: "vllm",
+              label: "vLLM (port 8000)",
+              baseUrl: "",
+              hint: "vllm serve --model <model>. Tunnel: cloudflared tunnel --url http://localhost:8000.",
             },
             {
               id: "custom",
-              label: "Custom local endpoint",
+              label: "Custom endpoint",
               baseUrl: "",
-              hint: "Any localhost OpenAI-compatible server",
+              hint: "Any OpenAI-compatible server exposing /v1/chat/completions. Paste your HTTPS tunnel URL above.",
             },
           ],
         };
@@ -7735,15 +7676,9 @@ function debounce(fn, ms) {
           icon: '<i class="bi bi-stars"></i>',
           color: "#34d399", // emerald
         },
-        cloud: {
-          label: "Cloud API",
-          blurb: "OpenAI-compatible · API key",
-          icon: '<i class="bi bi-cloud-arrow-up"></i>',
-          color: "#38bdf8", // sky
-        },
         local: {
           label: "Local LLM",
-          blurb: "Ollama · LM Studio · llama.cpp",
+          blurb: "LM Studio · Ollama · tunnelled",
           icon: '<i class="bi bi-hdd-rack"></i>',
           color: "#fbbf24", // amber
         },
@@ -7755,13 +7690,13 @@ function debounce(fn, ms) {
         },
       };
 
-      // Render the 4-card provider picker + conditional config panels.
+      // Render the provider picker cards + conditional config panels.
       function renderProviderPicker() {
         var wrap = $id("provider-cards");
         if (!wrap) return;
         var current = aiSettings.provider || "native";
         var html = "";
-        ["native", "cloud", "local", "webllm"].forEach(function (key) {
+        ["native", "local", "webllm"].forEach(function (key) {
           var meta = PROVIDER_META[key];
           var sel = current === key ? " sel" : "";
           html +=
@@ -7779,7 +7714,6 @@ function debounce(fn, ms) {
             "</div>";
         });
         wrap.innerHTML = html;
-        // Wire click handlers
         var cards = wrap.querySelectorAll(".provider-card");
         cards.forEach(function (card) {
           card.onclick = function () {
@@ -7788,7 +7722,6 @@ function debounce(fn, ms) {
               c.classList.toggle("sel", c === card);
             });
             showProviderPanel(p);
-            // Update the live "current provider" pill
             var pill = $id("provider-current-pill");
             if (pill) {
               var meta = PROVIDER_META[p];
@@ -7799,7 +7732,6 @@ function debounce(fn, ms) {
             }
           };
         });
-        // Set the current pill
         var pill = $id("provider-current-pill");
         if (pill) {
           var meta = PROVIDER_META[current];
@@ -7812,13 +7744,12 @@ function debounce(fn, ms) {
 
       // Show only the config panel matching the selected provider.
       function showProviderPanel(p) {
-        ["cloud", "local", "webllm"].forEach(function (key) {
+        ["local", "webllm"].forEach(function (key) {
           var panel = $id("provider-panel-" + key);
           if (panel) panel.style.display = key === p ? "block" : "none";
         });
         var nativeHint = $id("provider-panel-native");
         if (nativeHint) nativeHint.style.display = p === "native" ? "block" : "none";
-        // Refresh WebLLM status badge if relevant
         if (p === "webllm" && typeof window.refreshWebLLMStatus === "function") {
           window.refreshWebLLMStatus();
         }
@@ -7948,13 +7879,16 @@ function debounce(fn, ms) {
       // Populate provider config fields from aiSettings.
       window.populateProviderUI = function () {
         renderProviderPicker();
-        // Cloud
-        var c = aiSettings.cloud || {};
-        if ($id("cloud-base-url")) $id("cloud-base-url").value = c.baseUrl || "";
-        if ($id("cloud-api-key")) $id("cloud-api-key").value = c.apiKey || "";
-        if ($id("cloud-model")) $id("cloud-model").value = c.model || "";
-        if ($id("cloud-custom-headers"))
-          $id("cloud-custom-headers").value = c.customHeaders || "";
+        // ── Set the local-custom-headers placeholder dynamically ──
+        // Can't put literal curly braces in HTML placeholder (Perchance
+        // template engine interprets {...} as a command block).
+        var headersPh =
+          String.fromCharCode(123) +
+          '"X-Custom-Header":"value"' +
+          String.fromCharCode(125);
+        var chEl = $id("local-custom-headers");
+        if (chEl) chEl.setAttribute("placeholder", headersPh);
+
         // Local
         var l = aiSettings.local || {};
         if ($id("local-base-url")) $id("local-base-url").value = l.baseUrl || "";
@@ -7966,7 +7900,7 @@ function debounce(fn, ms) {
         var w = aiSettings.webllm || {};
         if ($id("webllm-custom-model"))
           $id("webllm-custom-model").value = "";
-        // Build the custom-select dropdowns (always rebuild so presets stay fresh)
+        // Build the custom-select dropdowns
         if (typeof window.renderProviderPresets === "function") {
           window.renderProviderPresets();
         }
@@ -7976,7 +7910,6 @@ function debounce(fn, ms) {
             return m.id === w.model;
           });
           if (!isInList) {
-            // Saved model isn't in the curated list → select "custom" + fill input
             setProviderSelectValue("custom-webllm-model", "__custom__");
             var customInput = $id("webllm-custom-model");
             if (customInput) {
@@ -7988,7 +7921,6 @@ function debounce(fn, ms) {
         }
         // Show the right panel
         showProviderPanel(aiSettings.provider || "native");
-        // Refresh WebLLM status badge
         if (typeof window.refreshWebLLMStatus === "function") {
           window.refreshWebLLMStatus();
         }
@@ -7996,7 +7928,6 @@ function debounce(fn, ms) {
 
       // Read provider config fields back into aiSettings.
       window.saveProviderUI = function () {
-        // Determine selected provider from the card UI
         var selected = "native";
         var cards = document.querySelectorAll("#provider-cards .provider-card.sel");
         if (cards.length > 0) {
@@ -8004,14 +7935,6 @@ function debounce(fn, ms) {
         }
         aiSettings.provider = selected;
 
-        // Cloud
-        aiSettings.cloud = {
-          preset: getProviderSelectValue("custom-cloud-preset") || "custom",
-          baseUrl: (($id("cloud-base-url") || {}).value || "").trim(),
-          apiKey: (($id("cloud-api-key") || {}).value || "").trim(),
-          model: (($id("cloud-model") || {}).value || "").trim(),
-          customHeaders: (($id("cloud-custom-headers") || {}).value || "").trim(),
-        };
         // Local
         aiSettings.local = {
           preset: getProviderSelectValue("custom-local-preset") || "custom",
@@ -8042,19 +7965,8 @@ function debounce(fn, ms) {
         }
       };
 
-      // Build the custom-select dropdowns for cloud/local presets + WebLLM models.
-      // Uses Luminara's native `.custom-select` component (not native <select>).
+      // Build the custom-select dropdowns for local presets + WebLLM models.
       window.renderProviderPresets = function () {
-        // Cloud presets
-        buildProviderSelect(
-          "custom-cloud-preset",
-          window.LuminaraLLM.CLOUD_PRESETS || [],
-          (aiSettings.cloud || {}).preset || "custom",
-          null,
-          function (val) {
-            window.applyCloudPreset(val);
-          },
-        );
         // Local presets
         buildProviderSelect(
           "custom-local-preset",
@@ -8065,16 +7977,14 @@ function debounce(fn, ms) {
             window.applyLocalPreset(val);
           },
         );
-        // WebLLM models (with group headers + "custom" option at the end)
+        // WebLLM models
         var webllmItems = (window.LuminaraLLM.WEBLLM_MODELS || []).slice();
-        // Add a "custom model ID" pseudo-item (no group so it appears after all groups)
         webllmItems.push({
           id: "__custom__",
           label: "Custom model ID…",
           group: "Advanced",
         });
         var savedModel = (aiSettings.webllm || {}).model || "";
-        // If saved model is in the list, select it; otherwise select __custom__
         var savedInList = (window.LuminaraLLM.WEBLLM_MODELS || []).some(function (m) {
           return m.id === savedModel;
         });
@@ -8090,30 +8000,15 @@ function debounce(fn, ms) {
         );
       };
 
-      // Cloud preset selection → auto-fill base URL + model placeholder hint
-      window.applyCloudPreset = function (presetId) {
-        if (!presetId) return;
-        var preset = (window.LuminaraLLM.CLOUD_PRESETS || []).filter(function (p) {
-          return p.id === presetId;
-        })[0];
-        if (!preset) return;
-        var urlEl = $id("cloud-base-url");
-        if (urlEl && preset.baseUrl) urlEl.value = preset.baseUrl;
-        var modelEl = $id("cloud-model");
-        if (modelEl) modelEl.placeholder = preset.hint || "e.g. gpt-4o-mini";
-        var hintEl = $id("cloud-preset-hint");
-        if (hintEl)
-          hintEl.textContent = preset.hint ? "Models: " + preset.hint : "";
-      };
-
+      // Local preset selection → show the tunnel command hint
       window.applyLocalPreset = function (presetId) {
         if (!presetId) return;
         var preset = (window.LuminaraLLM.LOCAL_PRESETS || []).filter(function (p) {
           return p.id === presetId;
         })[0];
         if (!preset) return;
-        var urlEl = $id("local-base-url");
-        if (urlEl && preset.baseUrl) urlEl.value = preset.baseUrl;
+        // Don't auto-fill base URL — the user needs to paste their tunnel URL.
+        // Just show the hint with the tunnel command.
         var hintEl = $id("local-preset-hint");
         if (hintEl) hintEl.textContent = preset.hint || "";
       };
@@ -8472,15 +8367,8 @@ function debounce(fn, ms) {
               }
               // ── Restore LLM provider config ──
               aiSettings.provider = la.provider || "native";
-              if (la.cloud && typeof la.cloud === "object") {
-                aiSettings.cloud = {
-                  preset: la.cloud.preset || "custom",
-                  baseUrl: la.cloud.baseUrl || "",
-                  apiKey: la.cloud.apiKey || "",
-                  model: la.cloud.model || "",
-                  customHeaders: la.cloud.customHeaders || "",
-                };
-              }
+              // Migrate: if saved provider was "cloud", fall back to "native"
+              if (aiSettings.provider === "cloud") aiSettings.provider = "native";
               if (la.local && typeof la.local === "object") {
                 aiSettings.local = {
                   preset: la.local.preset || "custom",
@@ -22586,13 +22474,6 @@ function debounce(fn, ms) {
                     maxTokensIdx: 0,
                     customChars: null,
                     provider: "native",
-                    cloud: {
-                      preset: "custom",
-                      baseUrl: "",
-                      apiKey: "",
-                      model: "",
-                      customHeaders: "",
-                    },
                     local: {
                       preset: "custom",
                       baseUrl: "",
