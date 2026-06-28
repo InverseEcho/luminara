@@ -6763,11 +6763,15 @@ function debounce(fn, ms) {
         // Different servers put the generated text in different places:
         //   • OpenAI standard streaming: choices[0].delta.content
         //   • OpenAI standard complete:  choices[0].message.content
+        //   • Thinking models (Qwen3, DeepSeek-R1): choices[0].message.reasoning_content
+        //     (used when content is empty — the model is still "thinking")
         //   • Some Ollama versions:      choices[0].delta.text
         //   • Text-completion format:    choices[0].text  OR  choices[0].content
         //   • KoboldCpp / legacy:        choices[0].text
         //   • Direct response:           .content / .response / .text
         // This helper checks all known locations and returns the first match.
+        // For thinking models, if `content` is empty, we fall back to
+        // `reasoning_content` so the user sees the model's thinking output.
         function extractContentFromChunk(parsed) {
           if (!parsed || typeof parsed !== "object") return "";
           // Standard choices array
@@ -6777,11 +6781,13 @@ function debounce(fn, ms) {
               // Streaming delta
               if (choice.delta && typeof choice.delta === "object") {
                 if (choice.delta.content) return choice.delta.content;
+                if (choice.delta.reasoning_content) return choice.delta.reasoning_content;
                 if (choice.delta.text) return choice.delta.text;
               }
               // Complete message
               if (choice.message && typeof choice.message === "object") {
                 if (choice.message.content) return choice.message.content;
+                if (choice.message.reasoning_content) return choice.message.reasoning_content;
                 if (choice.message.text) return choice.message.text;
               }
               // Direct text on choice (text-completion format)
@@ -6790,10 +6796,10 @@ function debounce(fn, ms) {
             }
           }
           // Non-standard direct fields (some local servers)
-          if (typeof parsed.content === "string") return parsed.content;
-          if (typeof parsed.response === "string") return parsed.response;
-          if (typeof parsed.text === "string") return parsed.text;
-          if (typeof parsed.output === "string") return parsed.output;
+          if (typeof parsed.content === "string" && parsed.content) return parsed.content;
+          if (typeof parsed.response === "string" && parsed.response) return parsed.response;
+          if (typeof parsed.text === "string" && parsed.text) return parsed.text;
+          if (typeof parsed.output === "string" && parsed.output) return parsed.output;
           return "";
         }
 
@@ -6907,15 +6913,29 @@ function debounce(fn, ms) {
             );
           }
 
+          // ── Detect non-streaming response ──────────────────────────
+          // Some servers ignore `stream: true` and return a complete JSON
+          // response with Content-Type: application/json. If we detect this,
+          // we treat it as non-streaming instead of trying to parse SSE.
+          var contentType = (resp.headers.get("content-type") || "").toLowerCase();
+          var isDefinitelyJson = contentType.indexOf("application/json") !== -1;
+          // Stream unless we're certain it's JSON. Servers that send SSE
+          // sometimes use text/event-stream, text/plain, or no content-type.
+          var actuallyStreamable =
+            wantStream &&
+            resp.body &&
+            resp.body.getReader &&
+            !isDefinitelyJson;
+
           // ── Streaming: parse SSE or NDJSON ─────────────────────────
-          if (wantStream && resp.body && resp.body.getReader) {
+          if (actuallyStreamable) {
             var full = "";
             var reader = resp.body.getReader();
             var decoder = new TextDecoder();
             var buffer = "";
 
-            // Process a single line. Returns true if the caller should abort
-            // (i.e. onChunk threw an error like "aborted_by_user").
+            // Process a single line. JSON parse errors are caught and
+            // skipped; onChunk errors propagate (abort support).
             function processLine(line) {
               line = line.trim();
               if (!line || line.charAt(0) === ":") return false;
@@ -6936,8 +6956,6 @@ function debounce(fn, ms) {
                 var content = extractContentFromChunk(parsed);
                 if (content) {
                   full += content;
-                  // Call onChunk — if it throws (e.g. abort), let it
-                  // propagate. Do NOT swallow onChunk errors.
                   opts.onChunk({ textChunk: content });
                 }
               }
@@ -6964,51 +6982,47 @@ function debounce(fn, ms) {
                 buffer = "";
               }
             } catch (streamErr) {
-              // If onChunk threw (abort), re-throw immediately.
-              // If the stream broke (network), we still have partial content
-              // in `full` — but we should let the caller decide. Re-throw.
               throw streamErr;
             }
 
             // If we got content from streaming, return it
             if (full) return full;
 
-            // ── Streaming yielded nothing — fall back to non-streaming ──
-            // Some servers ignore the stream flag. The body is consumed, so
-            // we make a fresh non-streaming request.
+            // Streaming yielded nothing — fall through to non-streaming
+            // handling below (the body is already consumed, so we re-request)
             var fallbackBody = Object.assign({}, body, { stream: false });
             var fbResp = await doFetch(fallbackBody);
             if (fbResp.ok) {
+              var fbText = "";
               try {
-                var fbText = await fbResp.text();
+                fbText = await fbResp.text();
+              } catch (e) {
+                return "";
+              }
+              try {
                 var fbJson = JSON.parse(fbText);
                 var fbContent = extractContentFromChunk(fbJson);
                 if (fbContent) {
-                  opts.onChunk({ textChunk: fbContent });
+                  if (wantStream) opts.onChunk({ textChunk: fbContent });
                   return fbContent;
                 }
-                // JSON parsed but no content found — return raw text
-                if (fbText && fbText.trim()) {
-                  opts.onChunk({ textChunk: fbText });
+                // JSON parsed but no content found (e.g. thinking model
+                // with empty content). Return empty — do NOT return raw JSON.
+                return "";
+              } catch (e) {
+                // JSON parse failed — return raw text only if it's not JSON
+                if (fbText && fbText.trim() && fbText.trim().charAt(0) !== "{") {
+                  if (wantStream) opts.onChunk({ textChunk: fbText });
                   return fbText;
                 }
-              } catch (e) {
-                // JSON parse failed — return raw text
-                if (fbResp.text) {
-                  try {
-                    var fbRaw = await fbResp.text();
-                    if (fbRaw && fbRaw.trim()) {
-                      opts.onChunk({ textChunk: fbRaw });
-                      return fbRaw;
-                    }
-                  } catch (e2) {}
-                }
+                return "";
               }
             }
             return "";
           }
 
-          // ── Non-streaming response ──────────────────────────────────
+          // ── Non-streaming response (or server ignored stream flag) ─
+          // Read the response as text first, then try to parse as JSON.
           var rawText = "";
           try {
             rawText = await resp.text();
@@ -7020,8 +7034,9 @@ function debounce(fn, ms) {
           try {
             json = JSON.parse(rawText);
           } catch (e) {
-            // Not JSON — return raw text
-            if (rawText && rawText.trim()) {
+            // Not JSON — return raw text only if it doesn't look like a
+            // broken JSON fragment
+            if (rawText && rawText.trim() && rawText.trim().charAt(0) !== "{") {
               if (wantStream) opts.onChunk({ textChunk: rawText });
               return rawText;
             }
@@ -7031,6 +7046,7 @@ function debounce(fn, ms) {
           if (content && wantStream) {
             opts.onChunk({ textChunk: content });
           }
+          // If content is empty, return "" — never return raw JSON
           return content || "";
         }
 
